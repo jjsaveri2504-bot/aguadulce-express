@@ -16,47 +16,44 @@
 <body class="bg-stone-100 font-sans pb-24">
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbab4l6A-VMEOvjxxE_8kNid1vYy9LlRa7LiZp83iy2luS96wuoPZIu0PL9lZSw4CkprQ/exec";
+        // URL CORREGIDA
+        const API_URL = "https://script.google.com/macros/s/AKfycbxab4l6A-VMEOvjxxE_8kNid1vYy9LlRa7LiZp83iy2luS96wuoPZIu0PL9lZSw4CkprQ/exec";
     </script>
 
     <div id="loading" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-        <p class="text-gray-500 font-bold animate-pulse">Cargando delicias...</p>
+        <p class="text-gray-500 font-bold animate-pulse">Cargando Aguadulce Express...</p>
     </div>
 
     <div id="pantalla-restaurantes" class="p-4 max-w-md mx-auto">
         <header class="mb-8 text-center mt-6">
             <h1 class="text-4xl font-black italic tracking-tighter text-gray-900">AGUADULCE <span class="text-yellow-500">EXPRESS</span></h1>
-            <p class="text-gray-400 text-xs uppercase tracking-widest font-bold mt-2">Pide a domicilio en segundos</p>
+            <p class="text-gray-400 text-xs uppercase tracking-widest font-bold mt-2">Tu comida favorita, rápido</p>
         </header>
         <div id="lista-locales" class="grid grid-cols-1 gap-6"></div>
     </div>
 
-    <div id="pantalla-menu" class="hidden max-w-md mx-auto min-h-screen bg-white shadow-2xl">
+    <div id="pantalla-menu" class="hidden max-w-md mx-auto min-h-screen bg-white">
         <nav class="p-4 bg-white/80 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between border-b">
-            <button onclick="volverARestaurantes()" class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full active:scale-90 transition-all">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <h2 id="nombre-restaurante-titulo" class="font-black uppercase italic tracking-tight text-lg">Menú</h2>
+            <button onclick="volverARestaurantes()" class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full active:scale-90"><i class="fas fa-arrow-left"></i></button>
+            <h2 id="nombre-restaurante-titulo" class="font-black uppercase italic tracking-tight">Menú</h2>
             <div class="w-10 h-10"></div>
         </nav>
         <div id="contenedor-productos" class="p-4 space-y-6"></div>
     </div>
 
-    <div id="barra-carrito" class="fixed bottom-6 left-4 right-4 bg-black text-white p-5 flex justify-between items-center hidden z-50 rounded-2xl shadow-2xl transform transition-transform duration-300 translate-y-0">
+    <div id="barra-carrito" class="fixed bottom-6 left-4 right-4 bg-black text-white p-5 flex justify-between items-center hidden z-50 rounded-2xl shadow-2xl">
         <div>
             <p id="cuenta-items" class="text-[10px] uppercase font-bold text-yellow-400">0 productos</p>
             <p class="text-2xl font-black">$<span id="total-carrito">0</span></p>
         </div>
-        <button onclick="abrirCheckout()" class="bg-yellow-400 text-black px-8 py-3 rounded-xl font-black text-sm uppercase shadow-lg active:scale-95 transition-all">
-            Hacer Pedido
-        </button>
+        <button onclick="abrirCheckout()" class="bg-yellow-400 text-black px-8 py-3 rounded-xl font-black text-sm uppercase">Hacer Pedido</button>
     </div>
 
     <div id="modal-producto" class="fixed inset-0 bg-black/90 z-[70] flex items-end justify-center opacity-0 pointer-events-none transition-all duration-300">
-        <div class="bg-white w-full max-w-md rounded-t-[2.5rem] p-8 max-h-[92vh] overflow-y-auto relative shadow-2xl transform translate-y-10 transition-transform duration-300">
+        <div class="bg-white w-full max-w-md rounded-t-[2.5rem] p-8 max-h-[92vh] overflow-y-auto relative shadow-2xl">
             <div id="detalle-producto-content"></div>
-            <button onclick="cerrarModal()" class="w-full mt-4 py-3 text-gray-400 font-bold hover:text-gray-600">Cerrar</button>
+            <button onclick="cerrarModal()" class="w-full mt-4 py-3 text-gray-400 font-bold">Cerrar</button>
         </div>
     </div>
 
@@ -66,43 +63,37 @@
         let carrito = [];
         let restauranteSeleccionado = null;
 
-        // 1. Cargar Restaurantes
         async function cargarRestaurantes() {
             try {
                 const res = await fetch(`${API_URL}?sheet=RESTAURANTES`);
                 locales = await res.json();
                 const container = document.getElementById('lista-locales');
                 container.innerHTML = locales.map(l => `
-                    <div onclick="seleccionarRestaurante('${l.Nombre}', '${l.Sheet}', '${l.WhatsApp}')" class="bg-white rounded-[2rem] overflow-hidden shadow-xl border border-gray-100 active:scale-[0.97] transition-all group">
-                        <div class="relative h-44 overflow-hidden">
-                            <img src="${l.Foto}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black uppercase">Abierto</div>
-                        </div>
-                        <div class="p-5">
+                    <div onclick="seleccionarRestaurante('${l.Nombre}', '${l.Sheet}', '${l.WhatsApp}')" class="bg-white rounded-[2rem] overflow-hidden shadow-xl border border-gray-100 active:scale-95 transition-all">
+                        <img src="${l.Foto}" class="w-full h-44 object-cover">
+                        <div class="p-5 text-center">
                             <h3 class="text-2xl font-black uppercase italic text-gray-800">${l.Nombre}</h3>
-                            <div class="flex items-center gap-2 mt-2">
-                                <span class="text-xs text-gray-400 font-bold"><i class="fas fa-motorcycle text-yellow-500 mr-1"></i> Delivery Gratis</span>
-                                <span class="text-xs text-gray-400 font-bold">• 15-25 min</span>
-                            </div>
                         </div>
                     </div>
                 `).join('');
                 document.getElementById('loading').classList.add('hidden');
-            } catch (e) { alert("Error al conectar con el Excel. Revisa tu URL."); }
+            } catch (e) { 
+                console.error(e);
+                alert("Error de conexión. Asegúrate de que el Apps Script esté implementado como 'Cualquiera'."); 
+            }
         }
 
         async function seleccionarRestaurante(nombre, sheet, whatsapp) {
             document.getElementById('loading').classList.remove('hidden');
             restauranteSeleccionado = { nombre, sheet, whatsapp };
             document.getElementById('nombre-restaurante-titulo').innerText = nombre;
-            
             try {
                 const res = await fetch(`${API_URL}?sheet=${sheet}`);
                 menuActual = await res.json();
                 renderizarMenu(menuActual);
                 document.getElementById('pantalla-restaurantes').classList.add('hidden');
                 document.getElementById('pantalla-menu').classList.remove('hidden');
-            } catch (e) { alert("No se pudo cargar el menú de este restaurante."); }
+            } catch (e) { alert("No se pudo cargar el menú."); }
             document.getElementById('loading').classList.add('hidden');
         }
 
@@ -110,17 +101,12 @@
             const container = document.getElementById('contenedor-productos');
             container.innerHTML = productos.map((p, i) => `
                 <div onclick="verFicha(${i})" class="flex items-center gap-4 bg-stone-50 p-3 rounded-2xl active:bg-stone-100 transition-colors">
-                    <div class="w-24 h-24 flex-shrink-0">
-                        <img src="${p.Foto}" class="w-full h-full object-cover rounded-2xl shadow-sm">
-                    </div>
-                    <div class="flex-1">
-                        <h4 class="font-black text-gray-800 uppercase text-sm leading-tight">${p.Nombre}</h4>
-                        <p class="text-[11px] text-gray-400 line-clamp-2 my-1">${p.Descripcion || ''}</p>
+                    <img src="${p.Foto}" class="w-20 h-20 object-cover rounded-xl shadow-sm">
+                    <div class="flex-1 text-left">
+                        <h4 class="font-black text-gray-800 uppercase text-xs">${p.Nombre}</h4>
                         <p class="text-lg font-black text-gray-900">$${p.Precio}</p>
                     </div>
-                    <div class="bg-white w-8 h-8 rounded-full flex items-center justify-center text-gray-300 shadow-sm border border-gray-100">
-                        <i class="fas fa-plus text-xs"></i>
-                    </div>
+                    <div class="bg-white w-8 h-8 rounded-full flex items-center justify-center text-gray-300 border border-gray-100"><i class="fas fa-plus text-xs"></i></div>
                 </div>
             `).join('');
         }
@@ -128,52 +114,43 @@
         function verFicha(index) {
             const p = menuActual[index];
             const content = document.getElementById('detalle-producto-content');
-            
             let opcionesHTML = "";
             if(p.Opciones && p.Opciones !== "") {
-                opcionesHTML = `<p class="font-black text-xs mb-3 text-gray-400 uppercase tracking-widest mt-6">Personaliza tu pedido:</p><div class="space-y-2">`;
+                opcionesHTML = `<p class="font-black text-[10px] mb-3 text-gray-400 uppercase tracking-widest mt-4 text-left">Personaliza:</p><div class="space-y-2">`;
                 p.Opciones.split(',').forEach(opt => {
                     const parts = opt.split(':');
                     const nombre = parts[0].trim();
                     const precio = parts[1] ? parts[1].trim() : "0";
                     opcionesHTML += `
-                        <label class="flex items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold active:bg-yellow-50 transition-colors">
-                            <div class="flex items-center gap-3">
-                                <input type="checkbox" class="extra-opt w-5 h-5 rounded-md accent-yellow-400" data-nombre="${nombre}" data-precio="${precio}">
-                                <span>${nombre}</span>
-                            </div>
+                        <label class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl text-sm font-bold">
+                            <div class="flex items-center gap-3"><input type="checkbox" class="extra-opt w-5 h-5 accent-yellow-400" data-nombre="${nombre}" data-precio="${precio}"><span>${nombre}</span></div>
                             <span class="text-gray-400">+$${precio}</span>
                         </label>
                     `;
                 });
                 opcionesHTML += `</div>`;
             }
-
             content.innerHTML = `
                 <img src="${p.Foto}" class="w-full h-56 object-cover rounded-[2rem] mb-6 shadow-lg">
-                <div class="px-2">
-                    <h2 class="text-3xl font-black italic uppercase text-gray-900 leading-none">${p.Nombre}</h2>
-                    <p class="text-sm text-gray-400 mt-3 font-medium leading-relaxed">${p.Descripcion || ''}</p>
+                <div class="text-left">
+                    <h2 class="text-3xl font-black italic uppercase text-gray-900">${p.Nombre}</h2>
+                    <p class="text-sm text-gray-400 mt-2">${p.Descripcion || ''}</p>
                     ${opcionesHTML}
-                    <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="w-full bg-black text-white py-5 rounded-2xl font-black mt-8 shadow-2xl active:scale-95 transition-all uppercase tracking-widest">Añadir al Carrito</button>
+                    <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="w-full bg-black text-white py-5 rounded-2xl font-black mt-8 uppercase tracking-widest shadow-xl">Añadir al Carrito</button>
                 </div>
             `;
-            
             const modal = document.getElementById('modal-producto');
             modal.classList.remove('pointer-events-none', 'opacity-0');
             modal.classList.add('opacity-100');
-            modal.children[0].classList.remove('translate-y-10');
         }
 
         function agregar(nombre, precioBase) {
-            let extras = [];
             let totalItem = parseFloat(precioBase);
-            
+            let extras = [];
             document.querySelectorAll('.extra-opt:checked').forEach(chk => {
                 extras.push(chk.dataset.nombre);
                 totalItem += parseFloat(chk.dataset.precio);
             });
-
             carrito.push({ nombre, precio: totalItem, extras: extras.join(', ') });
             actualizarBarra();
             cerrarModal();
@@ -184,42 +161,33 @@
             const barra = document.getElementById('barra-carrito');
             if (carrito.length > 0) {
                 barra.classList.remove('hidden');
-                document.getElementById('cuenta-items').innerText = `${carrito.length} producto${carrito.length > 1 ? 's' : ''}`;
+                document.getElementById('cuenta-items').innerText = `${carrito.length} productos`;
                 document.getElementById('total-carrito').innerText = total.toFixed(2);
-            } else {
-                barra.classList.add('hidden');
-            }
+            } else { barra.classList.add('hidden'); }
         }
 
         function cerrarModal() {
             const modal = document.getElementById('modal-producto');
             modal.classList.add('opacity-0', 'pointer-events-none');
-            modal.children[0].classList.add('translate-y-10');
         }
 
         function volverARestaurantes() {
             document.getElementById('pantalla-restaurantes').classList.remove('hidden');
             document.getElementById('pantalla-menu').classList.add('hidden');
-            carrito = []; // Limpia carrito al cambiar de local
-            actualizarBarra();
+            carrito = []; actualizarBarra();
         }
 
         function abrirCheckout() {
-            let resumen = `*🚀 NUEVO PEDIDO - ${restauranteSeleccionado.nombre.toUpperCase()}*\n`;
-            resumen += `----------------------------------\n`;
+            let resumen = `*🚀 PEDIDO - ${restauranteSeleccionado.nombre.toUpperCase()}*\n`;
             carrito.forEach(item => {
-                resumen += `✅ *${item.nombre}* ($${item.precio.toFixed(2)})\n`;
-                if(item.extras) resumen += `   ↳ _${item.extras}_\n`;
-                resumen += `\n`;
+                resumen += `✅ *${item.nombre}* ($${item.precio.toFixed(2)})\n${item.extras ? '↳ _' + item.extras + '_\n' : ''}`;
             });
-            resumen += `----------------------------------\n`;
-            resumen += `💰 *TOTAL A PAGAR: $${document.getElementById('total-carrito').innerText}*`;
-            
-            const url = `https://wa.me/${restauranteSeleccionado.whatsapp}?text=${encodeURIComponent(resumen)}`;
-            window.open(url, '_blank');
+            resumen += `\n💰 *TOTAL: $${document.getElementById('total-carrito').innerText}*`;
+            window.open(`https://wa.me/${restauranteSeleccionado.whatsapp}?text=${encodeURIComponent(resumen)}`, '_blank');
         }
 
         cargarRestaurantes();
     </script>
 </body>
 </html>
+
