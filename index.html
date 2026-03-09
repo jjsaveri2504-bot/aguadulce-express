@@ -11,70 +11,81 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .loader { border-top-color: #facc15; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .espacio-carrito { padding-bottom: 180px; }
+        .espacio-carrito { padding-bottom: 200px; }
         .modal-subir { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
         .modal-subir.active { transform: translateY(0); }
-        .text-shadow-lg { text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body class="bg-stone-50 font-sans text-gray-900 no-scrollbar overflow-x-hidden">
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxab4l6A-VMEOvjxxE_8kNid1vYy9LlRa7LiZp83iy2luS96wuoPZIu0PL9lZSw4CkprQ/exec";
-        const COSTO_ENVIO = 3.50; // Costo fijo para todos
+        const COSTO_ENVIO = 3.50;
     </script>
 
     <div id="loading" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-100 h-16 w-16 mb-6"></div>
-        <p class="text-gray-400 font-bold tracking-widest uppercase text-xs animate-pulse">Sincronizando menú...</p>
+        <p class="text-gray-400 font-bold tracking-widest uppercase text-xs">Sincronizando...</p>
     </div>
 
     <div id="pantalla-restaurantes" class="min-h-screen">
-        <header class="relative bg-gray-950 h-[40vh] overflow-hidden">
+        <header class="relative bg-gray-950 h-[35vh] overflow-hidden">
             <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-50">
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-950"></div>
             <div class="relative z-10 max-w-md mx-auto h-full flex flex-col justify-end p-7 pb-10 text-center">
-                <h1 class="text-5xl font-black italic tracking-tighter text-white leading-none text-shadow-lg">AGUADULCE<br><span class="text-yellow-400 text-4xl uppercase not-italic">Express</span></h1>
-                <p class="text-stone-300 text-xs mt-3 font-medium tracking-wide">Tus favoritos en la puerta de tu casa.</p>
+                <h1 class="text-4xl font-black italic tracking-tighter text-white leading-none">AGUADULCE<br><span class="text-yellow-400 text-3xl uppercase not-italic">Express</span></h1>
             </div>
         </header>
         
-        <main class="p-7 max-w-md mx-auto relative z-20 bg-stone-50 -mt-8 rounded-t-[3rem] shadow-2xl space-y-8">
+        <main class="p-7 max-w-md mx-auto relative z-20 bg-stone-50 -mt-8 rounded-t-[3rem] shadow-2xl space-y-6">
+            <h2 class="text-center text-xs font-bold text-gray-400 uppercase tracking-widest">¿Qué vamos a comer hoy?</h2>
             <div id="lista-locales" class="grid grid-cols-1 gap-6"></div>
         </main>
     </div>
 
     <div id="pantalla-menu" class="hidden max-w-md mx-auto min-h-screen bg-white">
-        <nav class="p-4 bg-white/95 backdrop-blur-xl sticky top-0 z-40 flex items-center justify-between border-b border-gray-100">
-            <button onclick="volverARestaurantes()" class="w-12 h-12 flex items-center justify-center bg-stone-100 rounded-2xl active:scale-90 transition-all text-gray-800">
-                <i class="fas fa-chevron-left text-lg"></i>
+        <nav class="p-4 bg-white/95 backdrop-blur-xl sticky top-0 z-40 flex items-center justify-between border-b border-gray-100 shadow-sm">
+            <button onclick="irAInicio()" class="w-12 h-12 flex items-center justify-center bg-stone-100 rounded-2xl active:scale-90 transition-all">
+                <i class="fas fa-arrow-left"></i>
             </button>
             <div class="text-center flex-1 px-4 truncate">
-                <h2 id="nombre-restaurante-titulo" class="font-black uppercase italic tracking-tight text-base text-gray-950 truncate">Cargando...</h2>
+                <h2 id="nombre-restaurante-titulo" class="font-black uppercase italic tracking-tight text-gray-950 truncate">Menú</h2>
             </div>
             <div class="w-12 h-12"></div>
         </nav>
-        <div id="contenedor-productos" class="p-6 space-y-6 espacio-carrito no-scrollbar overflow-y-auto"></div>
+        <div id="contenedor-productos" class="p-6 space-y-6 espacio-carrito"></div>
     </div>
 
     <div id="barra-carrito" class="fixed bottom-6 left-4 right-4 bg-gray-950 text-white p-6 flex flex-col gap-4 hidden z-[60] rounded-[2.5rem] shadow-2xl border border-white/5">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
-            <div class="text-left">
-                <p id="cuenta-items" class="text-[10px] uppercase font-black text-yellow-400 tracking-widest mb-1 italic">Resumen de orden</p>
-                <p class="text-[11px] text-stone-400">Subtotal + Envío ($3.50)</p>
+            <div>
+                <p id="cuenta-items" class="text-[10px] uppercase font-black text-yellow-400 tracking-widest italic">Tu Pedido</p>
+                <p class="text-[11px] text-stone-400">Incluye envío $3.50</p>
             </div>
-            <p class="text-3xl font-black tracking-tighter leading-none text-yellow-400">$<span id="total-carrito">0</span></p>
+            <p class="text-3xl font-black tracking-tighter text-yellow-400">$<span id="total-carrito">0</span></p>
         </div>
-        <button onclick="abrirCheckout()" class="bg-yellow-400 text-gray-950 py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3">
-            Hacer Pedido por WhatsApp <i class="fab fa-whatsapp text-xl"></i>
+        <button onclick="mostrarFormulario()" class="bg-yellow-400 text-gray-950 py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 shadow-xl">
+            Confirmar e Ir a Pagar
         </button>
     </div>
 
-    <div id="modal-producto" class="fixed inset-0 bg-gray-950/80 z-[80] hidden flex items-end justify-center transition-all duration-300">
-        <div id="modal-container" class="bg-white w-full max-w-md rounded-t-[3.5rem] p-8 max-h-[95vh] overflow-y-auto relative modal-subir">
+    <div id="modal-producto" class="fixed inset-0 bg-gray-950/80 z-[80] hidden flex items-end justify-center transition-all">
+        <div id="modal-container-prod" class="bg-white w-full max-w-md rounded-t-[3rem] p-8 max-h-[90vh] overflow-y-auto relative modal-subir">
             <div class="w-20 h-2 bg-gray-200 mx-auto mb-8 rounded-full" onclick="cerrarModal()"></div>
-            <button onclick="cerrarModal()" class="absolute top-9 right-9 text-gray-300 hover:text-gray-950"><i class="fas fa-times-circle text-3xl"></i></button>
             <div id="detalle-producto-content"></div>
+        </div>
+    </div>
+
+    <div id="modal-cliente" class="fixed inset-0 bg-gray-950/90 z-[90] hidden flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
+            <h3 class="text-2xl font-black uppercase italic mb-6 text-center">Datos de Entrega</h3>
+            <div class="space-y-4">
+                <input type="text" id="cli-nombre" placeholder="Tu Nombre" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold focus:ring-2 focus:ring-yellow-400 outline-none">
+                <input type="tel" id="cli-tel" placeholder="Número de Teléfono" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold focus:ring-2 focus:ring-yellow-400 outline-none">
+                <textarea id="cli-dir" placeholder="Dirección Exacta (Piso, Apto, Referencia)" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold focus:ring-2 focus:ring-yellow-400 outline-none h-24"></textarea>
+            </div>
+            <button onclick="validarYEnviar()" class="w-full bg-gray-950 text-white py-5 rounded-2xl font-black mt-6 uppercase tracking-widest text-xs active:scale-95">Pedir por WhatsApp</button>
+            <button onclick="cerrarForm()" class="w-full text-gray-400 font-bold mt-4 text-[10px] uppercase">Cancelar</button>
         </div>
     </div>
 
@@ -89,15 +100,15 @@
                 const res = await fetch(`${API_URL}?sheet=RESTAURANTES`);
                 locales = await res.json();
                 document.getElementById('lista-locales').innerHTML = locales.map(l => `
-                    <div onclick="seleccionarRestaurante('${l.Nombre}', '${l.Sheet}', '${l.WhatsApp}')" class="bg-white rounded-[2rem] overflow-hidden shadow-xl border border-gray-100 active:scale-95 transition-all">
-                        <img src="${l.Foto}" class="w-full h-52 object-cover">
-                        <div class="p-5 text-center">
-                            <h3 class="text-2xl font-black uppercase italic text-gray-950 tracking-tighter">${l.Nombre}</h3>
+                    <div onclick="seleccionarRestaurante('${l.Nombre}', '${l.Sheet}', '${l.WhatsApp}')" class="bg-white rounded-[2rem] overflow-hidden shadow-xl border border-gray-100 active:scale-95 transition-all cursor-pointer">
+                        <img src="${l.Foto}" class="w-full h-44 object-cover">
+                        <div class="p-4 text-center">
+                            <h3 class="text-xl font-black uppercase italic text-gray-950 tracking-tighter">${l.Nombre}</h3>
                         </div>
                     </div>
                 `).join('');
                 document.getElementById('loading').classList.add('hidden');
-            } catch (e) { alert("Error al conectar con el Excel."); }
+            } catch (e) { alert("Error de conexión."); }
         }
 
         async function seleccionarRestaurante(nombre, sheet, whatsapp) {
@@ -111,21 +122,20 @@
                 document.getElementById('pantalla-restaurantes').classList.add('hidden');
                 document.getElementById('pantalla-menu').classList.remove('hidden');
                 window.scrollTo(0,0);
-            } catch (e) { alert("Error al cargar menú."); }
+            } catch (e) { alert("Menú no disponible."); }
             document.getElementById('loading').classList.add('hidden');
         }
 
         function renderizarMenu(productos) {
             const container = document.getElementById('contenedor-productos');
-            const disponibles = productos.filter(p => p.Disponible !== "NO");
-            container.innerHTML = disponibles.map((p, i) => `
-                <div onclick="verFicha(${i})" class="flex items-center gap-4 bg-stone-50 p-4 rounded-[2rem] shadow-sm border border-stone-100">
-                    <img src="${p.Foto}" class="w-24 h-24 object-cover rounded-[1.5rem]">
-                    <div class="flex-1 text-left leading-tight">
-                        <h4 class="font-black text-gray-950 uppercase text-xs">${p.Nombre}</h4>
-                        <p class="text-xl font-black text-gray-950 mt-2">$${p.Precio}</p>
+            container.innerHTML = productos.filter(p => p.Disponible !== "NO").map((p, i) => `
+                <div onclick="verFicha(${i})" class="flex items-center gap-4 bg-stone-50 p-4 rounded-[2rem] border border-stone-100 shadow-sm">
+                    <img src="${p.Foto}" class="w-20 h-20 object-cover rounded-[1.2rem]">
+                    <div class="flex-1 text-left">
+                        <h4 class="font-black text-gray-950 uppercase text-[11px] leading-tight">${p.Nombre}</h4>
+                        <p class="text-lg font-black text-gray-950 mt-1">$${p.Precio}</p>
                     </div>
-                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-yellow-500 shadow-sm border border-stone-100"><i class="fas fa-plus"></i></div>
+                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-yellow-500 shadow-sm"><i class="fas fa-plus text-xs"></i></div>
                 </div>
             `).join('');
         }
@@ -135,27 +145,29 @@
             const content = document.getElementById('detalle-producto-content');
             let opcionesHTML = "";
             if(p.Opciones && p.Opciones !== "") {
-                opcionesHTML = `<p class="font-black text-[11px] mb-4 text-gray-400 uppercase tracking-widest mt-6">Acompañantes:</p><div class="space-y-3">`;
+                opcionesHTML = `<p class="font-black text-[10px] text-gray-400 uppercase mt-6 mb-3">Extras / Acompañantes:</p><div class="space-y-3">`;
                 p.Opciones.split(',').forEach(opt => {
                     const parts = opt.split(':');
                     const n = parts[0].trim();
                     const pr = parts[1] ? parts[1].trim() : "0";
                     opcionesHTML += `
-                        <label class="flex items-center justify-between p-4 bg-stone-50 rounded-2xl border border-stone-100 cursor-pointer">
-                            <div class="flex items-center gap-4"><input type="checkbox" class="extra-opt w-6 h-6 accent-gray-950" data-nombre="${n}" data-precio="${pr}"><span class="text-sm font-bold">${n}</span></div>
-                            <span class="font-black text-stone-400">+$${pr}</span>
+                        <label class="flex items-center justify-between p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                            <div class="flex items-center gap-3"><input type="checkbox" class="extra-opt w-6 h-6 accent-gray-950" data-nombre="${n}" data-precio="${pr}"><span class="text-sm font-bold text-gray-700">${n}</span></div>
+                            <span class="font-black text-stone-400 text-sm">+$${pr}</span>
                         </label>`;
                 });
                 opcionesHTML += `</div>`;
             }
-            content.innerHTML = `<img src="${p.Foto}" class="w-full h-64 object-cover rounded-[2.5rem] mb-6 shadow-xl">
-                <div class="text-left"><h2 class="text-4xl font-black italic uppercase text-gray-950">${p.Nombre}</h2>
-                <p class="text-sm text-stone-400 mt-4 leading-relaxed">${p.Descripcion || ''}</p>${opcionesHTML}
-                <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="w-full bg-gray-950 text-white py-6 rounded-3xl font-black mt-10 uppercase tracking-widest shadow-2xl active:scale-95 transition-all text-xs">Agregar al Pedido</button></div>`;
-            
-            const modal = document.getElementById('modal-producto');
-            modal.classList.remove('hidden');
-            setTimeout(() => document.getElementById('modal-container').classList.add('active'), 10);
+            content.innerHTML = `
+                <img src="${p.Foto}" class="w-full h-64 object-cover rounded-[2.5rem] mb-6 shadow-xl border-4 border-white">
+                <div class="text-left">
+                    <h2 class="text-3xl font-black italic uppercase text-gray-950">${p.Nombre}</h2>
+                    <p class="text-xs text-stone-400 mt-2 font-medium">${p.Descripcion || ''}</p>
+                    ${opcionesHTML}
+                    <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="w-full bg-gray-950 text-white py-6 rounded-3xl font-black mt-8 uppercase tracking-widest text-xs shadow-2xl active:scale-95 transition-all">Agregar al Pedido</button>
+                </div>`;
+            document.getElementById('modal-producto').classList.remove('hidden');
+            setTimeout(() => document.getElementById('modal-container-prod').classList.add('active'), 10);
         }
 
         function agregar(nombre, precioBase) {
@@ -165,7 +177,8 @@
                 extras.push(chk.dataset.nombre);
                 totalItem += parseFloat(chk.dataset.precio);
             });
-            carrito.push({ nombre, precio: totalItem, extras: extras.join(', ') });
+            // Guardamos también de qué restaurante viene para saber a qué número enviar
+            carrito.push({ nombre, precio: totalItem, extras: extras.join(', '), restaurante: restauranteSeleccionado.nombre });
             actualizarBarra();
             cerrarModal();
         }
@@ -175,39 +188,57 @@
             const barra = document.getElementById('barra-carrito');
             if (carrito.length > 0) {
                 barra.classList.remove('hidden');
-                document.getElementById('cuenta-items').innerText = `${carrito.length} producto${carrito.length > 1 ? 's' : ''} en tu orden`;
                 document.getElementById('total-carrito').innerText = (subtotal + COSTO_ENVIO).toFixed(2);
             } else { barra.classList.add('hidden'); }
         }
 
-        function cerrarModal() {
-            document.getElementById('modal-container').classList.remove('active');
-            setTimeout(() => document.getElementById('modal-producto').classList.add('hidden'), 400);
-        }
-
-        function volverARestaurantes() {
+        function irAInicio() {
             document.getElementById('pantalla-restaurantes').classList.remove('hidden');
             document.getElementById('pantalla-menu').classList.add('hidden');
-            carrito = []; actualizarBarra();
             window.scrollTo(0,0);
         }
 
-        function abrirCheckout() {
+        function cerrarModal() {
+            document.getElementById('modal-container-prod').classList.remove('active');
+            setTimeout(() => document.getElementById('modal-producto').classList.add('hidden'), 400);
+        }
+
+        function mostrarFormulario() { document.getElementById('modal-cliente').classList.remove('hidden'); }
+        function cerrarForm() { document.getElementById('modal-cliente').classList.add('hidden'); }
+
+        function validarYEnviar() {
+            const nombre = document.getElementById('cli-nombre').value;
+            const tel = document.getElementById('cli-tel').value;
+            const dir = document.getElementById('cli-dir').value;
+
+            if(!nombre || !tel || !dir) { alert("Por favor completa tus datos para el repartidor."); return; }
+
             let subtotal = carrito.reduce((sum, item) => sum + item.precio, 0);
-            let resumen = `*🚀 NUEVO PEDIDO - ${restauranteSeleccionado.nombre.toUpperCase()}*\n`;
+            let resumen = `*🚀 NUEVO PEDIDO - AGUADULCE EXPRESS*\n`;
             resumen += `--------------------------------\n`;
+            resumen += `👤 *CLIENTE:* ${nombre}\n`;
+            resumen += `📞 *TELÉFONO:* ${tel}\n`;
+            resumen += `📍 *ENTREGA:* ${dir}\n`;
+            resumen += `--------------------------------\n`;
+            
             carrito.forEach(item => {
-                resumen += `✅ *${item.nombre}* ($${item.precio.toFixed(2)})\n${item.extras ? '   ↳ _' + item.extras + '_\n' : ''}`;
+                resumen += `✅ *${item.nombre}* [${item.restaurante}]\n   ↳ $${item.precio.toFixed(2)}${item.extras ? ' (' + item.extras + ')' : ''}\n`;
             });
+
             resumen += `--------------------------------\n`;
             resumen += `💰 Subtotal: $${subtotal.toFixed(2)}\n`;
             resumen += `🛵 Envío: $${COSTO_ENVIO.toFixed(2)}\n`;
-            resumen += `🔥 *TOTAL A PAGAR: $${(subtotal + COSTO_ENVIO).toFixed(2)}*\n\n`;
-            resumen += `📍 _Por favor, envíame tu ubicación._`;
+            resumen += `🔥 *TOTAL A PAGAR: $${(subtotal + COSTO_ENVIO).toFixed(2)}*\n`;
+            
+            // Enviamos al número del restaurante del ÚLTIMO producto agregado
+            // (En un sistema multi-tienda real, esto se enviaría a una central o por separado, 
+            // pero para tu caso, lo enviará al local donde está el cliente)
             window.open(`https://wa.me/${restauranteSeleccionado.whatsapp}?text=${encodeURIComponent(resumen)}`, '_blank');
+            cerrarForm();
         }
 
         cargarRestaurantes();
     </script>
 </body>
 </html>
+
