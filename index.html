@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .category-pill.active { background-color: #ef4444; color: white; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans pb-24">
+
+    <script>
+        // PEGA TU URL AQUÍ ABAJO ENTRE LAS COMILLAS
+        const API_URL = "https://script.google.com/macros/s/AKfycbysPXvjkFiUNrDFSp3gI6BbnQTi1qOcq9rPYHb3NgC0-cU4DYiY5yE1z_d_jbbPCP1NjA/exec";
+    </script>
+
+    <header class="bg-white shadow-sm sticky top-0 z-50 p-4 text-center">
+        <h1 id="restaurante-nombre" class="text-xl font-bold text-gray-800 italic">Cargando...</h1>
+    </header>
+
+    <div id="categorias-container" class="flex overflow-x-auto p-4 gap-2 sticky top-[60px] bg-gray-50 z-40 no-scrollbar">
+        </div>
+
+    <main id="menu-container" class="p-4 grid grid-cols-1 gap-4">
+        <div class="text-center py-10 text-gray-500">Cargando delicias...</div>
+    </main>
+
+    <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-between items-center shadow-lg hidden">
+        <div>
+            <span id="cart-count" class="bg-red-500 text-white px-2 py-1 rounded-full text-xs">0</span>
+            <span class="ml-2 font-bold text-gray-700">Total: $<span id="cart-total">0</span></span>
+        </div>
+        <button onclick="enviarWhatsApp()" class="bg-green-500 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2">
+            <i class="fab fa-whatsapp text-xl"></i> Pedir
+        </button>
+    </div>
+
+    <script>
+        let menuCompleto = [];
+        let carrito = [];
+        let infoRestaurante = {};
+
+        async function cargarDatos() {
+            try {
+                // 1. Obtener info del restaurante
+                const resRest = await fetch(`${API_URL}?sheet=RESTAURANTES`);
+                const locales = await resRest.json();
+                infoRestaurante = locales[0];
+                document.getElementById('restaurante-nombre').innerText = infoRestaurante.Nombre;
+
+                // 2. Obtener menú
+                const resMenu = await fetch(`${API_URL}?sheet=${infoRestaurante.Sheet}`);
+                menuCompleto = await resMenu.json();
+
+                renderizarCategorias();
+                renderizarProductos();
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('menu-container').innerHTML = "Error al conectar con el menú.";
+            }
+        }
+
+        function renderizarCategorias() {
+            const container = document.getElementById('categorias-container');
+            const cats = ["Todos", ...new Set(menuCompleto.map(p => p.Categoria))];
+            
+            container.innerHTML = cats.map(c => `
+                <button onclick="filtrar('${c}')" class="category-pill px-4 py-2 rounded-full bg-white border text-sm font-medium whitespace-nowrap shadow-sm">
+                    ${c}
+                </button>
+            `).join('');
+            filtrar('Todos');
+        }
+
+        function renderizarProductos(productos = menuCompleto) {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = productos.map(p => `
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden flex border border-gray-100">
+                    <img src="${p.Foto || 'https://via.placeholder.com/150'}" class="w-32 h-32 object-cover">
+                    <div class="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-gray-800">${p.Nombre}</h3>
+                            <p class="text-xs text-gray-500 line-clamp-2">${p.Descripcion}</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold text-red-600">$${p.Precio}</span>
+                            <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="bg-gray-800 text-white px-3 py-1 rounded-lg text-sm active:scale-95 transition-transform">
+                                + Agregar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filtrar(cat) {
+            document.querySelectorAll('.category-pill').forEach(b => {
+                b.classList.toggle('active', b.innerText === cat);
+            });
+            const filtrados = cat === 'Todos' ? menuCompleto : menuCompleto.filter(p => p.Categoria === cat);
+            renderizarProductos(filtrados);
+        }
+
+        function agregar(nombre, precio) {
+            carrito.push({nombre, precio});
+            actualizarCarrito();
+        }
+
+        function actualizarCarrito() {
+            const bar = document.getElementById('cart-bar');
+            const total = carrito.reduce((sum, p) => sum + p.precio, 0);
+            
+            if(carrito.length > 0) {
+                bar.classList.remove('hidden');
+                document.getElementById('cart-count').innerText = carrito.length;
+                document.getElementById('cart-total').innerText = total.toFixed(2);
+            }
+        }
+
+        function enviarWhatsApp() {
+            const items = carrito.reduce((acc, p) => {
+                acc[p.nombre] = (acc[p.nombre] || 0) + 1;
+                return acc;
+            }, {});
+
+            let mensaje = `*Pedido - ${infoRestaurante.Nombre}*\n\n`;
+            for (const [nombre, cant] of Object.entries(items)) {
+                mensaje += `• ${cant}x ${nombre}\n`;
+            }
+            mensaje += `\n*Total: $${document.getElementById('cart-total').innerText}*`;
+            
+            const url = `https://wa.me/${infoRestaurante.WhatsApp}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
+
+        cargarDatos();
+    </script>
+</body>
+</html>
