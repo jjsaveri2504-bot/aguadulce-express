@@ -95,7 +95,7 @@
 <body class="bg-stone-50 font-sans text-gray-900 no-scrollbar overflow-x-hidden">
 
     <script>
-        // RECUERDA: Verifica que esta URL sea la de tu última implementación (Cualquier persona)
+        // RECUERDA: Verifica que esta URL sea la de tu última implementación (Nueva Implementación)
         const API_URL = "https://script.google.com/macros/s/AKfycbxGaD-StRQ0kw1xDj3weICekAOKehtLX29S0R3_58bNhDlbPbD7kxpDxAq2Ql3vNEpJTg/exec";
         const COSTO_ENVIO = 3.50;
     </script>
@@ -179,14 +179,19 @@
             try {
                 const res = await fetch(`${API_URL}?sheet=RESTAURANTES`);
                 locales = await res.json();
-                document.getElementById('lista-locales').innerHTML = locales.map(l => `
-                    <div onclick="seleccionarRestaurante('${l.Nombre}', '${l.Sheet}', '${l.WhatsApp}')" class="bg-white rounded-[2rem] overflow-hidden shadow-xl border border-gray-100 active:scale-95 transition-all cursor-pointer">
-                        <img src="${l.Foto}" class="w-full h-44 object-cover">
-                        <div class="p-5 text-center">
-                            <h3 class="text-xl font-black uppercase italic text-gray-950 tracking-tighter">${l.Nombre}</h3>
+                document.getElementById('lista-locales').innerHTML = locales.map(l => {
+                    const estaAbierto = l.Abierto === "SI";
+                    return `
+                        <div onclick="${estaAbierto ? `seleccionarRestaurante('${l.Nombre}', '${l.Sheet}', '${l.WhatsApp}')` : "alert('Este local está cerrado por ahora.')"}" 
+                             class="relative bg-white rounded-[2rem] overflow-hidden shadow-xl border border-gray-100 active:scale-95 transition-all cursor-pointer">
+                            ${!estaAbierto ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center z-10 rounded-[2rem]"><span class="bg-red-500 text-white font-black px-4 py-2 rounded-lg text-xs uppercase tracking-widest">Cerrado</span></div>' : ''}
+                            <img src="${l.Foto}" class="w-full h-44 object-cover ${!estaAbierto ? 'grayscale opacity-50' : ''}">
+                            <div class="p-5 text-center">
+                                <h3 class="text-xl font-black uppercase italic text-gray-950 tracking-tighter">${l.Nombre}</h3>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
                 document.getElementById('loading').classList.add('hidden');
             } catch (e) { alert("Error de conexión."); }
         }
@@ -209,44 +214,36 @@
 
         function renderizarMenu(productos) {
             const container = document.getElementById('contenedor-productos');
-            container.innerHTML = productos.filter(p => p.Disponible !== "NO").map((p, i) => `
+            // Filtrar solo los productos que tengan "SI" en la columna Disponible
+            const disponibles = productos.filter(p => p.Disponible === "SI");
+            
+            if(disponibles.length === 0) {
+                container.innerHTML = `<p class="col-span-2 text-center text-gray-400 font-bold py-10 uppercase text-xs">No hay platos disponibles hoy.</p>`;
+                return;
+            }
+
+            container.innerHTML = disponibles.map((p, i) => `
                 <div onclick="verFicha(${i})" class="product-card">
                     <img src="${p.Foto}" alt="${p.Nombre}">
                     <div class="product-info">
                         <h4>${p.Nombre}</h4>
-                        <p class="price">$${p.Precio}</p>
+                        <p class="price">$${parseFloat(p.Precio).toFixed(2)}</p>
                     </div>
                 </div>
             `).join('');
         }
 
         function verFicha(index) {
-            const p = menuActual[index];
+            // El menuActual ya está filtrado para mostrar solo disponibles
+            const filtrados = menuActual.filter(p => p.Disponible === "SI");
+            const p = filtrados[index];
             const content = document.getElementById('detalle-producto-content');
-            let opcionesHTML = "";
-            if(p.Opciones && p.Opciones !== "") {
-                opcionesHTML = `<p class="font-black text-[10px] text-gray-400 uppercase mt-6 mb-3 tracking-widest">Personaliza:</p><div class="space-y-3">`;
-                p.Opciones.split(',').forEach(opt => {
-                    const parts = opt.split(':');
-                    const n = parts[0].trim();
-                    const pr = parts[1] ? parts[1].trim() : "0";
-                    opcionesHTML += `
-                        <label class="flex items-center justify-between p-4 bg-stone-50 rounded-2xl border border-stone-100">
-                            <div class="flex items-center gap-3">
-                                <input type="checkbox" class="extra-opt w-6 h-6 accent-gray-950" data-nombre="${n}" data-precio="${pr}">
-                                <span class="text-sm font-bold text-gray-700">${n}</span>
-                            </div>
-                            <span class="font-black text-stone-400 text-sm">+$${pr}</span>
-                        </label>`;
-                });
-                opcionesHTML += `</div>`;
-            }
+            
             content.innerHTML = `
                 <img src="${p.Foto}" class="w-full h-64 object-cover rounded-[2.5rem] mb-6 shadow-xl">
                 <div class="text-left">
                     <h2 class="text-3xl font-black italic uppercase text-gray-950 leading-none">${p.Nombre}</h2>
                     <p class="text-sm text-stone-500 mt-4 font-medium">${p.Descripcion || 'Sin descripción.'}</p>
-                    ${opcionesHTML}
                     <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="w-full bg-gray-950 text-white py-6 rounded-3xl font-black mt-8 uppercase tracking-widest text-xs shadow-2xl active:scale-95">Añadir al Pedido</button>
                 </div>`;
             document.getElementById('modal-producto').classList.remove('hidden');
@@ -254,7 +251,6 @@
         }
 
         function agregar(nombre, precioBase) {
-            // VERIFICACIÓN DE RESTAURANTE ÚNICO
             if (carrito.length > 0 && carrito[0].restaurante !== restauranteSeleccionado.nombre) {
                 if (confirm(`Ya tienes productos de "${carrito[0].restaurante}". ¿Deseas vaciar el carrito para pedir en "${restauranteSeleccionado.nombre}"?`)) {
                     carrito = [];
@@ -264,17 +260,9 @@
                 }
             }
 
-            let totalItem = parseFloat(precioBase);
-            let extras = [];
-            document.querySelectorAll('.extra-opt:checked').forEach(chk => {
-                extras.push(chk.dataset.nombre);
-                totalItem += parseFloat(chk.dataset.precio);
-            });
-            
             carrito.push({ 
                 nombre, 
-                precio: totalItem, 
-                extras: extras.join(', '), 
+                precio: parseFloat(precioBase), 
                 restaurante: restauranteSeleccionado.nombre,
                 whatsapp: restauranteSeleccionado.whatsapp
             });
@@ -322,12 +310,15 @@
             const tel = document.getElementById('cli-tel').value;
             const dir = document.getElementById('cli-dir').value;
 
-            if(!nombre || !tel || !dir) { alert("Completa tus datos para el envío."); return; }
+            if(!nombre || !tel || !dir) { alert("Completa tus datos."); return; }
 
-            const restData = carrito[0]; // Como todos son del mismo, tomamos el primero
+            const restData = carrito[0];
             const subtotal = carrito.reduce((sum, item) => sum + item.precio, 0);
             const totalFinal = (subtotal + COSTO_ENVIO).toFixed(2);
-            const detallesPedido = carrito.map(item => `${item.nombre}${item.extras ? ' ('+item.extras+')' : ''}`).join(' | ');
+            const detallesPedido = carrito.map(item => item.nombre).join(' | ');
+            
+            // LINK GOOGLE MAPS GRATUITO
+            const mapsLink = `https://www.google.com/maps/search/${encodeURIComponent(dir)}`;
 
             // 1. REGISTRO EN EXCEL
             fetch(API_URL, {
@@ -348,9 +339,10 @@
             resumen += `👤 *CLIENTE:* ${nombre}\n`;
             resumen += `📞 *TEL:* ${tel}\n`;
             resumen += `📍 *ENTREGA:* ${dir}\n`;
+            resumen += `🗺️ *MAPA:* ${mapsLink}\n`;
             resumen += `--------------------------------\n`;
             carrito.forEach(item => {
-                resumen += `✅ *${item.nombre}*\n   ↳ $${item.precio.toFixed(2)}${item.extras ? ' (' + item.extras + ')' : ''}\n`;
+                resumen += `✅ *${item.nombre}* ($${item.precio.toFixed(2)})\n`;
             });
             resumen += `--------------------------------\n`;
             resumen += `💰 Subtotal: $${subtotal.toFixed(2)}\n`;
@@ -359,17 +351,13 @@
 
             window.open(`https://wa.me/${restData.whatsapp}?text=${encodeURIComponent(resumen)}`, '_blank');
             
-            // 3. LIMPIEZA
             cerrarForm();
             carrito = [];
             actualizarBarra(false);
-            alert("Pedido enviado correctamente.");
+            alert("¡Pedido enviado! Revisa tu WhatsApp.");
         }
 
         cargarRestaurantes();
     </script>
 </body>
 </html>
-
-
-
