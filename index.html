@@ -12,13 +12,12 @@
         .loader { border-top-color: #facc15; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* --- NUEVO DISEÑO DE MOSAICO --- */
         #contenedor-productos {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil */
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             padding: 15px;
-            padding-bottom: 160px; /* Espacio extra para que la barra no tape el último plato */
+            padding-bottom: 160px;
         }
 
         .product-card {
@@ -57,7 +56,6 @@
             color: #1a1a1a;
             line-height: 1.2;
             margin-bottom: 5px;
-            /* Limita a 2 líneas el nombre */
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -70,19 +68,26 @@
             color: #111;
         }
 
-        /* Responsive para PC */
         @media (min-width: 768px) {
             #contenedor-productos { grid-template-columns: repeat(4, 1fr); gap: 20px; }
             .product-card img { height: 160px; }
         }
 
-        /* Modales y Barra */
         .modal-subir { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
         .modal-subir.active { transform: translateY(0); }
         #barra-carrito { transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .carrito-burbuja { width: 65px; height: 65px; border-radius: 50% !important; padding: 0 !important; justify-content: center !important; }
-        .carrito-burbuja .info-texto, .carrito-burbuja button { display: none !important; }
+        .carrito-burbuja .info-texto, .carrito-burbuja button, .carrito-burbuja #lista-resumen-carrito { display: none !important; }
         .carrito-burbuja .icono-flotante { display: flex !important; }
+        
+        /* Estilo para la lista de la cesta en la barra */
+        #lista-resumen-carrito {
+            font-size: 10px;
+            color: #ccc;
+            max-height: 40px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body class="bg-stone-50 font-sans text-gray-900 no-scrollbar overflow-x-hidden">
@@ -123,23 +128,27 @@
         <div id="contenedor-productos"></div>
     </div>
 
-    <div id="barra-carrito" onclick="expandirDesdeBurbuja()" class="fixed bottom-6 right-4 left-auto bg-gray-950 text-white p-6 flex items-center justify-between hidden z-[60] rounded-[2.5rem] shadow-2xl border border-white/5 cursor-pointer">
+    <div id="barra-carrito" onclick="expandirDesdeBurbuja()" class="fixed bottom-6 right-4 left-auto bg-gray-950 text-white p-5 flex items-center justify-between hidden z-[60] rounded-[2.5rem] shadow-2xl border border-white/5 cursor-pointer">
         <div class="icono-flotante hidden w-full h-full flex items-center justify-center relative">
             <i class="fas fa-shopping-basket text-yellow-400 text-2xl"></i>
             <span id="badge-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
         </div>
-        <div class="info-texto text-left">
-            <p id="cuenta-items" class="text-[10px] uppercase font-black text-yellow-400 tracking-widest italic">Tu Pedido</p>
-            <p class="text-2xl font-black tracking-tighter text-white">$<span id="total-carrito">0</span></p>
+        <div class="info-texto text-left flex-1">
+            <p id="cuenta-items" class="text-[9px] uppercase font-black text-yellow-400 tracking-widest italic">Tu Cesta</p>
+            <p class="text-xl font-black tracking-tighter text-white">$<span id="total-carrito">0</span></p>
+            <div id="lista-resumen-carrito" class="pr-2"></div>
         </div>
-        <button onclick="mostrarFormulario(event)" class="bg-yellow-400 text-gray-950 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 shadow-xl">
-            Confirmar
+        <button onclick="mostrarFormulario(event)" class="bg-yellow-400 text-gray-950 px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 shadow-xl ml-2">
+            Pedir
         </button>
     </div>
 
     <div id="modal-producto" class="fixed inset-0 bg-gray-950/80 z-[80] hidden flex items-end justify-center transition-all">
         <div id="modal-container-prod" class="bg-white w-full max-w-md rounded-t-[3rem] p-8 max-h-[90vh] overflow-y-auto relative modal-subir">
-            <div class="w-20 h-2 bg-gray-200 mx-auto mb-8 rounded-full" onclick="cerrarModal()"></div>
+            <button onclick="cerrarModal()" class="absolute top-6 right-6 w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center text-gray-950 z-10 shadow-sm active:scale-90">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="w-20 h-1.5 bg-gray-200 mx-auto mb-8 rounded-full"></div>
             <div id="detalle-producto-content"></div>
         </div>
     </div>
@@ -197,7 +206,6 @@
 
         function renderizarMenu(productos) {
             const container = document.getElementById('contenedor-productos');
-            // Mosaico 2x2: Imagen, Título y Precio. Descripción oculta.
             container.innerHTML = productos.filter(p => p.Disponible !== "NO").map((p, i) => `
                 <div onclick="verFicha(${i})" class="product-card">
                     <img src="${p.Foto}" alt="${p.Nombre}">
@@ -262,6 +270,10 @@
                 barra.classList.remove('hidden');
                 document.getElementById('badge-count').innerText = carrito.length;
                 document.getElementById('total-carrito').innerText = (subtotal + COSTO_ENVIO).toFixed(2);
+                
+                // Actualizar resumen de productos
+                const listaNombres = carrito.map(p => p.nombre).join(', ');
+                document.getElementById('lista-resumen-carrito').innerText = listaNombres;
                 
                 if (expandir) {
                     barra.classList.remove('carrito-burbuja');
@@ -332,5 +344,3 @@
     </script>
 </body>
 </html>
-
-
