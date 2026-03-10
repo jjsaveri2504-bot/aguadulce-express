@@ -254,13 +254,23 @@
         }
 
         function agregar(nombre, precioBase) {
+            // VERIFICACIÓN DE RESTAURANTE ÚNICO
+            if (carrito.length > 0 && carrito[0].restaurante !== restauranteSeleccionado.nombre) {
+                if (confirm(`Ya tienes productos de "${carrito[0].restaurante}". ¿Deseas vaciar el carrito para pedir en "${restauranteSeleccionado.nombre}"?`)) {
+                    carrito = [];
+                } else {
+                    cerrarModal();
+                    return;
+                }
+            }
+
             let totalItem = parseFloat(precioBase);
             let extras = [];
             document.querySelectorAll('.extra-opt:checked').forEach(chk => {
                 extras.push(chk.dataset.nombre);
                 totalItem += parseFloat(chk.dataset.precio);
             });
-            // Guardamos el nombre y el whatsapp del restaurante actual en el producto
+            
             carrito.push({ 
                 nombre, 
                 precio: totalItem, 
@@ -275,27 +285,15 @@
         function actualizarBarra(expandir = false) {
             const barra = document.getElementById('barra-carrito');
             const subtotal = carrito.reduce((sum, item) => sum + item.precio, 0);
-            
             if (carrito.length > 0) {
                 barra.classList.remove('hidden');
                 document.getElementById('badge-count').innerText = carrito.length;
-                
-                // El total mostrado incluye el envío una sola vez para el cliente
                 document.getElementById('total-carrito').innerText = (subtotal + COSTO_ENVIO).toFixed(2);
-                
                 const resumenTexto = carrito.map(p => p.nombre).join(', ');
                 document.getElementById('lista-resumen-carrito').innerText = resumenTexto;
-                
-                if (expandir) {
-                    barra.classList.remove('carrito-burbuja');
-                    barra.style.left = "16px";
-                } else {
-                    barra.classList.add('carrito-burbuja');
-                    barra.style.left = "auto";
-                }
-            } else {
-                barra.classList.add('hidden');
-            }
+                if (expandir) { barra.classList.remove('carrito-burbuja'); barra.style.left = "16px"; } 
+                else { barra.classList.add('carrito-burbuja'); barra.style.left = "auto"; }
+            } else { barra.classList.add('hidden'); }
         }
 
         function irAInicio() {
@@ -316,11 +314,7 @@
             setTimeout(() => document.getElementById('modal-producto').classList.add('hidden'), 400);
         }
 
-        function mostrarFormulario(e) {
-            e.stopPropagation();
-            document.getElementById('modal-cliente').classList.remove('hidden');
-        }
-        
+        function mostrarFormulario(e) { e.stopPropagation(); document.getElementById('modal-cliente').classList.remove('hidden'); }
         function cerrarForm() { document.getElementById('modal-cliente').classList.add('hidden'); }
 
         async function validarYEnviar() {
@@ -330,68 +324,46 @@
 
             if(!nombre || !tel || !dir) { alert("Completa tus datos para el envío."); return; }
 
-            // --- LÓGICA DE DIVISIÓN POR RESTAURANTE ---
-            // Agrupamos los productos por el nombre del restaurante
-            const pedidosPorRestaurante = {};
-            
-            carrito.forEach(item => {
-                if (!pedidosPorRestaurante[item.restaurante]) {
-                    pedidosPorRestaurante[item.restaurante] = {
-                        productos: [],
-                        whatsapp: item.whatsapp,
-                        subtotal: 0
-                    };
-                }
-                pedidosPorRestaurante[item.restaurante].productos.push(item);
-                pedidosPorRestaurante[item.restaurante].subtotal += item.precio;
+            const restData = carrito[0]; // Como todos son del mismo, tomamos el primero
+            const subtotal = carrito.reduce((sum, item) => sum + item.precio, 0);
+            const totalFinal = (subtotal + COSTO_ENVIO).toFixed(2);
+            const detallesPedido = carrito.map(item => `${item.nombre}${item.extras ? ' ('+item.extras+')' : ''}`).join(' | ');
+
+            // 1. REGISTRO EN EXCEL
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({
+                    restaurante: restData.restaurante,
+                    cliente: nombre,
+                    detalles: detallesPedido,
+                    total: totalFinal,
+                    telefono: tel
+                })
             });
 
-            // Iteramos sobre cada restaurante para enviar su pedido y registro
-            for (const nombreRest in pedidosPorRestaurante) {
-                const datos = pedidosPorRestaurante[nombreRest];
-                const totalConEnvio = (datos.subtotal + COSTO_ENVIO).toFixed(2);
-                const detallesParaExcel = datos.productos.map(p => `${p.nombre}${p.extras ? ' ('+p.extras+')' : ''}`).join(' | ');
+            // 2. MENSAJE WHATSAPP
+            let resumen = `*🚀 NUEVO PEDIDO - ${restData.restaurante.toUpperCase()}*\n`;
+            resumen += `--------------------------------\n`;
+            resumen += `👤 *CLIENTE:* ${nombre}\n`;
+            resumen += `📞 *TEL:* ${tel}\n`;
+            resumen += `📍 *ENTREGA:* ${dir}\n`;
+            resumen += `--------------------------------\n`;
+            carrito.forEach(item => {
+                resumen += `✅ *${item.nombre}*\n   ↳ $${item.precio.toFixed(2)}${item.extras ? ' (' + item.extras + ')' : ''}\n`;
+            });
+            resumen += `--------------------------------\n`;
+            resumen += `💰 Subtotal: $${subtotal.toFixed(2)}\n`;
+            resumen += `🛵 Envío: $${COSTO_ENVIO.toFixed(2)}\n`;
+            resumen += `🔥 *TOTAL A PAGAR: $${totalFinal}*\n`;
 
-                // 1. Guardar en Excel (por cada restaurante)
-                const datosExcel = {
-                    restaurante: nombreRest,
-                    cliente: nombre,
-                    detalles: detallesParaExcel,
-                    total: totalConEnvio,
-                    telefono: tel
-                };
-
-                fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(datosExcel)
-                });
-
-                // 2. Preparar Mensaje de WhatsApp
-                let resumen = `*🚀 NUEVO PEDIDO - AGUADULCE EXPRESS*\n`;
-                resumen += `--------------------------------\n`;
-                resumen += `👤 *CLIENTE:* ${nombre}\n`;
-                resumen += `📍 *ENTREGA:* ${dir}\n`;
-                resumen += `--------------------------------\n`;
-                
-                datos.productos.forEach(p => {
-                    resumen += `✅ *${p.nombre}*\n   ↳ $${p.precio.toFixed(2)}${p.extras ? ' (' + p.extras + ')' : ''}\n`;
-                });
-
-                resumen += `--------------------------------\n`;
-                resumen += `💰 Subtotal: $${datos.subtotal.toFixed(2)}\n`;
-                resumen += `🛵 Envío: $${COSTO_ENVIO.toFixed(2)}\n`;
-                resumen += `🔥 *TOTAL A PAGAR: $${totalConEnvio}*\n`;
-
-                // 3. Abrir WhatsApp (Se abrirán varias pestañas si hay varios locales)
-                window.open(`https://wa.me/${datos.whatsapp}?text=${encodeURIComponent(resumen)}`, '_blank');
-            }
+            window.open(`https://wa.me/${restData.whatsapp}?text=${encodeURIComponent(resumen)}`, '_blank');
             
-            // --- LIMPIEZA FINAL ---
+            // 3. LIMPIEZA
             cerrarForm();
             carrito = [];
             actualizarBarra(false);
-            alert("Pedidos enviados. Se han generado mensajes por cada restaurante.");
+            alert("Pedido enviado correctamente.");
         }
 
         cargarRestaurantes();
