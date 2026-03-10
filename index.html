@@ -11,91 +11,25 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .loader { border-top-color: #facc15; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        #contenedor-productos {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            padding: 15px;
-            padding-bottom: 160px;
-        }
-
-        .product-card {
-            background: white;
-            border-radius: 1.5rem;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
-
+        #contenedor-productos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; padding-bottom: 160px; }
+        .product-card { background: white; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; display: flex; flex-direction: column; transition: transform 0.2s; cursor: pointer; }
         .product-card:active { transform: scale(0.96); }
-
-        .product-card img {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-        }
-
-        .product-info {
-            padding: 12px;
-            text-align: center;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .product-info h4 {
-            font-size: 0.8rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: #1a1a1a;
-            line-height: 1.2;
-            margin-bottom: 5px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .product-info .price {
-            font-size: 1.1rem;
-            font-weight: 900;
-            color: #111;
-        }
-
-        @media (min-width: 768px) {
-            #contenedor-productos { grid-template-columns: repeat(4, 1fr); gap: 20px; }
-            .product-card img { height: 160px; }
-        }
-
+        .product-card img { width: 100%; height: 120px; object-fit: cover; }
+        .product-info { padding: 12px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-info h4 { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; color: #1a1a1a; line-height: 1.2; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-info .price { font-size: 1.1rem; font-weight: 900; color: #111; }
         .modal-subir { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
         .modal-subir.active { transform: translateY(0); }
-        
         #barra-carrito { transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .carrito-burbuja { width: 65px; height: 65px; border-radius: 50% !important; padding: 0 !important; justify-content: center !important; }
         .carrito-burbuja .info-texto, .carrito-burbuja button, .carrito-burbuja #lista-resumen-carrito { display: none !important; }
         .carrito-burbuja .icono-flotante { display: flex !important; }
-        
-        #lista-resumen-carrito {
-            font-size: 11px;
-            color: #facc15;
-            max-height: 60px;
-            overflow-y: auto;
-            margin-top: 4px;
-            font-weight: bold;
-            line-height: 1.2;
-        }
     </style>
 </head>
 <body class="bg-stone-50 font-sans text-gray-900 no-scrollbar overflow-x-hidden">
 
     <script>
-        // RECUERDA: Pega aquí la URL de tu última implementación de Google Apps Script
+        // ASEGÚRATE QUE ESTA URL SEA LA DE TU ÚLTIMA IMPLEMENTACIÓN
         const API_URL = "https://script.google.com/macros/s/AKfycbxGaD-StRQ0kw1xDj3weICekAOKehtLX29S0R3_58bNhDlbPbD7kxpDxAq2Ql3vNEpJTg/exec";
         const COSTO_ENVIO = 3.50;
     </script>
@@ -139,16 +73,14 @@
         <div class="info-texto text-left flex-1">
             <p id="cuenta-items" class="text-[9px] uppercase font-black text-yellow-400 tracking-widest italic">Tu Cesta</p>
             <p class="text-xl font-black tracking-tighter text-white">$<span id="total-carrito">0</span></p>
-            <div id="lista-resumen-carrito" class="pr-2"></div>
+            <div id="lista-resumen-carrito" class="text-[10px] text-yellow-400 truncate max-w-[150px]"></div>
         </div>
-        <button onclick="mostrarFormulario(event)" class="bg-yellow-400 text-gray-950 px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 shadow-xl ml-2">
-            Pedir
-        </button>
+        <button onclick="mostrarFormulario(event)" class="bg-yellow-400 text-gray-950 px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 shadow-xl ml-2">Pedir</button>
     </div>
 
     <div id="modal-producto" class="fixed inset-0 bg-gray-950/80 z-[80] hidden flex items-end justify-center transition-all">
         <div id="modal-container-prod" class="bg-white w-full max-w-md rounded-t-[3rem] p-8 max-h-[90vh] overflow-y-auto relative modal-subir">
-            <button onclick="cerrarModal()" class="absolute top-6 right-6 w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center text-gray-950 z-10 shadow-sm active:scale-90">
+            <button onclick="cerrarModal()" class="absolute top-6 right-6 w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center text-gray-950 z-10 active:scale-90">
                 <i class="fas fa-times"></i>
             </button>
             <div class="w-20 h-1.5 bg-gray-200 mx-auto mb-8 rounded-full"></div>
@@ -160,9 +92,9 @@
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
             <h3 class="text-2xl font-black uppercase italic mb-6 text-center text-gray-950">Datos de Entrega</h3>
             <div class="space-y-4">
-                <input type="text" id="cli-nombre" placeholder="Nombre completo" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold outline-none focus:ring-2 focus:ring-yellow-400">
-                <input type="tel" id="cli-tel" placeholder="WhatsApp / Teléfono" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold outline-none focus:ring-2 focus:ring-yellow-400">
-                <textarea id="cli-dir" placeholder="Dirección exacta y referencia" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold outline-none focus:ring-2 focus:ring-yellow-400 h-24"></textarea>
+                <input type="text" id="cli-nombre" placeholder="Nombre completo" class="w-full p-4 bg-stone-100 rounded-2xl outline-none focus:ring-2 focus:ring-yellow-400 font-bold">
+                <input type="tel" id="cli-tel" placeholder="WhatsApp / Teléfono" class="w-full p-4 bg-stone-100 rounded-2xl outline-none focus:ring-2 focus:ring-yellow-400 font-bold">
+                <textarea id="cli-dir" placeholder="Dirección exacta y referencia" class="w-full p-4 bg-stone-100 rounded-2xl outline-none focus:ring-2 focus:ring-yellow-400 font-bold h-24"></textarea>
             </div>
             <button onclick="validarYEnviar()" class="w-full bg-gray-950 text-white py-5 rounded-2xl font-black mt-6 uppercase tracking-widest text-xs active:scale-95 shadow-xl">Pedir por WhatsApp</button>
             <button onclick="cerrarForm()" class="w-full text-gray-400 font-bold mt-4 text-[10px] uppercase">Cerrar</button>
@@ -182,18 +114,14 @@
                 document.getElementById('lista-locales').innerHTML = locales.map(l => {
                     const estaAbierto = l.Abierto === "SI";
                     return `
-                        <div onclick="${estaAbierto ? `seleccionarRestaurante('${l.Nombre}', '${l.Sheet}', '${l.WhatsApp}')` : "alert('Este local está cerrado por ahora.')"}" 
-                             class="relative bg-white rounded-[2rem] overflow-hidden shadow-xl border border-gray-100 active:scale-95 transition-all cursor-pointer">
-                            ${!estaAbierto ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center z-10 rounded-[2rem]"><span class="bg-red-500 text-white font-black px-4 py-2 rounded-lg text-xs uppercase tracking-widest">Cerrado</span></div>' : ''}
+                        <div onclick="${estaAbierto ? `seleccionarRestaurante('${l.Nombre}', '${l.Sheet}', '${l.WhatsApp}')` : "alert('Cerrado por ahora.')"}" class="relative bg-white rounded-[2rem] overflow-hidden shadow-xl border border-gray-100 active:scale-95 cursor-pointer">
+                            ${!estaAbierto ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center z-10"><span class="bg-red-500 text-white font-black px-4 py-2 rounded-lg text-xs uppercase">Cerrado</span></div>' : ''}
                             <img src="${l.Foto}" class="w-full h-44 object-cover ${!estaAbierto ? 'grayscale opacity-50' : ''}">
-                            <div class="p-5 text-center">
-                                <h3 class="text-xl font-black uppercase italic text-gray-950 tracking-tighter">${l.Nombre}</h3>
-                            </div>
-                        </div>
-                    `;
+                            <div class="p-5 text-center"><h3 class="text-xl font-black uppercase italic text-gray-950">${l.Nombre}</h3></div>
+                        </div>`;
                 }).join('');
                 document.getElementById('loading').classList.add('hidden');
-            } catch (e) { alert("Error de conexión con el Excel."); }
+            } catch (e) { alert("Error al conectar."); }
         }
 
         async function seleccionarRestaurante(nombre, sheet, whatsapp) {
@@ -207,20 +135,13 @@
                 document.getElementById('pantalla-restaurantes').classList.add('hidden');
                 document.getElementById('pantalla-menu').classList.remove('hidden');
                 actualizarBarra(true);
-                window.scrollTo(0,0);
-            } catch (e) { alert("Menú no disponible."); }
+            } catch (e) { alert("Error al cargar menú."); }
             document.getElementById('loading').classList.add('hidden');
         }
 
         function renderizarMenu(productos) {
             const container = document.getElementById('contenedor-productos');
             const disponibles = productos.filter(p => p.Disponible === "SI");
-            
-            if(disponibles.length === 0) {
-                container.innerHTML = `<p class="col-span-2 text-center text-gray-400 font-bold py-10 uppercase text-xs">No hay platos disponibles.</p>`;
-                return;
-            }
-
             container.innerHTML = disponibles.map((p, i) => `
                 <div onclick="verFicha(${i})" class="product-card">
                     <img src="${p.Foto}" alt="${p.Nombre}">
@@ -228,8 +149,7 @@
                         <h4>${p.Nombre}</h4>
                         <p class="price">$${parseFloat(p.Precio).toFixed(2)}</p>
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
         function verFicha(index) {
@@ -237,11 +157,32 @@
             const p = filtrados[index];
             const content = document.getElementById('detalle-producto-content');
             
+            // Lógica de Opciones (Extras)
+            let opcionesHTML = "";
+            if(p.Opciones && p.Opciones !== "") {
+                opcionesHTML = `<p class="font-black text-[10px] text-gray-400 uppercase mt-6 mb-3 tracking-widest">Personaliza:</p><div class="space-y-3">`;
+                p.Opciones.split(',').forEach(opt => {
+                    const parts = opt.split(':');
+                    const n = parts[0].trim();
+                    const pr = parts[1] ? parts[1].trim() : "0";
+                    opcionesHTML += `
+                        <label class="flex items-center justify-between p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" class="extra-opt w-6 h-6 accent-gray-950" data-nombre="${n}" data-precio="${pr}">
+                                <span class="text-sm font-bold text-gray-700">${n}</span>
+                            </div>
+                            <span class="font-black text-stone-400 text-sm">+$${pr}</span>
+                        </label>`;
+                });
+                opcionesHTML += `</div>`;
+            }
+
             content.innerHTML = `
                 <img src="${p.Foto}" class="w-full h-64 object-cover rounded-[2.5rem] mb-6 shadow-xl">
                 <div class="text-left">
                     <h2 class="text-3xl font-black italic uppercase text-gray-950 leading-none">${p.Nombre}</h2>
                     <p class="text-sm text-stone-500 mt-4 font-medium">${p.Descripcion || 'Sin descripción.'}</p>
+                    ${opcionesHTML}
                     <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="w-full bg-gray-950 text-white py-6 rounded-3xl font-black mt-8 uppercase tracking-widest text-xs shadow-2xl active:scale-95">Añadir al Pedido</button>
                 </div>`;
             document.getElementById('modal-producto').classList.remove('hidden');
@@ -249,15 +190,17 @@
         }
 
         function agregar(nombre, precioBase) {
-            if (carrito.length > 0 && carrito[0].restaurante !== restauranteSeleccionado.nombre) {
-                if (confirm(`¿Vaciar carrito de "${carrito[0].restaurante}"?`)) {
-                    carrito = [];
-                } else { cerrarModal(); return; }
-            }
+            let totalItem = parseFloat(precioBase);
+            let extrasArr = [];
+            document.querySelectorAll('.extra-opt:checked').forEach(chk => {
+                extrasArr.push(chk.dataset.nombre);
+                totalItem += parseFloat(chk.dataset.precio);
+            });
 
             carrito.push({ 
                 nombre, 
-                precio: parseFloat(precioBase), 
+                precio: totalItem, 
+                extras: extrasArr.join(', '), 
                 restaurante: restauranteSeleccionado.nombre,
                 whatsapp: restauranteSeleccionado.whatsapp
             });
@@ -267,13 +210,12 @@
 
         function actualizarBarra(expandir = false) {
             const barra = document.getElementById('barra-carrito');
-            const subtotal = carrito.reduce((sum, item) => sum + item.precio, 0);
             if (carrito.length > 0) {
+                const subtotal = carrito.reduce((sum, item) => sum + item.precio, 0);
                 barra.classList.remove('hidden');
                 document.getElementById('badge-count').innerText = carrito.length;
                 document.getElementById('total-carrito').innerText = (subtotal + COSTO_ENVIO).toFixed(2);
-                const resumenTexto = carrito.map(p => p.nombre).join(', ');
-                document.getElementById('lista-resumen-carrito').innerText = resumenTexto;
+                document.getElementById('lista-resumen-carrito').innerText = carrito.map(p => p.nombre).join(', ');
                 if (expandir) { barra.classList.remove('carrito-burbuja'); barra.style.left = "16px"; } 
                 else { barra.classList.add('carrito-burbuja'); barra.style.left = "auto"; }
             } else { barra.classList.add('hidden'); }
@@ -283,20 +225,10 @@
             document.getElementById('pantalla-restaurantes').classList.remove('hidden');
             document.getElementById('pantalla-menu').classList.add('hidden');
             actualizarBarra(false);
-            window.scrollTo(0,0);
         }
 
-        function expandirDesdeBurbuja() {
-            if (document.getElementById('barra-carrito').classList.contains('carrito-burbuja')) {
-                actualizarBarra(true);
-            }
-        }
-
-        function cerrarModal() {
-            document.getElementById('modal-container-prod').classList.remove('active');
-            setTimeout(() => document.getElementById('modal-producto').classList.add('hidden'), 400);
-        }
-
+        function expandirDesdeBurbuja() { if (document.getElementById('barra-carrito').classList.contains('carrito-burbuja')) actualizarBarra(true); }
+        function cerrarModal() { document.getElementById('modal-container-prod').classList.remove('active'); setTimeout(() => document.getElementById('modal-producto').classList.add('hidden'), 400); }
         function mostrarFormulario(e) { e.stopPropagation(); document.getElementById('modal-cliente').classList.remove('hidden'); }
         function cerrarForm() { document.getElementById('modal-cliente').classList.add('hidden'); }
 
@@ -304,21 +236,19 @@
             const nombre = document.getElementById('cli-nombre').value;
             const tel = document.getElementById('cli-tel').value;
             const dir = document.getElementById('cli-dir').value;
-
             if(!nombre || !tel || !dir) { alert("Completa tus datos."); return; }
 
             const restData = carrito[0];
             const subtotal = carrito.reduce((sum, item) => sum + item.precio, 0);
             const totalFinal = (subtotal + COSTO_ENVIO).toFixed(2);
-            const detallesPedido = carrito.map(item => item.nombre).join(' | ');
-            
-            // Link de Google Maps gratuito
+            const detallesPedido = carrito.map(item => `${item.nombre}${item.extras ? ' ('+item.extras+')' : ''}`).join(' | ');
             const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir)}`;
 
-            // 1. Guardar en Excel
+            // 1. Enviar a Excel
             fetch(API_URL, {
                 method: 'POST',
                 mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     restaurante: restData.restaurante,
                     cliente: nombre,
@@ -336,16 +266,16 @@
             msj += `📍 *ENTREGA:* ${dir}\n`;
             msj += `🗺️ *MAPA:* ${mapsLink}\n`;
             msj += `--------------------------------\n`;
-            carrito.forEach(item => msj += `✅ *${item.nombre}* ($${item.precio.toFixed(2)})\n`);
+            carrito.forEach(item => msj += `✅ *${item.nombre}*\n   ↳ $${item.precio.toFixed(2)}${item.extras ? ' ('+item.extras+')' : ''}\n`);
             msj += `--------------------------------\n`;
             msj += `🛵 Envío: $${COSTO_ENVIO.toFixed(2)}\n`;
             msj += `🔥 *TOTAL: $${totalFinal}*\n`;
 
             window.open(`https://wa.me/${restData.whatsapp}?text=${encodeURIComponent(msj)}`, '_blank');
-            
             cerrarForm();
             carrito = [];
             actualizarBarra(false);
+            alert("Pedido enviado correctamente.");
         }
 
         cargarRestaurantes();
