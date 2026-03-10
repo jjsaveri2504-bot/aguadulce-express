@@ -95,7 +95,7 @@
 <body class="bg-stone-50 font-sans text-gray-900 no-scrollbar overflow-x-hidden">
 
     <script>
-        // RECUERDA: Verifica que esta URL sea la de tu última implementación (Nueva Implementación)
+        // RECUERDA: Pega aquí la URL de tu última implementación de Google Apps Script
         const API_URL = "https://script.google.com/macros/s/AKfycbxGaD-StRQ0kw1xDj3weICekAOKehtLX29S0R3_58bNhDlbPbD7kxpDxAq2Ql3vNEpJTg/exec";
         const COSTO_ENVIO = 3.50;
     </script>
@@ -193,7 +193,7 @@
                     `;
                 }).join('');
                 document.getElementById('loading').classList.add('hidden');
-            } catch (e) { alert("Error de conexión."); }
+            } catch (e) { alert("Error de conexión con el Excel."); }
         }
 
         async function seleccionarRestaurante(nombre, sheet, whatsapp) {
@@ -214,11 +214,10 @@
 
         function renderizarMenu(productos) {
             const container = document.getElementById('contenedor-productos');
-            // Filtrar solo los productos que tengan "SI" en la columna Disponible
             const disponibles = productos.filter(p => p.Disponible === "SI");
             
             if(disponibles.length === 0) {
-                container.innerHTML = `<p class="col-span-2 text-center text-gray-400 font-bold py-10 uppercase text-xs">No hay platos disponibles hoy.</p>`;
+                container.innerHTML = `<p class="col-span-2 text-center text-gray-400 font-bold py-10 uppercase text-xs">No hay platos disponibles.</p>`;
                 return;
             }
 
@@ -234,7 +233,6 @@
         }
 
         function verFicha(index) {
-            // El menuActual ya está filtrado para mostrar solo disponibles
             const filtrados = menuActual.filter(p => p.Disponible === "SI");
             const p = filtrados[index];
             const content = document.getElementById('detalle-producto-content');
@@ -252,12 +250,9 @@
 
         function agregar(nombre, precioBase) {
             if (carrito.length > 0 && carrito[0].restaurante !== restauranteSeleccionado.nombre) {
-                if (confirm(`Ya tienes productos de "${carrito[0].restaurante}". ¿Deseas vaciar el carrito para pedir en "${restauranteSeleccionado.nombre}"?`)) {
+                if (confirm(`¿Vaciar carrito de "${carrito[0].restaurante}"?`)) {
                     carrito = [];
-                } else {
-                    cerrarModal();
-                    return;
-                }
+                } else { cerrarModal(); return; }
             }
 
             carrito.push({ 
@@ -317,10 +312,10 @@
             const totalFinal = (subtotal + COSTO_ENVIO).toFixed(2);
             const detallesPedido = carrito.map(item => item.nombre).join(' | ');
             
-            // LINK GOOGLE MAPS GRATUITO
-            const mapsLink = `https://www.google.com/maps/search/${encodeURIComponent(dir)}`;
+            // Link de Google Maps gratuito
+            const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir)}`;
 
-            // 1. REGISTRO EN EXCEL
+            // 1. Guardar en Excel
             fetch(API_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -333,28 +328,24 @@
                 })
             });
 
-            // 2. MENSAJE WHATSAPP
-            let resumen = `*🚀 NUEVO PEDIDO - ${restData.restaurante.toUpperCase()}*\n`;
-            resumen += `--------------------------------\n`;
-            resumen += `👤 *CLIENTE:* ${nombre}\n`;
-            resumen += `📞 *TEL:* ${tel}\n`;
-            resumen += `📍 *ENTREGA:* ${dir}\n`;
-            resumen += `🗺️ *MAPA:* ${mapsLink}\n`;
-            resumen += `--------------------------------\n`;
-            carrito.forEach(item => {
-                resumen += `✅ *${item.nombre}* ($${item.precio.toFixed(2)})\n`;
-            });
-            resumen += `--------------------------------\n`;
-            resumen += `💰 Subtotal: $${subtotal.toFixed(2)}\n`;
-            resumen += `🛵 Envío: $${COSTO_ENVIO.toFixed(2)}\n`;
-            resumen += `🔥 *TOTAL A PAGAR: $${totalFinal}*\n`;
+            // 2. WhatsApp
+            let msj = `*🚀 NUEVO PEDIDO - ${restData.restaurante.toUpperCase()}*\n`;
+            msj += `--------------------------------\n`;
+            msj += `👤 *CLIENTE:* ${nombre}\n`;
+            msj += `📞 *TEL:* ${tel}\n`;
+            msj += `📍 *ENTREGA:* ${dir}\n`;
+            msj += `🗺️ *MAPA:* ${mapsLink}\n`;
+            msj += `--------------------------------\n`;
+            carrito.forEach(item => msj += `✅ *${item.nombre}* ($${item.precio.toFixed(2)})\n`);
+            msj += `--------------------------------\n`;
+            msj += `🛵 Envío: $${COSTO_ENVIO.toFixed(2)}\n`;
+            msj += `🔥 *TOTAL: $${totalFinal}*\n`;
 
-            window.open(`https://wa.me/${restData.whatsapp}?text=${encodeURIComponent(resumen)}`, '_blank');
+            window.open(`https://wa.me/${restData.whatsapp}?text=${encodeURIComponent(msj)}`, '_blank');
             
             cerrarForm();
             carrito = [];
             actualizarBarra(false);
-            alert("¡Pedido enviado! Revisa tu WhatsApp.");
         }
 
         cargarRestaurantes();
