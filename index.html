@@ -95,8 +95,8 @@
 <body class="bg-stone-50 font-sans text-gray-900 no-scrollbar overflow-x-hidden">
 
     <script>
-        // RECUERDA: Si cambiaste la URL en Google Script al implementar para Pedidos, pégala aquí:
-        const API_URL = "https://script.google.com/macros/s/AKfycbz8rtOtA_-4L4_-noic3GZPTgUWAPURZkIBBeaXiQ8z70whtR3pMpeihPkZXLx4LJKtBA/exec";
+        // RECUERDA: Verifica que esta URL sea la de tu última implementación (Cualquier persona)
+        const API_URL = "https://script.google.com/macros/s/AKfycbxab4l6A-VMEOvjxxE_8kNid1vYy9LlRa7LiZp83iy2luS96wuoPZIu0PL9lZSw4CkprQ/exec";
         const COSTO_ENVIO = 3.50;
     </script>
 
@@ -260,7 +260,14 @@
                 extras.push(chk.dataset.nombre);
                 totalItem += parseFloat(chk.dataset.precio);
             });
-            carrito.push({ nombre, precio: totalItem, extras: extras.join(', '), restaurante: restauranteSeleccionado.nombre });
+            // Guardamos el nombre y el whatsapp del restaurante actual en el producto
+            carrito.push({ 
+                nombre, 
+                precio: totalItem, 
+                extras: extras.join(', '), 
+                restaurante: restauranteSeleccionado.nombre,
+                whatsapp: restauranteSeleccionado.whatsapp
+            });
             actualizarBarra(true);
             cerrarModal();
         }
@@ -272,9 +279,10 @@
             if (carrito.length > 0) {
                 barra.classList.remove('hidden');
                 document.getElementById('badge-count').innerText = carrito.length;
+                
+                // El total mostrado incluye el envío una sola vez para el cliente
                 document.getElementById('total-carrito').innerText = (subtotal + COSTO_ENVIO).toFixed(2);
                 
-                // Mostrar lo que lleva el carrito
                 const resumenTexto = carrito.map(p => p.nombre).join(', ');
                 document.getElementById('lista-resumen-carrito').innerText = resumenTexto;
                 
@@ -322,53 +330,73 @@
 
             if(!nombre || !tel || !dir) { alert("Completa tus datos para el envío."); return; }
 
-            let subtotal = carrito.reduce((sum, item) => sum + item.precio, 0);
-            let totalFinal = (subtotal + COSTO_ENVIO).toFixed(2);
-            let detallesPedido = carrito.map(item => `${item.nombre}${item.extras ? ' ('+item.extras+')' : ''}`).join(' | ');
-
-            // --- GUARDAR EN GOOGLE SHEETS ---
-            const datosParaExcel = {
-                restaurante: restauranteSeleccionado.nombre,
-                cliente: nombre,
-                detalles: detallesPedido,
-                total: totalFinal,
-                telefono: tel
-            };
-
-            fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(datosParaExcel)
-            });
-
-            // --- MENSAJE WHATSAPP ---
-            let resumen = `*🚀 NUEVO PEDIDO - AGUADULCE EXPRESS*\n`;
-            resumen += `--------------------------------\n`;
-            resumen += `👤 *CLIENTE:* ${nombre}\n`;
-            resumen += `📞 *TELÉFONO:* ${tel}\n`;
-            resumen += `📍 *ENTREGA:* ${dir}\n`;
-            resumen += `--------------------------------\n`;
+            // --- LÓGICA DE DIVISIÓN POR RESTAURANTE ---
+            // Agrupamos los productos por el nombre del restaurante
+            const pedidosPorRestaurante = {};
             
             carrito.forEach(item => {
-                resumen += `✅ *${item.nombre}*\n   ↳ $${item.precio.toFixed(2)}${item.extras ? ' (' + item.extras + ')' : ''}\n`;
+                if (!pedidosPorRestaurante[item.restaurante]) {
+                    pedidosPorRestaurante[item.restaurante] = {
+                        productos: [],
+                        whatsapp: item.whatsapp,
+                        subtotal: 0
+                    };
+                }
+                pedidosPorRestaurante[item.restaurante].productos.push(item);
+                pedidosPorRestaurante[item.restaurante].subtotal += item.precio;
             });
 
-            resumen += `--------------------------------\n`;
-            resumen += `💰 Subtotal: $${subtotal.toFixed(2)}\n`;
-            resumen += `🛵 Envío: $${COSTO_ENVIO.toFixed(2)}\n`;
-            resumen += `🔥 *TOTAL A PAGAR: $${totalFinal}*\n`;
+            // Iteramos sobre cada restaurante para enviar su pedido y registro
+            for (const nombreRest in pedidosPorRestaurante) {
+                const datos = pedidosPorRestaurante[nombreRest];
+                const totalConEnvio = (datos.subtotal + COSTO_ENVIO).toFixed(2);
+                const detallesParaExcel = datos.productos.map(p => `${p.nombre}${p.extras ? ' ('+p.extras+')' : ''}`).join(' | ');
+
+                // 1. Guardar en Excel (por cada restaurante)
+                const datosExcel = {
+                    restaurante: nombreRest,
+                    cliente: nombre,
+                    detalles: detallesParaExcel,
+                    total: totalConEnvio,
+                    telefono: tel
+                };
+
+                fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(datosExcel)
+                });
+
+                // 2. Preparar Mensaje de WhatsApp
+                let resumen = `*🚀 NUEVO PEDIDO - AGUADULCE EXPRESS*\n`;
+                resumen += `--------------------------------\n`;
+                resumen += `👤 *CLIENTE:* ${nombre}\n`;
+                resumen += `📍 *ENTREGA:* ${dir}\n`;
+                resumen += `--------------------------------\n`;
+                
+                datos.productos.forEach(p => {
+                    resumen += `✅ *${p.nombre}*\n   ↳ $${p.precio.toFixed(2)}${p.extras ? ' (' + p.extras + ')' : ''}\n`;
+                });
+
+                resumen += `--------------------------------\n`;
+                resumen += `💰 Subtotal: $${datos.subtotal.toFixed(2)}\n`;
+                resumen += `🛵 Envío: $${COSTO_ENVIO.toFixed(2)}\n`;
+                resumen += `🔥 *TOTAL A PAGAR: $${totalConEnvio}*\n`;
+
+                // 3. Abrir WhatsApp (Se abrirán varias pestañas si hay varios locales)
+                window.open(`https://wa.me/${datos.whatsapp}?text=${encodeURIComponent(resumen)}`, '_blank');
+            }
             
-            window.open(`https://wa.me/${restauranteSeleccionado.whatsapp}?text=${encodeURIComponent(resumen)}`, '_blank');
-            
-            // --- LIMPIEZA ---
+            // --- LIMPIEZA FINAL ---
             cerrarForm();
             carrito = [];
             actualizarBarra(false);
-            alert("Pedido enviado. ¡Gracias!");
+            alert("Pedidos enviados. Se han generado mensajes por cada restaurante.");
         }
 
         cargarRestaurantes();
     </script>
 </body>
 </html>
+
 
