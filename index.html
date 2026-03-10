@@ -312,7 +312,7 @@
         
         function cerrarForm() { document.getElementById('modal-cliente').classList.add('hidden'); }
 
-        function validarYEnviar() {
+        async function validarYEnviar() {
             const nombre = document.getElementById('cli-nombre').value;
             const tel = document.getElementById('cli-tel').value;
             const dir = document.getElementById('cli-dir').value;
@@ -320,6 +320,26 @@
             if(!nombre || !tel || !dir) { alert("Completa tus datos para el envío."); return; }
 
             let subtotal = carrito.reduce((sum, item) => sum + item.precio, 0);
+            let totalFinal = (subtotal + COSTO_ENVIO).toFixed(2);
+            let detallesPedido = carrito.map(item => `${item.nombre}${item.extras ? ' ('+item.extras+')' : ''}`).join(' | ');
+
+            // --- ESTA PARTE GUARDA EN TU EXCEL ---
+            const datosParaExcel = {
+                restaurante: restauranteSeleccionado.nombre,
+                cliente: nombre,
+                detalles: detallesPedido,
+                total: totalFinal,
+                telefono: tel
+            };
+
+            // Enviamos al Google Script (No borres esto)
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(datosParaExcel)
+            });
+            // -------------------------------------
+
             let resumen = `*🚀 NUEVO PEDIDO - AGUADULCE EXPRESS*\n`;
             resumen += `--------------------------------\n`;
             resumen += `👤 *CLIENTE:* ${nombre}\n`;
@@ -334,13 +354,15 @@
             resumen += `--------------------------------\n`;
             resumen += `💰 Subtotal: $${subtotal.toFixed(2)}\n`;
             resumen += `🛵 Envío: $${COSTO_ENVIO.toFixed(2)}\n`;
-            resumen += `🔥 *TOTAL A PAGAR: $${(subtotal + COSTO_ENVIO).toFixed(2)}*\n`;
+            resumen += `🔥 *TOTAL A PAGAR: $${totalFinal}*\n`;
             
             window.open(`https://wa.me/${restauranteSeleccionado.whatsapp}?text=${encodeURIComponent(resumen)}`, '_blank');
             cerrarForm();
+        
         }
 
         cargarRestaurantes();
     </script>
 </body>
 </html>
+
