@@ -11,11 +11,74 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .loader { border-top-color: #facc15; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .espacio-carrito { padding-bottom: 120px; }
+        
+        /* --- NUEVO DISEÑO DE MOSAICO --- */
+        #contenedor-productos {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil */
+            gap: 12px;
+            padding: 15px;
+            padding-bottom: 160px; /* Espacio extra para que la barra no tape el último plato */
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .product-card:active { transform: scale(0.96); }
+
+        .product-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 12px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-info h4 {
+            font-size: 0.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #1a1a1a;
+            line-height: 1.2;
+            margin-bottom: 5px;
+            /* Limita a 2 líneas el nombre */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-info .price {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #111;
+        }
+
+        /* Responsive para PC */
+        @media (min-width: 768px) {
+            #contenedor-productos { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+            .product-card img { height: 160px; }
+        }
+
+        /* Modales y Barra */
         .modal-subir { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
         .modal-subir.active { transform: translateY(0); }
-        
-        /* Animación de la burbuja */
         #barra-carrito { transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .carrito-burbuja { width: 65px; height: 65px; border-radius: 50% !important; padding: 0 !important; justify-content: center !important; }
         .carrito-burbuja .info-texto, .carrito-burbuja button { display: none !important; }
@@ -42,7 +105,6 @@
                 <h1 class="text-4xl font-black italic tracking-tighter text-white leading-none uppercase">Aguadulce<br><span class="text-yellow-400">Express</span></h1>
             </div>
         </header>
-        
         <main class="p-7 max-w-md mx-auto relative z-20 bg-stone-50 -mt-8 rounded-t-[3rem] shadow-2xl space-y-6">
             <div id="lista-locales" class="grid grid-cols-1 gap-6"></div>
         </main>
@@ -58,7 +120,7 @@
             </div>
             <div class="w-12 h-12"></div>
         </nav>
-        <div id="contenedor-productos" class="p-6 space-y-6 espacio-carrito"></div>
+        <div id="contenedor-productos"></div>
     </div>
 
     <div id="barra-carrito" onclick="expandirDesdeBurbuja()" class="fixed bottom-6 right-4 left-auto bg-gray-950 text-white p-6 flex items-center justify-between hidden z-[60] rounded-[2.5rem] shadow-2xl border border-white/5 cursor-pointer">
@@ -66,7 +128,6 @@
             <i class="fas fa-shopping-basket text-yellow-400 text-2xl"></i>
             <span id="badge-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
         </div>
-
         <div class="info-texto text-left">
             <p id="cuenta-items" class="text-[10px] uppercase font-black text-yellow-400 tracking-widest italic">Tu Pedido</p>
             <p class="text-2xl font-black tracking-tighter text-white">$<span id="total-carrito">0</span></p>
@@ -89,7 +150,7 @@
             <div class="space-y-4">
                 <input type="text" id="cli-nombre" placeholder="Nombre completo" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold outline-none focus:ring-2 focus:ring-yellow-400">
                 <input type="tel" id="cli-tel" placeholder="WhatsApp / Teléfono" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold outline-none focus:ring-2 focus:ring-yellow-400">
-                <textarea id="cli-dir" placeholder="Dirección exacta y punto de referencia" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold outline-none focus:ring-2 focus:ring-yellow-400 h-24"></textarea>
+                <textarea id="cli-dir" placeholder="Dirección exacta y referencia" class="w-full p-4 bg-stone-100 rounded-2xl border-none text-sm font-bold outline-none focus:ring-2 focus:ring-yellow-400 h-24"></textarea>
             </div>
             <button onclick="validarYEnviar()" class="w-full bg-gray-950 text-white py-5 rounded-2xl font-black mt-6 uppercase tracking-widest text-xs active:scale-95 shadow-xl">Pedir por WhatsApp</button>
             <button onclick="cerrarForm()" class="w-full text-gray-400 font-bold mt-4 text-[10px] uppercase">Cerrar</button>
@@ -128,7 +189,7 @@
                 renderizarMenu(menuActual);
                 document.getElementById('pantalla-restaurantes').classList.add('hidden');
                 document.getElementById('pantalla-menu').classList.remove('hidden');
-                actualizarBarra(true); // Expandir al entrar al menú
+                actualizarBarra(true);
                 window.scrollTo(0,0);
             } catch (e) { alert("Menú no disponible."); }
             document.getElementById('loading').classList.add('hidden');
@@ -136,14 +197,14 @@
 
         function renderizarMenu(productos) {
             const container = document.getElementById('contenedor-productos');
+            // Mosaico 2x2: Imagen, Título y Precio. Descripción oculta.
             container.innerHTML = productos.filter(p => p.Disponible !== "NO").map((p, i) => `
-                <div onclick="verFicha(${i})" class="flex items-center gap-4 bg-stone-50 p-4 rounded-[2rem] border border-stone-100 shadow-sm">
-                    <img src="${p.Foto}" class="w-20 h-20 object-cover rounded-[1.2rem]">
-                    <div class="flex-1 text-left">
-                        <h4 class="font-black text-gray-950 uppercase text-[11px] leading-tight">${p.Nombre}</h4>
-                        <p class="text-lg font-black text-gray-950 mt-1">$${p.Precio}</p>
+                <div onclick="verFicha(${i})" class="product-card">
+                    <img src="${p.Foto}" alt="${p.Nombre}">
+                    <div class="product-info">
+                        <h4>${p.Nombre}</h4>
+                        <p class="price">$${p.Precio}</p>
                     </div>
-                    <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-yellow-500 shadow-sm"><i class="fas fa-plus text-xs"></i></div>
                 </div>
             `).join('');
         }
@@ -160,17 +221,20 @@
                     const pr = parts[1] ? parts[1].trim() : "0";
                     opcionesHTML += `
                         <label class="flex items-center justify-between p-4 bg-stone-50 rounded-2xl border border-stone-100">
-                            <div class="flex items-center gap-3"><input type="checkbox" class="extra-opt w-6 h-6 accent-gray-950" data-nombre="${n}" data-precio="${pr}"><span class="text-sm font-bold text-gray-700">${n}</span></div>
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" class="extra-opt w-6 h-6 accent-gray-950" data-nombre="${n}" data-precio="${pr}">
+                                <span class="text-sm font-bold text-gray-700">${n}</span>
+                            </div>
                             <span class="font-black text-stone-400 text-sm">+$${pr}</span>
                         </label>`;
                 });
                 opcionesHTML += `</div>`;
             }
             content.innerHTML = `
-                <img src="${p.Foto}" class="w-full h-64 object-cover rounded-[2.5rem] mb-6 shadow-xl border-4 border-white">
+                <img src="${p.Foto}" class="w-full h-64 object-cover rounded-[2.5rem] mb-6 shadow-xl">
                 <div class="text-left">
                     <h2 class="text-3xl font-black italic uppercase text-gray-950 leading-none">${p.Nombre}</h2>
-                    <p class="text-xs text-stone-400 mt-3 font-medium">${p.Descripcion || ''}</p>
+                    <p class="text-sm text-stone-500 mt-4 font-medium">${p.Descripcion || 'Sin descripción disponible.'}</p>
                     ${opcionesHTML}
                     <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="w-full bg-gray-950 text-white py-6 rounded-3xl font-black mt-8 uppercase tracking-widest text-xs shadow-2xl active:scale-95">Añadir al Pedido</button>
                 </div>`;
@@ -214,7 +278,7 @@
         function irAInicio() {
             document.getElementById('pantalla-restaurantes').classList.remove('hidden');
             document.getElementById('pantalla-menu').classList.add('hidden');
-            actualizarBarra(false); // Contraer al volver al inicio
+            actualizarBarra(false);
             window.scrollTo(0,0);
         }
 
@@ -230,7 +294,7 @@
         }
 
         function mostrarFormulario(e) {
-            e.stopPropagation(); // Evita que el clic en el botón active la burbuja
+            e.stopPropagation();
             document.getElementById('modal-cliente').classList.remove('hidden');
         }
         
@@ -268,4 +332,5 @@
     </script>
 </body>
 </html>
+
 
