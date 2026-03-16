@@ -3,50 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aguadulce Express - Sistema de Pedidos</title>
+    <title>Aguadulce Express - Panel de Pedidos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .category-pill.active { background-color: #ef4444; color: white; }
+        .category-pill.active { background-color: #ef4444; color: white; border-color: #ef4444; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .rest-card:active { transform: scale(0.98); }
+        .rest-cerrado { filter: grayscale(1); opacity: 0.7; pointer-events: none; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans pb-24">
+<body class="bg-gray-50 font-sans pb-24">
 
     <script>
-        // PEGA AQUÍ TU NUEVA URL DE IMPLEMENTACIÓN DE APPS SCRIPT
-        const API_URL = "https://script.google.com/macros/s/AKfycbyLQ4o-2Ky8_k1UeTluo6Ia4aTQM1zaDJPTY0XBSNKbHTM_g_GaiuTmtedqHRf6LSD1NA/exec";
+        // REEMPLAZA ESTA URL CON TU NUEVA URL DE APPS SCRIPT (DEL EXCEL PERSONAL)
+        const API_URL = "TU_URL_DE_APPS_SCRIPT_AQUI";
     </script>
 
-    <header class="bg-white shadow-md sticky top-0 z-50 p-4 flex items-center">
-        <button id="btn-back" onclick="mostrarSelectorRestaurantes()" class="hidden mr-4 text-gray-600 p-2">
+    <header class="bg-white shadow-sm sticky top-0 z-50 p-4 flex items-center justify-between">
+        <button id="btn-back" onclick="mostrarSelectorRestaurantes()" class="hidden text-gray-600 p-2">
             <i class="fas fa-arrow-left text-xl"></i>
         </button>
-        <h1 id="header-titulo" class="text-xl font-bold text-gray-800 flex-1 text-center italic uppercase tracking-wider">Aguadulce Express</h1>
-        <div id="spacer" class="w-10 hidden"></div>
+        <h1 id="header-titulo" class="text-xl font-bold text-gray-800 flex-1 text-center italic uppercase tracking-tighter">Aguadulce Express</h1>
+        <div class="w-10"></div>
     </header>
 
-    <div id="categorias-container" class="flex overflow-x-auto p-4 gap-2 sticky top-[68px] bg-gray-100 z-40 no-scrollbar hidden">
-    </div>
+    <div id="categorias-container" class="flex overflow-x-auto p-4 gap-2 sticky top-[60px] bg-gray-50 z-40 no-scrollbar hidden border-b border-gray-100"></div>
 
     <main id="main-container" class="p-4 grid grid-cols-1 gap-4">
-        <div class="flex flex-col items-center justify-center py-20 text-gray-400">
-            <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
-            <p>Cargando establecimientos...</p>
+        <div class="text-center py-20 text-gray-400">
+            <i class="fas fa-circle-notch fa-spin text-3xl mb-4"></i>
+            <p class="font-medium">Sincronizando con los restaurantes...</p>
         </div>
     </main>
 
-    <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-between items-center shadow-[0_-4px_10px_rgba(0,0,0,0.05)] hidden z-50">
+    <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-between items-center shadow-[0_-5px_20px_rgba(0,0,0,0.1)] hidden z-50 animate-bounce-in">
         <div class="flex flex-col">
-            <span class="text-[10px] text-gray-400 uppercase font-bold">Total Pedido</span>
+            <span class="text-[10px] text-gray-400 font-bold uppercase">Total a pagar</span>
             <div class="flex items-center">
-                <span id="cart-count" class="bg-red-500 text-white px-2 py-0.5 rounded-md text-[10px] font-bold">0</span>
-                <span class="ml-2 font-black text-xl text-gray-800">$<span id="cart-total">0</span></span>
+                <span id="cart-count" class="bg-red-500 text-white px-2 py-0.5 rounded-md text-[10px] font-black">0</span>
+                <span class="ml-2 font-black text-gray-800 text-xl">$<span id="cart-total">0</span></span>
             </div>
         </div>
-        <button onclick="enviarPedidoProfesional()" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl font-black flex items-center gap-2 transition-all shadow-lg active:scale-95">
+        <button onclick="enviarPedidoProfesional()" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-2xl font-black flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-green-200">
             <i class="fab fa-whatsapp text-xl"></i> CONFIRMAR
         </button>
     </div>
@@ -54,109 +53,112 @@
     <script>
         let todosLosRestaurantes = [];
         let todoElMenu = [];
-        let menuFiltrado = [];
         let restauranteSeleccionado = null;
         let carrito = [];
 
-        // 1. CARGA INICIAL DE DATOS
+        // 1. CARGA INICIAL (RESTAURANTES Y MENÚ GENERAL)
         async function cargarDatos() {
             try {
                 const [resRest, resMenu] = await Promise.all([
                     fetch(`${API_URL}?sheet=RESTAURANTES`),
-                    fetch(`${API_URL}?sheet=MENUS`)
+                    fetch(`${API_URL}?sheet=MENUS_GENERAL`)
                 ]);
-                
                 todosLosRestaurantes = await resRest.json();
                 todoElMenu = await resMenu.json();
-
                 mostrarSelectorRestaurantes();
             } catch (error) {
-                console.error("Error:", error);
                 document.getElementById('main-container').innerHTML = `
-                    <div class="text-center p-10">
-                        <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-                        <p class="text-gray-600">No pudimos conectar con el servidor.<br>Revisa tu conexión o la URL del script.</p>
+                    <div class="text-center py-20">
+                        <i class="fas fa-wifi text-red-300 text-5xl mb-4"></i>
+                        <p class="text-gray-500">Error de conexión con la base de datos.</p>
                     </div>`;
             }
         }
 
-        // 2. VISTA: SELECTOR DE RESTAURANTES
+        // 2. VISTA: LISTA DE LOCALES CON LÓGICA DE ESTADO
         function mostrarSelectorRestaurantes() {
             restauranteSeleccionado = null;
             carrito = [];
             actualizarBarraCarrito();
-            
             document.getElementById('btn-back').classList.add('hidden');
-            document.getElementById('spacer').classList.add('hidden');
             document.getElementById('header-titulo').innerText = "Aguadulce Express";
             document.getElementById('categorias-container').classList.add('hidden');
             
             const container = document.getElementById('main-container');
-            container.innerHTML = todosLosRestaurantes.map(r => `
-                <div onclick="seleccionarRestaurante('${r.ID}')" class="rest-card bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 transition-all cursor-pointer">
-                    <div class="relative">
-                        <img src="${r.FOTO || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500'}" class="w-full h-44 object-cover">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <h3 class="font-black text-white text-xl uppercase">${r.NOMBRE_REST}</h3>
+            
+            container.innerHTML = todosLosRestaurantes.map(r => {
+                const estaAbierto = r.ESTADO === "ACTIVO";
+                const visualStatus = estaAbierto 
+                    ? '<span class="text-green-500 text-[10px] font-black uppercase">● Abierto</span>' 
+                    : '<span class="text-red-500 text-[10px] font-black uppercase">● Cerrado por el dueño</span>';
+                
+                return `
+                    <div onclick="${estaAbierto ? `abrirRestaurante('${r.ID}')` : ''}" 
+                         class="bg-white rounded-3xl shadow-sm overflow-hidden border border-gray-100 transition-all ${estaAbierto ? 'active:scale-95 cursor-pointer' : 'opacity-60 grayscale cursor-not-allowed'}">
+                        <div class="relative">
+                            <img src="${r.FOTO || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500'}" class="w-full h-48 object-cover">
+                            ${!estaAbierto ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-black text-2xl tracking-tighter uppercase">No disponible</div>' : ''}
+                        </div>
+                        <div class="p-5 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-black text-xl text-gray-800 uppercase tracking-tighter">${r.NOMBRE}</h3>
+                                <p class="text-xs text-gray-400 font-medium italic">${r.DIRECCION}</p>
+                            </div>
+                            ${visualStatus}
                         </div>
                     </div>
-                    <div class="p-4 flex justify-between items-center">
-                        <p class="text-sm text-gray-500 font-medium"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i> ${r.DIRECCION}</p>
-                        <span class="bg-gray-100 text-[10px] font-bold px-2 py-1 rounded uppercase text-gray-400">Abierto</span>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        // 3. VISTA: MENÚ DEL RESTAURANTE
-        function seleccionarRestaurante(id) {
+        // 3. VISTA: MENÚ FILTRADO
+        function abrirRestaurante(id) {
             restauranteSeleccionado = todosLosRestaurantes.find(r => r.ID === id);
-            menuFiltrado = todoElMenu.filter(p => p.ID_RESTAURANTE === id);
+            const platos = todoElMenu.filter(p => p.ID_RESTAURANTE == id);
             
+            document.getElementById('header-titulo').innerText = restauranteSeleccionado.NOMBRE;
             document.getElementById('btn-back').classList.remove('hidden');
-            document.getElementById('spacer').classList.remove('hidden');
-            document.getElementById('header-titulo').innerText = restauranteSeleccionado.NOMBRE_REST;
             
-            renderizarCategorias();
-            renderizarProductos('Todos');
+            renderizarCategorias(platos);
+            renderizarProductos(platos, 'Todos');
         }
 
-        function renderizarCategorias() {
+        function renderizarCategorias(platos) {
             const container = document.getElementById('categorias-container');
             container.classList.remove('hidden');
-            const cats = ["Todos", ...new Set(menuFiltrado.map(p => p.CATEGORIA))];
+            const cats = ["Todos", ...new Set(platos.map(p => p.Categoria))];
             
             container.innerHTML = cats.map(c => `
-                <button onclick="renderizarProductos('${c}')" class="category-pill px-5 py-2 rounded-xl bg-white border border-gray-200 text-sm font-bold whitespace-nowrap shadow-sm transition-all">
+                <button onclick="filtrarPorCategoria('${c}')" class="category-pill px-6 py-2 rounded-2xl bg-white border border-gray-200 text-xs font-black uppercase whitespace-nowrap shadow-sm transition-all">
                     ${c}
                 </button>
             `).join('');
         }
 
-        function renderizarProductos(cat) {
+        function filtrarPorCategoria(cat) {
+            const platos = todoElMenu.filter(p => p.ID_RESTAURANTE == restauranteSeleccionado.ID);
+            renderizarProductos(platos, cat);
+        }
+
+        function renderizarProductos(platos, cat) {
             document.querySelectorAll('.category-pill').forEach(b => {
                 b.classList.toggle('active', b.innerText === cat);
             });
 
             const container = document.getElementById('main-container');
-            const productos = cat === 'Todos' ? menuFiltrado : menuFiltrado.filter(p => p.CATEGORIA === cat);
+            const filtrados = cat === 'Todos' ? platos : platos.filter(p => p.Categoria === cat);
             
-            if(productos.length === 0) {
-                container.innerHTML = `<p class="text-center py-10 text-gray-400">No hay productos en esta categoría.</p>`;
-                return;
-            }
-
-            container.innerHTML = productos.map(p => `
-                <div class="bg-white rounded-2xl shadow-sm flex border border-gray-100 p-3 gap-4 items-center transition-all">
-                    <img src="${p.FOTO || 'https://via.placeholder.com/150'}" class="w-24 h-24 rounded-xl object-cover shadow-inner">
-                    <div class="flex-1 flex flex-col h-24 justify-between">
+            container.innerHTML = filtrados.map(p => `
+                <div class="bg-white rounded-2xl shadow-sm flex border border-gray-100 p-3 gap-4 items-center animate-fade-in">
+                    <img src="${p.Foto || 'https://via.placeholder.com/150'}" class="w-24 h-24 rounded-2xl object-cover">
+                    <div class="flex-1 h-24 flex flex-col justify-between py-1">
                         <div>
-                            <h3 class="font-black text-gray-800 text-sm uppercase leading-tight">${p.NOMBRE_PLATO}</h3>
-                            <p class="text-[10px] text-gray-400 mt-1 italic">${p.ACOMPAÑANTES || 'Tradicional'}</p>
+                            <h3 class="font-black text-gray-800 text-xs uppercase leading-tight">${p.Nombre}</h3>
+                            <p class="text-[10px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">${p.Descripcion || ''}</p>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="font-black text-red-600 text-lg">$${p.PRECIO}</span>
-                            <button onclick="agregar('${p.NOMBRE_PLATO}', ${p.PRECIO})" class="bg-gray-900 text-white w-10 h-10 rounded-xl font-bold flex items-center justify-center hover:bg-red-500 transition-colors shadow-md active:scale-90">
+                            <span class="font-black text-red-600 text-xl italic">$${p.Precio}</span>
+                            <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="bg-gray-900 text-white w-10 h-10 rounded-xl font-bold flex items-center justify-center active:bg-red-500 transition-all shadow-md active:scale-90">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -165,7 +167,7 @@
             `).join('');
         }
 
-        // 4. LÓGICA DE CARRITO Y ENVÍO
+        // 4. CARRITO Y REGISTRO PROFESIONAL
         function agregar(nombre, precio) {
             carrito.push({nombre, precio});
             actualizarBarraCarrito();
@@ -174,7 +176,6 @@
         function actualizarBarraCarrito() {
             const bar = document.getElementById('cart-bar');
             const total = carrito.reduce((sum, p) => sum + p.precio, 0);
-            
             if(carrito.length > 0) {
                 bar.classList.remove('hidden');
                 document.getElementById('cart-count').innerText = carrito.length;
@@ -185,6 +186,10 @@
         }
 
         async function enviarPedidoProfesional() {
+            const btn = event.currentTarget;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> REGISTRANDO...`;
+
             const items = carrito.reduce((acc, p) => {
                 acc[p.nombre] = (acc[p.nombre] || 0) + 1;
                 return acc;
@@ -197,48 +202,35 @@
 
             const datosPedido = {
                 id_restaurante: restauranteSeleccionado.ID,
-                restaurante_nombre: restauranteSeleccionado.NOMBRE_REST,
+                restaurante_nombre: restauranteSeleccionado.NOMBRE,
                 detalles_pedido: detalles.slice(0, -2),
                 total: document.getElementById('cart-total').innerText,
-                cliente_nombre: "Cliente Web" 
+                cliente_nombre: "Cliente Web"
             };
 
-            // Bloqueamos botón para evitar doble envío
-            const btn = event.currentTarget;
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-sync fa-spin"></i> PROCESANDO...`;
-
             try {
-                // REGISTRO EN PANEL PROFESIONAL (EXCEL)
+                // REGISTRO EN PANEL (HOJA PEDIDOS)
                 await fetch(API_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Importante para evitar bloqueos de navegador
-                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'no-cors',
                     body: JSON.stringify(datosPedido)
                 });
 
-                // NOTIFICACIÓN WHATSAPP
-                let mensajeWA = `*NUEVO PEDIDO - AGUADULCE EXPRESS*\n\n`;
-                mensajeWA += `📍 *Restaurante:* ${restauranteSeleccionado.NOMBRE_REST}\n`;
-                mensajeWA += `📝 *Pedido:* ${datosPedido.detalles_pedido}\n`;
-                mensajeWA += `💰 *TOTAL: $${datosPedido.total}*\n\n`;
-                mensajeWA += `_El pedido ha sido registrado en el Panel de Control._`;
-
-                const url = `https://wa.me/${restauranteSeleccionado.TELEFONO}?text=${encodeURIComponent(mensajeWA)}`;
+                // WHATSAPP
+                let mensaje = `*NUEVO PEDIDO - AGUADULCE EXPRESS*\n\n`;
+                mensaje += `📍 *Local:* ${restauranteSeleccionado.NOMBRE}\n`;
+                mensaje += `📝 *Pedido:* ${datosPedido.detalles_pedido}\n`;
+                mensaje += `💰 *TOTAL: $${datosPedido.total}*\n\n`;
+                mensaje += `_Registrado en el panel del restaurante._`;
                 
-                alert("¡Pedido registrado profesionalmente!");
-                window.open(url, '_blank');
-
-                // Reiniciar App
-                carrito = [];
+                window.open(`https://wa.me/${restauranteSeleccionado.TELEFONO}?text=${encodeURIComponent(mensaje)}`, '_blank');
+                
+                alert("¡Pedido enviado! El restaurante ya lo tiene en su panel.");
                 mostrarSelectorRestaurantes();
-
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Hubo un error al conectar con el Panel. Intenta de nuevo.");
-            } finally {
+            } catch (e) {
+                alert("Error al procesar el pedido.");
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fab fa-whatsapp text-xl"></i> CONFIRMAR`;
+                btn.innerHTML = `<i class="fab fa-whatsapp text-xl"></i> PEDIR`;
             }
         }
 
