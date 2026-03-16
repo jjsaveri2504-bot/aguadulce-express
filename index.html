@@ -3,47 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aguadulce Express</title>
+    <title>Aguadulce Express | Smart Sales</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        .category-pill.active { background-color: #ef4444; color: white; border-color: #ef4444; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid #eee; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
+        .modal-blur { backdrop-filter: blur(8px); background: rgba(0,0,0,0.4); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .animate-slide { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="bg-gray-50 font-sans pb-24">
+<body class="pb-32">
 
     <script>
-        // TU NUEVA URL DE IMPLEMENTACIÓN
         const API_URL = "https://script.google.com/macros/s/AKfycbzED0RJ90vtBNDXT15TRT6iDqpX7REjN5XiQ2IL8yDElatGRwELgZDwq6HbSDpNoAZuFQ/exec";
     </script>
 
-    <header class="bg-white shadow-sm sticky top-0 z-50 p-4 flex items-center justify-between">
-        <button id="btn-back" onclick="mostrarSelectorRestaurantes()" class="hidden text-gray-600 p-2"><i class="fas fa-arrow-left text-xl"></i></button>
-        <h1 id="header-titulo" class="text-xl font-black text-gray-800 flex-1 text-center italic uppercase">Aguadulce Express</h1>
+    <header class="glass-header sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+        <button id="btn-back" onclick="mostrarSelectorRestaurantes()" class="hidden w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100"><i class="fas fa-chevron-left"></i></button>
+        <h1 id="header-titulo" class="text-xl font-800 tracking-tighter italic">AGUADULCE <span class="text-red-500">EXPRESS</span></h1>
         <div class="w-10"></div>
     </header>
 
-    <div id="categorias-container" class="flex overflow-x-auto p-4 gap-2 sticky top-[60px] bg-gray-50 z-40 no-scrollbar hidden border-b border-gray-100"></div>
+    <div id="categorias-container" class="flex overflow-x-auto px-6 py-4 gap-3 sticky top-[73px] z-40 no-scrollbar hidden bg-white/80"></div>
 
-    <main id="main-container" class="p-4 grid grid-cols-1 gap-4">
-        <div class="text-center py-20 text-gray-400">
-            <i class="fas fa-circle-notch fa-spin text-3xl mb-4"></i>
-            <p class="font-bold uppercase text-xs tracking-widest">Sincronizando menú profesional...</p>
-        </div>
+    <main id="main-container" class="p-6 grid grid-cols-1 gap-6 max-w-2xl mx-auto">
+        <div class="text-center py-20"><div class="animate-spin inline-block w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full"></div></div>
     </main>
 
-    <div id="cart-bar" class="fixed bottom-6 left-4 right-4 bg-gray-900 text-white p-4 rounded-2xl flex justify-between items-center shadow-2xl hidden z-50">
-        <div>
-            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Tu Pedido</p>
-            <p class="font-black text-xl leading-none">$<span id="cart-total">0</span></p>
+    <div id="modal-upsell" class="fixed inset-0 z-[100] hidden flex items-end sm:items-center justify-center p-4 modal-blur">
+        <div class="bg-white w-full max-w-md rounded-[32px] overflow-hidden animate-slide">
+            <div class="p-8 text-center">
+                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl animate-bounce">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3 class="text-2xl font-800 tracking-tight text-gray-900 leading-tight">¡Agregado al carrito!</h3>
+                <p class="text-gray-500 mt-2 text-sm font-medium">¿Te gustaría completar tu orden con algo más?</p>
+                
+                <div id="sugerencia-item" class="mt-8 bg-slate-50 rounded-3xl p-4 flex items-center gap-4 border border-dashed border-slate-200">
+                    </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                    <button onclick="cerrarUpsell()" class="py-4 text-gray-400 font-bold text-sm uppercase tracking-widest hover:text-gray-600 transition-colors">No, gracias</button>
+                    <button id="btn-add-upsell" class="bg-gray-900 text-white py-4 rounded-2xl font-800 text-sm uppercase shadow-xl active:scale-95 transition-all">¡Lo quiero!</button>
+                </div>
+            </div>
         </div>
-        <button onclick="enviarPedidoProfesional()" class="bg-green-500 text-white px-6 py-3 rounded-xl font-black flex items-center gap-2 active:scale-95 transition-transform shadow-lg shadow-green-900/20">
-            <i class="fab fa-whatsapp text-xl"></i> CONFIRMAR
-        </button>
+    </div>
+
+    <div id="cart-bar" class="fixed bottom-6 left-6 right-6 bg-gray-900 text-white p-5 rounded-[28px] flex justify-between items-center shadow-2xl hidden z-50">
+        <div class="flex items-center gap-4">
+            <div class="bg-red-500 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"><i class="fas fa-shopping-bag"></i></div>
+            <p class="font-800 text-2xl leading-none">$<span id="cart-total">0</span></p>
+        </div>
+        <button onclick="enviarPedidoProfesional()" class="bg-white text-black px-8 py-3 rounded-2xl font-800 text-xs uppercase tracking-widest">Pedir</button>
     </div>
 
     <script>
@@ -61,55 +77,30 @@
                 todosLosRestaurantes = await resRest.json();
                 todoElMenu = await resMenu.json();
                 mostrarSelectorRestaurantes();
-            } catch (error) {
-                document.getElementById('main-container').innerHTML = `
-                <div class="text-center py-20 px-6">
-                    <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
-                    <p class="text-gray-800 font-bold">Error de conexión</p>
-                    <p class="text-gray-500 text-xs mt-2">Asegúrate de que las pestañas RESTAURANTES y MENU_GENERAL existan en tu Excel.</p>
-                </div>`;
-            }
+            } catch (error) { console.error(error); }
         }
 
         function mostrarSelectorRestaurantes() {
-            restauranteSeleccionado = null;
-            carrito = [];
-            actualizarBarraCarrito();
+            restauranteSeleccionado = null; carrito = []; actualizarBarraCarrito();
             document.getElementById('btn-back').classList.add('hidden');
-            document.getElementById('header-titulo').innerText = "Aguadulce Express";
+            document.getElementById('header-titulo').innerHTML = 'AGUADULCE <span class="text-red-500">EXPRESS</span>';
             document.getElementById('categorias-container').classList.add('hidden');
-            
             const container = document.getElementById('main-container');
             container.innerHTML = todosLosRestaurantes.map(r => {
-                const estaAbierto = r.ESTADO === "ACTIVO" || r.ESTADO === "SI";
-                return `
-                    <div onclick="${estaAbierto ? `abrirRestaurante('${r.ID}')` : ''}" 
-                         class="bg-white rounded-3xl shadow-sm overflow-hidden border border-gray-100 transition-all animate-fade ${estaAbierto ? 'active:scale-95 cursor-pointer' : 'opacity-50 grayscale cursor-not-allowed'}">
-                        <div class="relative">
-                            <img src="${r.FOTO || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500'}" class="w-full h-44 object-cover">
-                            ${!estaAbierto ? '<div class="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-black text-xl uppercase tracking-tighter">Cerrado por el dueño</div>' : ''}
-                        </div>
-                        <div class="p-5 flex justify-between items-center">
-                            <div>
-                                <h3 class="font-black text-lg text-gray-800 uppercase tracking-tighter">${r.NOMBRE}</h3>
-                                <p class="text-[10px] text-gray-400 font-bold italic">${r.DIRECCION || 'Aguadulce'}</p>
-                            </div>
-                            <span class="text-[9px] font-black uppercase px-2 py-1 rounded-md ${estaAbierto ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}">
-                                ${estaAbierto ? '● Abierto' : '● Cerrado'}
-                            </span>
-                        </div>
-                    </div>
-                `;
+                const abierto = r.ESTADO === "ACTIVO" || r.ESTADO === "SI";
+                return `<div onclick="${aberto ? `abrirRestaurante('${r.ID}')` : ''}" class="relative bg-white rounded-[35px] shadow-xl overflow-hidden mb-2 ${!aberto ? 'grayscale opacity-60' : 'active:scale-95 transition-transform'}">
+                    <div class="h-56 relative"><img src="${r.FOTO}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6"><h3 class="text-2xl font-800 text-white italic uppercase tracking-tighter">${r.NOMBRE}</h3></div></div>
+                </div>`;
             }).join('');
         }
 
         function abrirRestaurante(id) {
             restauranteSeleccionado = todosLosRestaurantes.find(r => r.ID == id);
             const platos = todoElMenu.filter(p => p.ID_RESTAURANTE == id);
-            
-            document.getElementById('header-titulo').innerText = restauranteSeleccionado.NOMBRE;
             document.getElementById('btn-back').classList.remove('hidden');
-            
+            document.getElementById('header-titulo').innerText = restauranteSeleccionado.NOMBRE;
             renderizarCategorias(platos);
             renderizarProductos(platos, 'Todos');
         }
@@ -118,51 +109,67 @@
             const container = document.getElementById('categorias-container');
             container.classList.remove('hidden');
             const cats = ["Todos", ...new Set(platos.map(p => p.Categoria))].filter(c => c);
-            
-            container.innerHTML = cats.map(c => `
-                <button onclick="filtrarPorCategoria('${c}')" class="category-pill px-5 py-2 rounded-xl bg-white border border-gray-200 text-[10px] font-black uppercase whitespace-nowrap shadow-sm">
-                    ${c}
-                </button>
-            `).join('');
+            container.innerHTML = cats.map(c => `<button onclick="filtrarProductos('${c}')" class="category-pill px-6 py-2 rounded-2xl bg-white border border-gray-100 text-[10px] font-800 uppercase shadow-sm">${c}</button>`).join('');
         }
 
-        function filtrarPorCategoria(cat) {
+        function filtrarProductos(cat) {
             const platos = todoElMenu.filter(p => p.ID_RESTAURANTE == restauranteSeleccionado.ID);
             renderizarProductos(platos, cat);
         }
 
         function renderizarProductos(platos, cat) {
             document.querySelectorAll('.category-pill').forEach(b => b.classList.toggle('active', b.innerText === cat));
-            const container = document.getElementById('main-container');
             const filtrados = cat === 'Todos' ? platos : platos.filter(p => p.Categoria === cat);
-            
-            if (filtrados.length === 0) {
-                container.innerHTML = `<p class="text-center py-10 text-gray-400 text-xs font-bold uppercase">Sin productos disponibles</p>`;
-                return;
-            }
-
-            container.innerHTML = filtrados.map(p => `
-                <div class="bg-white rounded-2xl shadow-sm flex border border-gray-100 p-3 gap-4 items-center animate-fade">
-                    <img src="${p.Foto || 'https://via.placeholder.com/150'}" class="w-20 h-20 rounded-2xl object-cover shadow-sm">
-                    <div class="flex-1 flex flex-col justify-between py-1">
-                        <div>
-                            <h3 class="font-black text-gray-800 text-[11px] uppercase leading-tight">${p.Nombre}</h3>
-                            <p class="text-[9px] text-gray-400 mt-1 line-clamp-2 leading-tight font-medium">${p.Descripcion || ''}</p>
-                        </div>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="font-black text-red-600 text-lg leading-none italic">$${p.Precio}</span>
-                            <button onclick="agregar('${p.Nombre}', ${p.Precio})" class="bg-gray-900 text-white w-9 h-9 rounded-xl flex items-center justify-center active:bg-red-500 shadow-lg transition-colors">
-                                <i class="fas fa-plus text-xs"></i>
-                            </button>
-                        </div>
+            document.getElementById('main-container').innerHTML = filtrados.map(p => `
+                <div class="bg-white rounded-3xl p-4 flex gap-4 border border-slate-50 shadow-lg shadow-slate-100">
+                    <img src="${p.Foto}" class="w-20 h-20 rounded-2xl object-cover shadow-md">
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div><h3 class="font-800 text-gray-900 text-[11px] uppercase">${p.Nombre}</h3><p class="text-[9px] text-gray-400 mt-1 line-clamp-1">${p.Descripcion}</p></div>
+                        <div class="flex justify-between items-center"><span class="font-800 text-red-500 text-lg italic">$${p.Precio}</span>
+                        <button onclick="agregarConSugerencia('${p.Nombre}', ${p.Precio}, '${p.Categoria}')" class="bg-gray-900 text-white w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-all"><i class="fas fa-plus text-xs"></i></button></div>
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
-        function agregar(nombre, precio) {
+        // --- LÓGICA DE SUGERENCIAS INTELIGENTES ---
+        function agregarConSugerencia(nombre, precio, categoria) {
             carrito.push({nombre, precio});
             actualizarBarraCarrito();
+
+            // Si el cliente pide algo que NO sea Bebida o Postre, le sugerimos una
+            if(categoria.toUpperCase() !== "BEBIDAS" && categoria.toUpperCase() !== "POSTRES") {
+                const sugerencias = todoElMenu.filter(p => 
+                    p.ID_RESTAURANTE == restauranteSeleccionado.ID && 
+                    (p.Categoria.toUpperCase() === "BEBIDAS" || p.Categoria.toUpperCase() === "POSTRES" || p.Categoria.toUpperCase() === "ADICIONALES")
+                );
+
+                if(sugerencias.length > 0) {
+                    const item = sugerencias[Math.floor(Math.random() * sugerencias.length)];
+                    mostrarUpsell(item);
+                }
+            }
+        }
+
+        function mostrarUpsell(item) {
+            const modal = document.getElementById('modal-upsell');
+            const container = document.getElementById('sugerencia-item');
+            container.innerHTML = `
+                <img src="${item.Foto}" class="w-16 h-16 rounded-xl object-cover shadow-md">
+                <div class="text-left flex-1">
+                    <h4 class="font-800 text-gray-900 text-xs uppercase">${item.Nombre}</h4>
+                    <p class="text-red-500 font-800 text-sm">$${item.Precio}</p>
+                </div>
+            `;
+            document.getElementById('btn-add-upsell').onclick = () => {
+                carrito.push({nombre: item.Nombre, precio: item.Precio});
+                actualizarBarraCarrito();
+                cerrarUpsell();
+            };
+            modal.classList.remove('hidden');
+        }
+
+        function cerrarUpsell() {
+            document.getElementById('modal-upsell').classList.add('hidden');
         }
 
         function actualizarBarraCarrito() {
@@ -171,37 +178,16 @@
             if(carrito.length > 0) {
                 bar.classList.remove('hidden');
                 document.getElementById('cart-total').innerText = total.toFixed(2);
-            } else {
-                bar.classList.add('hidden');
-            }
+            } else { bar.classList.add('hidden'); }
         }
 
         async function enviarPedidoProfesional() {
             const items = carrito.reduce((acc, p) => { acc[p.nombre] = (acc[p.nombre] || 0) + 1; return acc; }, {});
-            let detalles = "";
-            for (const [nombre, cant] of Object.entries(items)) { detalles += `${cant}x ${nombre}, `; }
-
-            const datosPedido = {
-                id_restaurante: restauranteSeleccionado.ID,
-                restaurante_nombre: restauranteSeleccionado.NOMBRE,
-                detalles_pedido: detalles.slice(0, -2),
-                total: document.getElementById('cart-total').innerText,
-                cliente_nombre: "Cliente Web"
-            };
-
-            try {
-                // Registro silencioso en Excel
-                fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datosPedido) });
-                
-                // Mensaje profesional de WhatsApp
-                const mensaje = `*NUEVO PEDIDO AGUADULCE EXPRESS*\n\n📍 *Local:* ${restauranteSeleccionado.NOMBRE}\n📝 *Pedido:* ${datosPedido.detalles_pedido}\n💰 *TOTAL: $${datosPedido.total}*\n\n_Revisa tu panel para gestionar el pedido._`;
-                
-                window.open(`https://wa.me/${restauranteSeleccionado.TELEFONO}?text=${encodeURIComponent(mensaje)}`, '_blank');
-                
-                alert("¡Pedido enviado! Ya aparece en el panel del restaurante.");
-                carrito = [];
-                mostrarSelectorRestaurantes();
-            } catch (e) { alert("Error al conectar."); }
+            let detalles = ""; for (const [nombre, cant] of Object.entries(items)) { detalles += `${cant}x ${nombre}, `; }
+            const datosPedido = { id_restaurante: restauranteSeleccionado.ID, restaurante_nombre: restauranteSeleccionado.NOMBRE, detalles_pedido: detalles.slice(0, -2), total: document.getElementById('cart-total').innerText, cliente_nombre: "Cliente Premium" };
+            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datosPedido) });
+            window.open(`https://wa.me/${restauranteSeleccionado.TELEFONO}?text=${encodeURIComponent("*PEDIDO SMART AGUADULCE*\n" + datosPedido.detalles_pedido + "\nTotal: $" + datosPedido.total)}`, '_blank');
+            carrito = []; mostrarSelectorRestaurantes();
         }
 
         cargarDatos();
