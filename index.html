@@ -13,17 +13,15 @@
     <style>
         body { font-family: 'Open Sans', sans-serif; background: #fdfdfd; -webkit-tap-highlight-color: transparent; }
         .font-ae { font-family: 'Montserrat', sans-serif; font-weight: 900; }
-        .btn-ae { background: #00BCD4; color: white; border-radius: 20px; font-weight: 700; transition: 0.3s; }
-        .btn-ae:active { transform: scale(0.95); }
-        .skeleton { background: #eee; background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%); border-radius: 5px; background-size: 200% 100%; animation: 1.5s shine linear infinite; }
-        @keyframes shine { to { background-position-x: -200%; } }
+        .btn-ae { background: #00BCD4; color: white; border-radius: 20px; font-weight: 700; transition: 0.2s; }
+        .btn-ae:active { transform: scale(0.95); opacity: 0.8; }
     </style>
 </head>
 <body class="pb-40">
 
     <script>
         // CONFIGURACIÓN - REEMPLAZA TU URL AQUÍ
-        const API_URL = https://script.google.com/macros/s/AKfycbzmPjIYTZIpyU0r0gldvS5o4peBMkOtxAppTIvigBhj2E-_T1drwOhxRwgnvMLPdAIL/exec""; 
+        const API_URL = "TU_NUEVA_URL_AQUI"; 
         const COSTO_ENVIO = 3.50;
 
         let dataCache = null;
@@ -42,19 +40,19 @@
 
     <div id="cart-bar" class="fixed bottom-6 left-6 right-6 bg-ae-grafito text-white p-6 rounded-[30px] flex justify-between items-center shadow-2xl hidden z-50">
         <div><p class="text-[9px] font-bold text-ae-azul uppercase italic">Total Final</p><p class="font-ae text-3xl italic">$<span id="cart-total">0</span></p></div>
-        <button onclick="abrirCheckout()" class="btn-ae px-10 py-4 uppercase text-xs tracking-widest font-bold"> PEDIR </button>
+        <button onclick="abrirCheckout()" class="btn-ae px-10 py-4 uppercase text-xs tracking-widest font-bold italic"> PEDIR </button>
     </div>
 
     <div id="modal-checkout" class="fixed inset-0 z-[100] hidden bg-ae-grafito/90 backdrop-blur-sm flex items-end justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-[40px] p-8">
-            <h3 class="font-ae text-2xl mb-6 uppercase italic text-ae-grafito text-center tracking-tighter">DATOS DE ENTREGA</h3>
+            <h3 class="font-ae text-2xl mb-6 uppercase italic text-ae-grafito text-center italic">DATOS DE ENTREGA</h3>
             <div class="space-y-4">
                 <input type="text" id="nombre-cliente" placeholder="Tu Nombre" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
                 <input type="tel" id="tel-cliente" placeholder="Tu WhatsApp" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
                 <input type="text" id="dir-cliente" placeholder="Dirección exacta" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
                 <textarea id="obs-cliente" placeholder="Notas (opcional)" class="w-full p-4 bg-gray-50 rounded-2xl border-none" rows="2"></textarea>
             </div>
-            <button id="btn-final" onclick="enviarPedido()" class="w-full mt-6 btn-ae py-5 uppercase text-sm tracking-widest font-bold">CONFIRMAR PEDIDO</button>
+            <button id="btn-final" onclick="enviarPedido()" class="w-full mt-6 btn-ae py-5 uppercase text-sm tracking-widest font-bold italic">CONFIRMAR PEDIDO</button>
             <button onclick="cerrarCheckout()" class="w-full mt-4 text-gray-400 font-bold uppercase text-[10px] text-center">Cancelar</button>
         </div>
     </div>
@@ -63,14 +61,12 @@
         async function iniciarApp() {
             const local = localStorage.getItem('ae_v1');
             if (local) { dataCache = JSON.parse(local); renderRestaurantes(); }
-            else { document.getElementById('main-container').innerHTML = '<div class="skeleton h-40 w-full rounded-[35px]"></div>'; }
-
             try {
-                const res = await fetch(`${API_URL}?sheet=RESTAURANTES&v=${Date.now()}`);
+                const res = await fetch(`${API_URL}?sheet=RESTAURANTES&cb=${Date.now()}`);
                 dataCache = await res.json();
                 localStorage.setItem('ae_v1', JSON.stringify(dataCache));
                 if (!restauranteActual) renderRestaurantes();
-            } catch (e) { console.log("Modo offline o error de red inicial."); }
+            } catch (e) { console.log("Offline"); }
         }
 
         function renderRestaurantes() {
@@ -78,10 +74,10 @@
             document.getElementById('btn-back').classList.add('hidden');
             document.getElementById('header-titulo').innerHTML = 'AGUADULCE <span class="text-ae-azul">EXPRESS</span>';
             document.getElementById('main-container').innerHTML = dataCache.restaurantes.map(r => `
-                <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white rounded-[35px] overflow-hidden shadow-sm border border-gray-100 mb-6 active:scale-95 transition">
+                <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white rounded-[35px] overflow-hidden shadow-sm border border-gray-100 mb-6 active:scale-95 transition cursor-pointer">
                     <img src="${r.FOTO}" class="w-full h-44 object-cover">
                     <div class="p-6 flex justify-between items-center">
-                        <div><h3 class="text-xl font-ae text-ae-grafito uppercase italic">${r.NOMBRE_RESTAURANTE}</h3><p class="text-ae-azul text-[10px] font-bold mt-1 tracking-widest font-ae italic">${r.DIRECCION}</p></div>
+                        <div><h3 class="text-xl font-ae text-ae-grafito uppercase italic">${r.NOMBRE_RESTAURANTE}</h3><p class="text-ae-azul text-[10px] font-bold mt-1 italic font-ae">${r.DIRECCION}</p></div>
                         <span class="text-[10px] font-bold ${r.ESTADO === 'Abierto' ? 'text-green-500' : 'text-red-500'} uppercase italic font-ae">${r.ESTADO}</span>
                     </div>
                 </div>`).join('');
@@ -97,7 +93,7 @@
                 <div class="bg-white rounded-[30px] p-4 flex gap-4 items-center shadow-sm mb-4 border border-gray-50">
                     <img src="${p.FOTO}" class="w-16 h-16 rounded-xl object-cover">
                     <div class="flex-1">
-                        <h3 class="font-ae text-[10px] text-ae-grafito uppercase italic">${p.PLATO}</h3>
+                        <h3 class="font-ae text-[10px] text-ae-grafito uppercase italic leading-tight">${p.PLATO}</h3>
                         <div class="flex justify-between items-center mt-1">
                             <span class="font-ae text-ae-azul text-xl italic">$${parseFloat(p.PRECIO).toFixed(2)}</span>
                             <button onclick="agregarAlCarrito('${p.PLATO}', ${p.PRECIO})" class="w-9 h-9 btn-ae flex items-center justify-center shadow-md"><i class="fas fa-plus text-xs"></i></button>
@@ -119,33 +115,49 @@
         function abrirCheckout() { document.getElementById('modal-checkout').classList.remove('hidden'); }
         function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
 
-        // ESTA ES LA FUNCIÓN CLAVE: NO ESPERA RESPUESTA, ENVÍA Y AVANZA
+        // ESTA FUNCIÓN AHORA ES INFALIBLE
         function enviarPedido() {
             const n = document.getElementById('nombre-cliente').value.trim();
             const t = document.getElementById('tel-cliente').value.trim();
             const d = document.getElementById('dir-cliente').value.trim();
-            if (!n || !t || !d) return alert("Faltan datos de entrega.");
+            const o = document.getElementById('obs-cliente').value.trim();
+            if (!n || !t || !d) return alert("Faltan datos.");
 
             const btn = document.getElementById('btn-final');
-            btn.disabled = true; btn.innerText = "ENVIANDO...";
+            btn.disabled = true; btn.innerText = "PROCESANDO...";
 
             const conteo = carrito.reduce((acc, i) => { acc[i.nombre] = (acc[i.nombre] || 0) + 1; return acc; }, {});
             let detalle = ""; for (const [p, c] of Object.entries(conteo)) { detalle += `${c}x ${p}, `; }
             const totalF = (carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO).toFixed(2);
 
-            // MANDAR A GOOGLE (MODO SILENCIOSO - SIN ESPERAR)
-            navigator.sendBeacon(`${API_URL}?t=${Date.now()}`, JSON.stringify({
+            // USAMOS UN FORMULARIO INVISIBLE PARA ENVIAR SIN ESPERAR
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = API_URL;
+            form.target = 'hidden_iframe'; // Para que no recargue la página
+
+            const payload = {
                 restaurante: restauranteActual.NOMBRE_RESTAURANTE,
                 cliente: n, telefono: t, direccion: d,
-                pedido: detalle.slice(0, -2), total: totalF, observaciones: document.getElementById('obs-cliente').value
-            }));
+                pedido: detalle.slice(0, -2), total: totalF, observaciones: o
+            };
 
-            // ABRIR WHATSAPP DE INMEDIATO
-            const msg = `*NUEVO PEDIDO - AGUADULCE EXPRESS*\n\n*Cliente:* ${n}\n*Dirección:* ${d}\n*Pedido:* ${detalle.slice(0, -2)}\n*TOTAL:* $${totalF}`;
-            window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`;
-        }
+            const input = document.createElement('input');
+            input.name = 'postData';
+            input.value = JSON.stringify(payload);
+            form.appendChild(input);
 
-        iniciarApp();
-    </script>
-</body>
-</html>
+            // Crear iframe oculto si no existe
+            if(!document.getElementById('hidden_iframe')){
+                const iframe = document.createElement('iframe');
+                iframe.id = 'hidden_iframe';
+                iframe.name = 'hidden_iframe';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+
+            document.body.appendChild(form);
+            form.submit(); // Dispara los datos al Excel
+
+            // WhatsApp y limpieza inmediata
+            const msg = `*NUEVO PEDIDO*\n\n*Cliente:* ${n}\n*Dirección:* ${d}\n*Pedido:* ${detalle.slice(0, -2)}\n*TOTAL:* $${total
