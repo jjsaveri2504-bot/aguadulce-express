@@ -1,33 +1,43 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aguadulce Express | Premium Delivery</title>
+    <title>Aguadulce Express | Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = { 
             theme: { 
                 extend: { 
-                    colors: { 'ae-main': '#00BCD4', 'ae-dark': '#1A1A1A', 'ae-light': '#F8FAFC' },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    colors: { 'ae-main': '#00BCD4', 'ae-dark': '#0F172A', 'ae-bg': '#F1F5F9' },
+                    animation: { 'fade-in': 'fadeIn 0.5s ease-out', 'slide-up': 'slideUp 0.4s ease-out' }
                 } 
             } 
         }
     </script>
     <style>
-        body { background-color: #F8FAFC; color: #1A1A1A; -webkit-tap-highlight-color: transparent; }
-        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
-        .card-pro { background: white; border-radius: 24px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(0,0,0,0.03); }
-        .card-pro:active { transform: scale(0.97); }
-        .btn-premium { background: #00BCD4; color: white; border-radius: 16px; font-weight: 700; letter-spacing: -0.02em; transition: 0.2s; box-shadow: 0 10px 15px -3px rgba(0, 188, 212, 0.3); }
-        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 24px; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F1F5F9; overflow-x: hidden; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .card-netflix { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card-netflix:active { transform: scale(0.92); }
+        
+        /* Cesta Flotante */
+        .basket-float { 
+            position: fixed; bottom: 20px; right: 20px; 
+            width: 60px; height: 60px; background: #0F172A; 
+            border-radius: 20px; display: flex; align-items: center; 
+            justify-content: center; color: white; box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            z-index: 100; transition: all 0.3s;
+        }
+        .basket-active { width: calc(100% - 40px); border-radius: 25px; justify-content: space-between; padding: 0 25px; }
     </style>
 </head>
-<body class="pb-32">
+<body>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbyO3k6Jo-XgrF8VhSjOfiO2tzFTnKJr-akZyqKoCQzW9ylRNe-UAjN8kgr52jVr3m5C/exec"; 
@@ -35,120 +45,184 @@
         let dataCache = JSON.parse(localStorage.getItem('ae_cache')) || null;
         let restauranteActual = null;
         let carrito = [];
+        
+        // Sugerencias estilo McDonald's
+        const SUGERENCIAS = [
+            { nombre: "Papas Fritas Grandes", precio: 2.50, foto: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200" },
+            { nombre: "Soda Gigante", precio: 1.75, foto: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200" },
+            { nombre: "Doble Queso Extra", precio: 1.00, foto: "https://images.unsplash.com/photo-1521305916504-4a1121188589?w=200" }
+        ];
     </script>
 
-    <header class="sticky top-0 z-50 glass-header border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-        <button id="btn-back" onclick="location.reload()" class="hidden w-10 h-10 flex items-center justify-center bg-gray-50 rounded-xl">
-            <i class="fas fa-chevron-left text-ae-dark"></i>
-        </button>
-        <div class="flex-1 text-center">
-            <h1 id="header-titulo" class="font-extrabold text-lg tracking-tight uppercase">
-                AGUADULCE <span class="text-ae-main italic font-black">EXPRESS</span>
+    <header class="sticky top-0 z-[80] bg-white/80 backdrop-blur-xl border-b border-gray-100 px-6 py-5">
+        <div class="flex items-center justify-between">
+            <button id="btn-back" onclick="location.reload()" class="hidden w-10 h-10 bg-gray-50 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <h1 id="header-titulo" class="font-extrabold text-xl tracking-tighter text-ae-dark uppercase italic">
+                AGUADULCE <span class="text-ae-main font-black">EXPRESS</span>
             </h1>
+            <div class="w-10"></div>
         </div>
-        <div class="w-10"></div> </header>
+    </header>
 
-    <main id="main-container" class="p-6 max-w-xl mx-auto space-y-5">
-        <div class="skeleton h-48"></div>
-        <div class="skeleton h-48"></div>
-    </main>
+    <main id="main-container" class="p-5 max-w-xl mx-auto animate-fade-in space-y-6"></main>
 
-    <div id="cart-bar" class="fixed bottom-8 left-6 right-6 bg-ae-dark text-white p-5 rounded-[28px] flex justify-between items-center shadow-2xl hidden z-50 transform transition-all">
-        <div>
-            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Pedido</p>
-            <p class="text-2xl font-extrabold">$<span id="cart-total">0</span></p>
+    <div id="basket-container" onclick="abrirCheckout()" class="basket-float hidden">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-shopping-basket text-ae-main text-xl"></i>
+            <span id="basket-count" class="font-bold text-sm"></span>
         </div>
-        <button onclick="abrirCheckout()" class="btn-premium px-8 py-4 uppercase text-xs font-black italic"> FINALIZAR </button>
+        <div id="basket-info" class="hidden flex items-center gap-4">
+            <span class="font-extrabold text-lg">$<span id="basket-total">0</span></span>
+            <span class="bg-ae-main text-ae-dark px-4 py-2 rounded-xl text-[10px] font-black uppercase italic">PAGAR</span>
+        </div>
     </div>
 
-    <div id="modal-checkout" class="fixed inset-0 z-[100] hidden bg-ae-dark/60 backdrop-blur-md flex items-end justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-[35px] p-8 shadow-2xl">
-            <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-6"></div>
-            <h3 class="text-xl font-extrabold mb-6 text-center tracking-tight">DETALLES DE ENTREGA</h3>
+    <div id="modal-upsell" class="fixed inset-0 z-[200] hidden bg-ae-dark/80 backdrop-blur-sm flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-[40px] p-8 animate-slide-up relative text-center">
+            <button onclick="cerrarSugerencia()" class="absolute top-5 right-5 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+            <h4 class="font-black text-ae-main italic text-sm mb-1 uppercase tracking-widest">¿Te gustaría añadir?</h4>
+            <h3 class="text-2xl font-extrabold text-ae-dark mb-6 leading-tight">¡Hazlo Combo Pro!</h3>
+            
+            <div id="lista-sugerencias" class="space-y-4"></div>
+
+            <button onclick="cerrarSugerencia()" class="mt-8 text-gray-400 font-bold text-xs uppercase tracking-widest">No, gracias</button>
+        </div>
+    </div>
+
+    <div id="modal-checkout" class="fixed inset-0 z-[150] hidden bg-ae-dark/90 flex items-end justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[40px] p-8 animate-slide-up overflow-y-auto max-h-[90vh]">
+            <h3 class="text-2xl font-black text-center mb-8 italic uppercase tracking-tighter">Confirmar Pedido</h3>
+            <div id="resumen-lista" class="mb-6 space-y-2 border-b pb-6 text-sm"></div>
             <div class="space-y-4">
-                <input type="text" id="nombre-cliente" placeholder="Nombre completo" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-ae-main">
-                <input type="tel" id="tel-cliente" placeholder="WhatsApp (Ej: 6000-0000)" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-ae-main">
-                <input type="text" id="dir-cliente" placeholder="Dirección de entrega" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-ae-main">
-                <textarea id="obs-cliente" placeholder="Indicaciones para el repartidor..." class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-ae-main" rows="2"></textarea>
+                <input type="text" id="nombre-cliente" placeholder="Tu Nombre" class="w-full p-4 bg-gray-50 rounded-2xl border-none font-bold">
+                <input type="tel" id="tel-cliente" placeholder="WhatsApp" class="w-full p-4 bg-gray-50 rounded-2xl border-none font-bold">
+                <input type="text" id="dir-cliente" placeholder="Dirección Exacta" class="w-full p-4 bg-gray-50 rounded-2xl border-none font-bold">
             </div>
-            <button id="btn-final" onclick="enviarPedido()" class="w-full mt-6 btn-premium py-5 uppercase text-sm font-black italic tracking-widest">PEDIR AHORA</button>
-            <button onclick="cerrarCheckout()" class="w-full mt-4 text-gray-400 font-bold text-xs uppercase tracking-widest">Volver</button>
+            <button id="btn-final" onclick="enviarPedido()" class="w-full mt-8 bg-ae-main text-ae-dark py-5 rounded-[22px] font-black italic shadow-xl shadow-ae-main/30 uppercase tracking-widest">ENVIAR A WHATSAPP</button>
+            <button onclick="cerrarCheckout()" class="w-full mt-4 text-gray-400 font-bold text-xs uppercase">Seguir Comprando</button>
         </div>
     </div>
 
     <script>
         async function cargar() {
-            // Si hay cache, renderiza de inmediato
             if(dataCache) renderRestaurantes();
-
             try {
                 const res = await fetch(`${API_URL}?cb=${Date.now()}`);
                 dataCache = await res.json();
                 localStorage.setItem('ae_cache', JSON.stringify(dataCache));
                 if (!restauranteActual) renderRestaurantes();
-            } catch (e) { console.error("Error cargando datos frescos"); }
+            } catch (e) { console.log("Usando caché..."); }
         }
 
         function renderRestaurantes() {
             document.getElementById('btn-back').classList.add('hidden');
-            document.getElementById('header-titulo').innerHTML = 'AGUADULCE <span class="text-ae-main italic font-black">EXPRESS</span>';
-            
-            document.getElementById('main-container').innerHTML = dataCache.restaurantes.map(r => `
-                <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="card-pro overflow-hidden shadow-sm group cursor-pointer">
-                    <div class="relative h-44 overflow-hidden">
-                        <img src="${r.FOTO}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                        <div class="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur shadow-sm rounded-full text-[10px] font-bold uppercase tracking-tighter ${r.ESTADO === 'Abierto' ? 'text-green-600' : 'text-red-600'}">
-                            ${r.ESTADO}
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-lg font-bold text-ae-dark uppercase italic tracking-tight">${r.NOMBRE_RESTAURANTE}</h3>
-                        <p class="text-gray-400 text-[10px] font-semibold mt-1 uppercase tracking-widest">${r.DIRECCION}</p>
-                    </div>
-                </div>`).join('');
+            document.getElementById('main-container').innerHTML = `
+                <h2 class="text-xs font-black text-ae-main uppercase tracking-[0.2em] mb-2 italic">Restaurantes Recomendados</h2>
+                <div class="grid grid-cols-1 gap-6">
+                    ${dataCache.restaurantes.map(r => `
+                        <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="card-netflix group relative h-64 rounded-[35px] overflow-hidden shadow-2xl shadow-blue-900/10">
+                            <img src="${r.FOTO}" class="absolute inset-0 w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-ae-dark via-transparent to-transparent"></div>
+                            <div class="absolute bottom-6 left-6 right-6">
+                                <div class="flex justify-between items-end">
+                                    <div>
+                                        <h3 class="text-2xl font-black text-white uppercase italic leading-none">${r.NOMBRE_RESTAURANTE}</h3>
+                                        <p class="text-ae-main text-[10px] font-bold uppercase mt-2">${r.DIRECCION}</p>
+                                    </div>
+                                    <span class="bg-white/20 backdrop-blur px-4 py-2 rounded-full text-white text-[9px] font-bold uppercase">${r.ESTADO}</span>
+                                </div>
+                            </div>
+                        </div>`).join('')}
+                </div>`;
         }
 
         function verMenu(id) {
             restauranteActual = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
-            if(restauranteActual.ESTADO !== 'Abierto') return alert("Este restaurante está cerrado.");
-            
             const platos = dataCache.menus.filter(p => String(p.ID_RESTAURANTE) === String(id));
             document.getElementById('header-titulo').innerText = restauranteActual.NOMBRE_RESTAURANTE;
             document.getElementById('btn-back').classList.remove('hidden');
 
-            document.getElementById('main-container').innerHTML = platos.map(p => `
-                <div class="bg-white rounded-[24px] p-4 flex gap-4 items-center border border-gray-50 shadow-sm">
-                    <img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-inner">
-                    <div class="flex-1">
-                        <h3 class="font-bold text-xs text-ae-dark uppercase italic leading-tight">${p.PLATO}</h3>
-                        <div class="flex justify-between items-center mt-3">
-                            <span class="font-extrabold text-ae-main text-xl italic">$${parseFloat(p.PRECIO).toFixed(2)}</span>
-                            <button onclick="agregarAlCarrito('${p.PLATO}', ${p.PRECIO})" class="w-10 h-10 btn-premium flex items-center justify-center">
-                                <i class="fas fa-plus text-xs"></i>
-                            </button>
-                        </div>
+            document.getElementById('main-container').innerHTML = `
+                <div class="flex items-center gap-4 mb-4">
+                    <span class="h-1 flex-1 bg-ae-main/20 rounded-full"></span>
+                    <span class="text-[10px] font-black text-gray-400 uppercase italic tracking-widest">Nuestra Carta</span>
+                    <span class="h-1 flex-1 bg-ae-main/20 rounded-full"></span>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    ${platos.map(p => `
+                        <div class="bg-white p-4 rounded-[30px] flex gap-4 items-center shadow-sm border border-gray-50">
+                            <img src="${p.FOTO}" class="w-24 h-24 rounded-3xl object-cover">
+                            <div class="flex-1">
+                                <h3 class="font-extrabold text-ae-dark uppercase italic text-xs leading-tight">${p.PLATO}</h3>
+                                <div class="flex justify-between items-center mt-4">
+                                    <span class="font-black text-ae-main text-xl italic">$${parseFloat(p.PRECIO).toFixed(2)}</span>
+                                    <button onclick="agregarAlCarrito('${p.PLATO}', ${p.PRECIO})" class="w-10 h-10 bg-ae-dark text-white rounded-2xl flex items-center justify-center active:bg-ae-main"><i class="fas fa-plus text-xs"></i></button>
+                                </div>
+                            </div>
+                        </div>`).join('')}
+                </div>`;
+        }
+
+        function agregarAlCarrito(nombre, precio) {
+            carrito.push({ nombre, precio });
+            actualizarCesta();
+            
+            // Si el nombre contiene "Burguer" o "Hambur", lanza sugerencia
+            if(nombre.toLowerCase().includes('hambur') || nombre.toLowerCase().includes('burguer')) {
+                lanzarSugerencia();
+            }
+        }
+
+        function actualizarCesta() {
+            const container = document.getElementById('basket-container');
+            const total = carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO;
+            
+            if(carrito.length > 0) {
+                container.classList.remove('hidden');
+                document.getElementById('basket-count').innerText = carrito.length;
+                
+                // Expandir barra si hay más de 0
+                container.classList.add('basket-active');
+                document.getElementById('basket-info').classList.remove('hidden');
+                document.getElementById('basket-total').innerText = total.toFixed(2);
+            }
+        }
+
+        function lanzarSugerencia() {
+            document.getElementById('modal-upsell').classList.remove('hidden');
+            document.getElementById('lista-sugerencias').innerHTML = SUGERENCIAS.map(s => `
+                <div onclick="agregarSugerencia('${s.nombre}', ${s.precio})" class="bg-ae-bg p-3 rounded-2xl flex items-center gap-4 active:scale-95 transition border border-transparent active:border-ae-main">
+                    <img src="${s.foto}" class="w-12 h-12 rounded-xl object-cover">
+                    <div class="text-left flex-1">
+                        <p class="text-[10px] font-black uppercase italic">${s.nombre}</p>
+                        <p class="text-ae-main font-bold">+$${s.precio.toFixed(2)}</p>
                     </div>
+                    <i class="fas fa-plus-circle text-ae-main"></i>
                 </div>`).join('');
         }
 
-        function agregarAlCarrito(n, p) { 
-            carrito.push({ nombre: n, precio: p }); 
-            const total = carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO;
-            document.getElementById('cart-total').innerText = total.toFixed(2);
-            document.getElementById('cart-bar').classList.remove('hidden');
+        function agregarSugerencia(n, p) {
+            carrito.push({ nombre: n, precio: p });
+            actualizarCesta();
+            cerrarSugerencia();
         }
 
-        function abrirCheckout() { document.getElementById('modal-checkout').classList.remove('hidden'); }
+        function cerrarSugerencia() { document.getElementById('modal-upsell').classList.add('hidden'); }
+        function abrirCheckout() { 
+            document.getElementById('modal-checkout').classList.remove('hidden');
+            document.getElementById('resumen-lista').innerHTML = carrito.map(i => `<div class="flex justify-between uppercase font-bold text-[10px]"><span>${i.nombre}</span><span>$${i.precio.toFixed(2)}</span></div>`).join('');
+        }
         function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
 
         function enviarPedido() {
             const n = document.getElementById('nombre-cliente').value;
             const t = document.getElementById('tel-cliente').value;
             const d = document.getElementById('dir-cliente').value;
-            if (!n || !t || !d) return alert("Por favor completa los campos.");
-
-            const btn = document.getElementById('btn-final');
-            btn.disabled = true; btn.innerText = "ENVIANDO...";
+            if(!n || !t || !d) return alert("Faltan datos");
 
             const conteo = carrito.reduce((acc, i) => { acc[i.nombre] = (acc[i.nombre] || 0) + 1; return acc; }, {});
             let detalle = ""; for (const [p, c] of Object.entries(conteo)) { detalle += `${c}x ${p}, `; }
@@ -156,18 +230,14 @@
 
             fetch(API_URL, {
                 method: 'POST', mode: 'no-cors',
-                body: JSON.stringify({
-                    restaurante: restauranteActual.NOMBRE_RESTAURANTE,
-                    cliente: n, telefono: t, direccion: d,
-                    pedido: detalle.slice(0, -2), total: totalF, 
-                    observaciones: document.getElementById('obs-cliente').value
-                })
+                body: JSON.stringify({ restaurante: restauranteActual.NOMBRE_RESTAURANTE, cliente: n, telefono: t, direccion: d, pedido: detalle.slice(0, -2), total: totalF })
             });
 
-            const msg = `*PEDIDO CONFIRMADO*\n*Restaurante:* ${restauranteActual.NOMBRE_RESTAURANTE}\n*Pedido:* ${detalle}\n*TOTAL:* $${totalF}`;
+            const msg = `*PEDIDO PREMIUM*\n*Cliente:* ${n}\n*Pedido:* ${detalle}\n*TOTAL:* $${totalF}`;
             setTimeout(() => { window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`; }, 400);
         }
+
         cargar();
     </script>
 </body>
-</html>
+</html> 
