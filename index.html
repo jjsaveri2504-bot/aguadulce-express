@@ -3,100 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aguadulce Express</title>
+    <title>Aguadulce Express | Premium Delivery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = { theme: { extend: { colors: { 'ae-azul': '#00BCD4', 'ae-grafito': '#2D3436' } } } }
+        tailwind.config = { 
+            theme: { 
+                extend: { 
+                    colors: { 'ae-main': '#00BCD4', 'ae-dark': '#1A1A1A', 'ae-light': '#F8FAFC' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                } 
+            } 
+        }
     </script>
     <style>
-        body { font-family: 'Open Sans', sans-serif; background: #fdfdfd; -webkit-tap-highlight-color: transparent; }
-        .font-ae { font-family: 'Montserrat', sans-serif; font-weight: 900; }
-        .btn-ae { background: #00BCD4; color: white; border-radius: 20px; font-weight: 700; transition: 0.2s; }
-        .btn-ae:active { transform: scale(0.95); }
-        .skeleton { background: #eee; border-radius: 25px; height: 180px; width: 100%; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        body { background-color: #F8FAFC; color: #1A1A1A; -webkit-tap-highlight-color: transparent; }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+        .card-pro { background: white; border-radius: 24px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(0,0,0,0.03); }
+        .card-pro:active { transform: scale(0.97); }
+        .btn-premium { background: #00BCD4; color: white; border-radius: 16px; font-weight: 700; letter-spacing: -0.02em; transition: 0.2s; box-shadow: 0 10px 15px -3px rgba(0, 188, 212, 0.3); }
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 24px; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="pb-32">
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbx_xOU8XGfb2s198QoPj7hsVsg_isq1HvPvY0eQnrqhVmRWnm0jhdBF8ZZUFe52YaOw/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbyO3k6Jo-XgrF8VhSjOfiO2tzFTnKJr-akZyqKoCQzW9ylRNe-UAjN8kgr52jVr3m5C/exec"; 
         const COSTO_ENVIO = 3.50;
-        let dataCache = null;
+        let dataCache = JSON.parse(localStorage.getItem('ae_cache')) || null;
         let restauranteActual = null;
         let carrito = [];
     </script>
 
-    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b-2 border-ae-azul px-6 py-5 flex items-center shadow-sm">
-        <button id="btn-back" onclick="location.reload()" class="hidden mr-4 bg-gray-100 p-2 rounded-full w-10 h-10 flex items-center justify-center">
-            <i class="fas fa-arrow-left text-ae-grafito"></i>
+    <header class="sticky top-0 z-50 glass-header border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+        <button id="btn-back" onclick="location.reload()" class="hidden w-10 h-10 flex items-center justify-center bg-gray-50 rounded-xl">
+            <i class="fas fa-chevron-left text-ae-dark"></i>
         </button>
-        <h1 id="header-titulo" class="font-ae text-xl text-ae-grafito flex-1 text-center italic uppercase">AGUADULCE <span class="text-ae-azul">EXPRESS</span></h1>
-    </header>
+        <div class="flex-1 text-center">
+            <h1 id="header-titulo" class="font-extrabold text-lg tracking-tight uppercase">
+                AGUADULCE <span class="text-ae-main italic font-black">EXPRESS</span>
+            </h1>
+        </div>
+        <div class="w-10"></div> </header>
 
-    <main id="main-container" class="p-6 max-w-xl mx-auto space-y-6">
-        <div class="skeleton"></div>
-        <div class="skeleton"></div>
+    <main id="main-container" class="p-6 max-w-xl mx-auto space-y-5">
+        <div class="skeleton h-48"></div>
+        <div class="skeleton h-48"></div>
     </main>
 
-    <div id="cart-bar" class="fixed bottom-6 left-6 right-6 bg-ae-grafito text-white p-6 rounded-[30px] flex justify-between items-center shadow-2xl hidden z-50">
-        <div><p class="text-[9px] font-bold text-ae-azul uppercase italic">Total Final</p><p class="font-ae text-3xl italic">$<span id="cart-total">0</span></p></div>
-        <button onclick="abrirCheckout()" class="btn-ae px-10 py-4 uppercase text-xs font-bold italic"> PEDIR </button>
+    <div id="cart-bar" class="fixed bottom-8 left-6 right-6 bg-ae-dark text-white p-5 rounded-[28px] flex justify-between items-center shadow-2xl hidden z-50 transform transition-all">
+        <div>
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Pedido</p>
+            <p class="text-2xl font-extrabold">$<span id="cart-total">0</span></p>
+        </div>
+        <button onclick="abrirCheckout()" class="btn-premium px-8 py-4 uppercase text-xs font-black italic"> FINALIZAR </button>
     </div>
 
-    <div id="modal-checkout" class="fixed inset-0 z-[100] hidden bg-ae-grafito/90 backdrop-blur-sm flex items-end justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-[40px] p-8 animate-slide-up">
-            <h3 class="font-ae text-2xl mb-6 uppercase italic text-ae-grafito text-center">ENTREGA</h3>
+    <div id="modal-checkout" class="fixed inset-0 z-[100] hidden bg-ae-dark/60 backdrop-blur-md flex items-end justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[35px] p-8 shadow-2xl">
+            <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-6"></div>
+            <h3 class="text-xl font-extrabold mb-6 text-center tracking-tight">DETALLES DE ENTREGA</h3>
             <div class="space-y-4">
-                <input type="text" id="nombre-cliente" placeholder="Nombre" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
-                <input type="tel" id="tel-cliente" placeholder="WhatsApp" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
-                <input type="text" id="dir-cliente" placeholder="Dirección" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
-                <textarea id="obs-cliente" placeholder="Notas" class="w-full p-4 bg-gray-50 rounded-2xl border-none" rows="2"></textarea>
+                <input type="text" id="nombre-cliente" placeholder="Nombre completo" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-ae-main">
+                <input type="tel" id="tel-cliente" placeholder="WhatsApp (Ej: 6000-0000)" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-ae-main">
+                <input type="text" id="dir-cliente" placeholder="Dirección de entrega" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-ae-main">
+                <textarea id="obs-cliente" placeholder="Indicaciones para el repartidor..." class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-ae-main" rows="2"></textarea>
             </div>
-            <button id="btn-final" onclick="enviarPedido()" class="w-full mt-6 btn-ae py-5 uppercase text-sm font-bold italic">CONFIRMAR</button>
-            <button onclick="cerrarCheckout()" class="w-full mt-4 text-gray-400 font-bold uppercase text-[10px] text-center">Cancelar</button>
+            <button id="btn-final" onclick="enviarPedido()" class="w-full mt-6 btn-premium py-5 uppercase text-sm font-black italic tracking-widest">PEDIR AHORA</button>
+            <button onclick="cerrarCheckout()" class="w-full mt-4 text-gray-400 font-bold text-xs uppercase tracking-widest">Volver</button>
         </div>
     </div>
 
     <script>
         async function cargar() {
+            // Si hay cache, renderiza de inmediato
+            if(dataCache) renderRestaurantes();
+
             try {
-                const res = await fetch(`${API_URL}?v=${Date.now()}`);
+                const res = await fetch(`${API_URL}?cb=${Date.now()}`);
                 dataCache = await res.json();
-                renderRestaurantes();
-            } catch (e) {
-                document.getElementById('main-container').innerHTML = '<p class="text-center font-ae py-20">REINTENTANDO CONEXIÓN...</p>';
-                setTimeout(cargar, 2000);
-            }
+                localStorage.setItem('ae_cache', JSON.stringify(dataCache));
+                if (!restauranteActual) renderRestaurantes();
+            } catch (e) { console.error("Error cargando datos frescos"); }
         }
 
         function renderRestaurantes() {
             document.getElementById('btn-back').classList.add('hidden');
+            document.getElementById('header-titulo').innerHTML = 'AGUADULCE <span class="text-ae-main italic font-black">EXPRESS</span>';
+            
             document.getElementById('main-container').innerHTML = dataCache.restaurantes.map(r => `
-                <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white rounded-[35px] overflow-hidden shadow-sm border border-gray-100 mb-6 active:scale-95 transition cursor-pointer">
-                    <img src="${r.FOTO}" class="w-full h-44 object-cover">
+                <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="card-pro overflow-hidden shadow-sm group cursor-pointer">
+                    <div class="relative h-44 overflow-hidden">
+                        <img src="${r.FOTO}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur shadow-sm rounded-full text-[10px] font-bold uppercase tracking-tighter ${r.ESTADO === 'Abierto' ? 'text-green-600' : 'text-red-600'}">
+                            ${r.ESTADO}
+                        </div>
+                    </div>
                     <div class="p-6">
-                        <h3 class="text-xl font-ae text-ae-grafito uppercase italic">${r.NOMBRE_RESTAURANTE}</h3>
-                        <p class="text-ae-azul text-[10px] font-bold mt-1 uppercase italic">${r.DIRECCION}</p>
+                        <h3 class="text-lg font-bold text-ae-dark uppercase italic tracking-tight">${r.NOMBRE_RESTAURANTE}</h3>
+                        <p class="text-gray-400 text-[10px] font-semibold mt-1 uppercase tracking-widest">${r.DIRECCION}</p>
                     </div>
                 </div>`).join('');
         }
 
         function verMenu(id) {
             restauranteActual = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
+            if(restauranteActual.ESTADO !== 'Abierto') return alert("Este restaurante está cerrado.");
+            
             const platos = dataCache.menus.filter(p => String(p.ID_RESTAURANTE) === String(id));
             document.getElementById('header-titulo').innerText = restauranteActual.NOMBRE_RESTAURANTE;
             document.getElementById('btn-back').classList.remove('hidden');
+
             document.getElementById('main-container').innerHTML = platos.map(p => `
-                <div class="bg-white rounded-[30px] p-4 flex gap-4 items-center shadow-sm mb-4 border border-gray-50">
-                    <img src="${p.FOTO}" class="w-16 h-16 rounded-xl object-cover">
+                <div class="bg-white rounded-[24px] p-4 flex gap-4 items-center border border-gray-50 shadow-sm">
+                    <img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-inner">
                     <div class="flex-1">
-                        <h3 class="font-ae text-[10px] text-ae-grafito uppercase italic">${p.PLATO}</h3>
-                        <div class="flex justify-between items-center mt-1">
-                            <span class="font-ae text-ae-azul text-xl italic">$${parseFloat(p.PRECIO).toFixed(2)}</span>
-                            <button onclick="agregarAlCarrito('${p.PLATO}', ${p.PRECIO})" class="w-9 h-9 btn-ae flex items-center justify-center shadow-md"><i class="fas fa-plus text-xs"></i></button>
+                        <h3 class="font-bold text-xs text-ae-dark uppercase italic leading-tight">${p.PLATO}</h3>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="font-extrabold text-ae-main text-xl italic">$${parseFloat(p.PRECIO).toFixed(2)}</span>
+                            <button onclick="agregarAlCarrito('${p.PLATO}', ${p.PRECIO})" class="w-10 h-10 btn-premium flex items-center justify-center">
+                                <i class="fas fa-plus text-xs"></i>
+                            </button>
                         </div>
                     </div>
                 </div>`).join('');
@@ -116,33 +145,29 @@
             const n = document.getElementById('nombre-cliente').value;
             const t = document.getElementById('tel-cliente').value;
             const d = document.getElementById('dir-cliente').value;
-            if (!n || !t || !d) return alert("Faltan datos.");
+            if (!n || !t || !d) return alert("Por favor completa los campos.");
 
             const btn = document.getElementById('btn-final');
-            btn.disabled = true; btn.innerText = "PROCESANDO...";
+            btn.disabled = true; btn.innerText = "ENVIANDO...";
 
             const conteo = carrito.reduce((acc, i) => { acc[i.nombre] = (acc[i.nombre] || 0) + 1; return acc; }, {});
             let detalle = ""; for (const [p, c] of Object.entries(conteo)) { detalle += `${c}x ${p}, `; }
             const totalF = (carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO).toFixed(2);
 
-            // ENVÍO ASÍNCRONO (FONDO)
             fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
+                method: 'POST', mode: 'no-cors',
                 body: JSON.stringify({
                     restaurante: restauranteActual.NOMBRE_RESTAURANTE,
                     cliente: n, telefono: t, direccion: d,
-                    pedido: detalle.slice(0, -2), total: totalF, observaciones: document.getElementById('obs-cliente').value
+                    pedido: detalle.slice(0, -2), total: totalF, 
+                    observaciones: document.getElementById('obs-cliente').value
                 })
             });
 
-            // WhatsApp Inmediato
-            const msg = `*NUEVO PEDIDO*\n*Cliente:* ${n}\n*Pedido:* ${detalle}\n*TOTAL:* $${totalF}`;
-            setTimeout(() => {
-                window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`;
-            }, 400);
+            const msg = `*PEDIDO CONFIRMADO*\n*Restaurante:* ${restauranteActual.NOMBRE_RESTAURANTE}\n*Pedido:* ${detalle}\n*TOTAL:* $${totalF}`;
+            setTimeout(() => { window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`; }, 400);
         }
         cargar();
     </script>
 </body>
-</html> 
+</html>
