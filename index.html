@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aguadulce Express</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -11,29 +11,35 @@
         tailwind.config = { theme: { extend: { colors: { 'ae-azul': '#00BCD4', 'ae-grafito': '#2D3436' } } } }
     </script>
     <style>
-        body { font-family: 'Open Sans', sans-serif; background: #fdfdfd; }
+        body { font-family: 'Open Sans', sans-serif; background: #fdfdfd; -webkit-tap-highlight-color: transparent; }
         .font-ae { font-family: 'Montserrat', sans-serif; font-weight: 900; }
-        .btn-ae { background: #00BCD4; color: white; border-radius: 20px; font-weight: 700; }
+        .btn-ae { background: #00BCD4; color: white; border-radius: 20px; font-weight: 700; transition: 0.2s; }
+        .btn-ae:active { transform: scale(0.95); }
+        .skeleton { background: #eee; border-radius: 25px; height: 180px; width: 100%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
-<body class="pb-40">
+<body class="pb-32">
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbz98jEtYK7mDGowKa2sPXF3X1qHDLSZPTIeTu-GfBGkKkbahWb2Fw5JxJi3Z7N4ukfz/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbx_xOU8XGfb2s198QoPj7hsVsg_isq1HvPvY0eQnrqhVmRWnm0jhdBF8ZZUFe52YaOw/exec"; 
         const COSTO_ENVIO = 3.50;
         let dataCache = null;
         let restauranteActual = null;
         let carrito = [];
     </script>
 
-    <header class="sticky top-0 z-50 bg-white border-b-2 border-ae-azul px-6 py-5 flex items-center shadow-sm">
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b-2 border-ae-azul px-6 py-5 flex items-center shadow-sm">
         <button id="btn-back" onclick="location.reload()" class="hidden mr-4 bg-gray-100 p-2 rounded-full w-10 h-10 flex items-center justify-center">
             <i class="fas fa-arrow-left text-ae-grafito"></i>
         </button>
-        <h1 id="header-titulo" class="font-ae text-xl text-ae-grafito flex-1 text-center italic uppercase italic">AGUADULCE <span class="text-ae-azul">EXPRESS</span></h1>
+        <h1 id="header-titulo" class="font-ae text-xl text-ae-grafito flex-1 text-center italic uppercase">AGUADULCE <span class="text-ae-azul">EXPRESS</span></h1>
     </header>
 
-    <main id="main-container" class="p-6 max-w-xl mx-auto space-y-6"></main>
+    <main id="main-container" class="p-6 max-w-xl mx-auto space-y-6">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+    </main>
 
     <div id="cart-bar" class="fixed bottom-6 left-6 right-6 bg-ae-grafito text-white p-6 rounded-[30px] flex justify-between items-center shadow-2xl hidden z-50">
         <div><p class="text-[9px] font-bold text-ae-azul uppercase italic">Total Final</p><p class="font-ae text-3xl italic">$<span id="cart-total">0</span></p></div>
@@ -41,8 +47,8 @@
     </div>
 
     <div id="modal-checkout" class="fixed inset-0 z-[100] hidden bg-ae-grafito/90 backdrop-blur-sm flex items-end justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-[40px] p-8">
-            <h3 class="font-ae text-2xl mb-6 uppercase italic text-ae-grafito text-center italic">ENTREGA</h3>
+        <div class="bg-white w-full max-w-md rounded-[40px] p-8 animate-slide-up">
+            <h3 class="font-ae text-2xl mb-6 uppercase italic text-ae-grafito text-center">ENTREGA</h3>
             <div class="space-y-4">
                 <input type="text" id="nombre-cliente" placeholder="Nombre" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
                 <input type="tel" id="tel-cliente" placeholder="WhatsApp" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
@@ -50,30 +56,30 @@
                 <textarea id="obs-cliente" placeholder="Notas" class="w-full p-4 bg-gray-50 rounded-2xl border-none" rows="2"></textarea>
             </div>
             <button id="btn-final" onclick="enviarPedido()" class="w-full mt-6 btn-ae py-5 uppercase text-sm font-bold italic">CONFIRMAR</button>
-            <button onclick="cerrarCheckout()" class="w-full mt-4 text-gray-400 font-bold uppercase text-[10px] text-center italic">Regresar</button>
+            <button onclick="cerrarCheckout()" class="w-full mt-4 text-gray-400 font-bold uppercase text-[10px] text-center">Cancelar</button>
         </div>
     </div>
 
     <script>
-        async function iniciarApp() {
+        async function cargar() {
             try {
-                const res = await fetch(`${API_URL}?sheet=RESTAURANTES&cb=${Date.now()}`);
+                const res = await fetch(`${API_URL}?v=${Date.now()}`);
                 dataCache = await res.json();
                 renderRestaurantes();
             } catch (e) {
-                document.getElementById('main-container').innerHTML = '<p class="text-center font-ae py-20">CONECTANDO...</p>';
-                setTimeout(iniciarApp, 3000);
+                document.getElementById('main-container').innerHTML = '<p class="text-center font-ae py-20">REINTENTANDO CONEXIÓN...</p>';
+                setTimeout(cargar, 2000);
             }
         }
 
         function renderRestaurantes() {
             document.getElementById('btn-back').classList.add('hidden');
             document.getElementById('main-container').innerHTML = dataCache.restaurantes.map(r => `
-                <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white rounded-[35px] overflow-hidden shadow-sm border border-gray-100 mb-6 cursor-pointer">
+                <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white rounded-[35px] overflow-hidden shadow-sm border border-gray-100 mb-6 active:scale-95 transition cursor-pointer">
                     <img src="${r.FOTO}" class="w-full h-44 object-cover">
                     <div class="p-6">
                         <h3 class="text-xl font-ae text-ae-grafito uppercase italic">${r.NOMBRE_RESTAURANTE}</h3>
-                        <p class="text-ae-azul text-[10px] font-bold mt-1 uppercase italic font-ae">${r.DIRECCION}</p>
+                        <p class="text-ae-azul text-[10px] font-bold mt-1 uppercase italic">${r.DIRECCION}</p>
                     </div>
                 </div>`).join('');
         }
@@ -90,7 +96,7 @@
                         <h3 class="font-ae text-[10px] text-ae-grafito uppercase italic">${p.PLATO}</h3>
                         <div class="flex justify-between items-center mt-1">
                             <span class="font-ae text-ae-azul text-xl italic">$${parseFloat(p.PRECIO).toFixed(2)}</span>
-                            <button onclick="agregarAlCarrito('${p.PLATO}', ${p.PRECIO})" class="w-9 h-9 btn-ae flex items-center justify-center"><i class="fas fa-plus text-xs"></i></button>
+                            <button onclick="agregarAlCarrito('${p.PLATO}', ${p.PRECIO})" class="w-9 h-9 btn-ae flex items-center justify-center shadow-md"><i class="fas fa-plus text-xs"></i></button>
                         </div>
                     </div>
                 </div>`).join('');
@@ -98,10 +104,9 @@
 
         function agregarAlCarrito(n, p) { 
             carrito.push({ nombre: n, precio: p }); 
-            const bar = document.getElementById('cart-bar');
             const total = carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO;
             document.getElementById('cart-total').innerText = total.toFixed(2);
-            bar.classList.remove('hidden');
+            document.getElementById('cart-bar').classList.remove('hidden');
         }
 
         function abrirCheckout() { document.getElementById('modal-checkout').classList.remove('hidden'); }
@@ -113,29 +118,31 @@
             const d = document.getElementById('dir-cliente').value;
             if (!n || !t || !d) return alert("Faltan datos.");
 
+            const btn = document.getElementById('btn-final');
+            btn.disabled = true; btn.innerText = "PROCESANDO...";
+
             const conteo = carrito.reduce((acc, i) => { acc[i.nombre] = (acc[i.nombre] || 0) + 1; return acc; }, {});
             let detalle = ""; for (const [p, c] of Object.entries(conteo)) { detalle += `${c}x ${p}, `; }
             const totalF = (carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO).toFixed(2);
 
-            // ENVÍO POR FORMULARIO (INFALIBLE)
-            const form = document.createElement('form');
-            form.method = 'POST'; form.action = API_URL;
-            const input = document.createElement('input');
-            input.name = 'postData';
-            input.value = JSON.stringify({
-                restaurante: restauranteActual.NOMBRE_RESTAURANTE,
-                cliente: n, telefono: t, direccion: d,
-                pedido: detalle.slice(0, -2), total: totalF, observaciones: document.getElementById('obs-cliente').value
+            // ENVÍO ASÍNCRONO (FONDO)
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({
+                    restaurante: restauranteActual.NOMBRE_RESTAURANTE,
+                    cliente: n, telefono: t, direccion: d,
+                    pedido: detalle.slice(0, -2), total: totalF, observaciones: document.getElementById('obs-cliente').value
+                })
             });
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
 
-            // WhatsApp
-            const msg = `*PEDIDO:* ${detalle}\n*TOTAL:* $${totalF}`;
-            setTimeout(() => { window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`; }, 500);
+            // WhatsApp Inmediato
+            const msg = `*NUEVO PEDIDO*\n*Cliente:* ${n}\n*Pedido:* ${detalle}\n*TOTAL:* $${totalF}`;
+            setTimeout(() => {
+                window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`;
+            }, 400);
         }
-        iniciarApp();
+        cargar();
     </script>
 </body>
-</html>
+</html> 
