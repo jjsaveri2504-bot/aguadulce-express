@@ -47,8 +47,8 @@
         const COSTO_ENVIO = 3.50;
         const FECHA_LANZAMIENTO = new Date("April 1, 2026 00:00:00").getTime();
 
-        let carrito = JSON.parse(localStorage.getItem('ae_cart_v8')) || [];
-        let dataCache = JSON.parse(localStorage.getItem('ae_cache_v8')) || null;
+        let carrito = JSON.parse(localStorage.getItem('ae_cart_v9')) || [];
+        let dataCache = JSON.parse(localStorage.getItem('ae_cache_v9')) || null;
         let restauranteActual = null;
         let productoSeleccionado = null;
         let sugerenciasElegidas = [];
@@ -86,7 +86,7 @@
                 <i class="fas fa-shipping-fast text-ae-main text-xl animate-pulse"></i>
                 <h1 id="header-titulo" class="font-extrabold text-xl text-ae-text uppercase italic tracking-tighter">AGUADULCE <span class="text-ae-main font-black">EXPRESS</span></h1>
             </div>
-            <div id="countdown-container" class="mt-2 bg-ae-main/10 px-4 py-1 rounded-full">
+            <div id="countdown-container" class="mt-2 bg-ae-main/10 px-4 py-1 rounded-full border border-ae-main/10">
                 <span id="timer" class="text-[10px] font-bold text-ae-main font-mono tracking-tighter">00d 00h 00m 00s</span>
             </div>
         </div>
@@ -102,9 +102,9 @@
             </div>
             <div class="p-8">
                 <h3 id="p-nombre" class="text-2xl font-black text-ae-text uppercase italic tracking-tighter"></h3>
-                <p id="p-desc" class="text-ae-sub mt-2 text-[10px]"></p>
+                <p id="p-desc" class="text-ae-sub mt-2 text-[10px] leading-relaxed"></p>
                 <div class="mt-8">
-                    <p class="text-[9px] font-black text-ae-main uppercase tracking-[0.2em] mb-4 italic">Añadir Extras</p>
+                    <p id="label-extras" class="text-[9px] font-black text-ae-main uppercase tracking-[0.2em] mb-4 italic">Personaliza tu pedido</p>
                     <div id="p-sugerencias-lista" class="flex gap-4 overflow-x-auto hide-scroll pb-2"></div>
                 </div>
                 <div class="flex items-center justify-between mt-10 pt-6 border-t border-gray-100">
@@ -117,22 +117,22 @@
 
     <div id="basket-bar" onclick="abrirCheckout()" class="fixed bottom-6 left-6 right-6 h-16 bg-ae-main rounded-2xl flex justify-between items-center px-6 shadow-2xl hidden z-[90] active:scale-95 transition cursor-pointer">
         <div class="flex items-center gap-3 text-white font-black"><i class="fas fa-shopping-bag"></i><span id="basket-count" class="text-sm">0</span></div>
-        <span class="text-white font-black uppercase italic text-[10px] tracking-widest">Ver Pedido</span>
+        <span class="text-white font-black uppercase italic text-[10px] tracking-widest">Ver mi Pedido</span>
         <span id="basket-total" class="text-white font-black text-lg italic"></span>
     </div>
 
     <div id="modal-checkout" class="fixed inset-0 z-[150] hidden bg-ae-text/30 backdrop-blur-sm flex items-end justify-center">
         <div class="bg-white w-full max-w-md p-8 rounded-t-[40px] anim-up max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="w-12 h-1 bg-gray-100 rounded-full mx-auto mb-8"></div>
-            <h3 class="text-xl font-black text-ae-text text-center mb-6 uppercase italic">Tus Datos</h3>
+            <h3 class="text-xl font-black text-ae-text text-center mb-6 uppercase italic">Finalizar Pedido</h3>
             <div id="checkout-items" class="space-y-3 mb-8 border-b border-gray-100 pb-6"></div>
             <div class="space-y-4">
-                <input type="text" id="c-nombre" oninput="guardarPerfil()" placeholder="Nombre" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none">
-                <input type="tel" id="c-tel" oninput="guardarPerfil()" placeholder="WhatsApp" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none">
-                <input type="text" id="c-dir" oninput="guardarPerfil()" placeholder="Dirección" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none">
+                <input type="text" id="c-nombre" oninput="guardarPerfil()" placeholder="Tu nombre" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm focus:border-ae-main outline-none">
+                <input type="tel" id="c-tel" oninput="guardarPerfil()" placeholder="Teléfono WhatsApp" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm focus:border-ae-main outline-none">
+                <input type="text" id="c-dir" oninput="guardarPerfil()" placeholder="Dirección de entrega" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm focus:border-ae-main outline-none">
             </div>
-            <button id="btn-finalizar" onclick="finalizarCompra()" class="w-full mt-8 bg-ae-main text-white py-5 rounded-2xl font-black italic uppercase text-xs shadow-xl active:scale-95 transition-all">FINALIZAR PEDIDO</button>
-            <button onclick="cerrarCheckout()" class="w-full mt-4 text-ae-sub font-bold text-[10px] uppercase">Volver</button>
+            <button id="btn-finalizar" onclick="finalizarCompra()" class="w-full mt-8 bg-ae-main text-white py-5 rounded-2xl font-black italic uppercase text-xs shadow-xl shadow-ae-main/20 active:scale-95 transition-all">ENVIAR A WHATSAPP</button>
+            <button onclick="cerrarCheckout()" class="w-full mt-4 text-ae-sub font-bold text-[10px] uppercase tracking-widest">Volver</button>
         </div>
     </div>
 
@@ -143,9 +143,9 @@
             try {
                 const res = await fetch(`${API_URL}?v=${Date.now()}`);
                 dataCache = await res.json();
-                localStorage.setItem('ae_cache_v8', JSON.stringify(dataCache));
+                localStorage.setItem('ae_cache_v9', JSON.stringify(dataCache));
                 renderLayout();
-            } catch (e) { console.log("Offline"); }
+            } catch (e) { console.log("Modo Offline"); }
             actualizarCestaBar();
         }
 
@@ -191,7 +191,10 @@
             document.getElementById('main-container').innerHTML = `<div class="grid grid-cols-1 gap-5 anim-up">${platos.map(p => `
                 <div onclick="abrirProducto('${p.ID_PLATO}')" class="plato-card p-4 flex gap-5 items-center active:scale-95 transition-all">
                     <img src="${p.FOTO_PLATO}" class="w-24 h-24 rounded-[24px] object-cover shadow-sm">
-                    <div class="flex-1"><h3 class="font-black text-ae-text uppercase italic text-[12px] leading-tight">${p.PLATO}</h3><span class="block mt-4 font-black text-ae-main text-xl italic tracking-tighter">${formatEuro(p.PRECIO)}</span></div>
+                    <div class="flex-1">
+                        <h3 class="font-black text-ae-text uppercase italic text-[12px] leading-tight">${p.PLATO}</h3>
+                        <span class="block mt-4 font-black text-ae-main text-xl italic tracking-tighter">${formatEuro(p.PRECIO)}</span>
+                    </div>
                 </div>`).join('')}</div>`;
         }
 
@@ -199,6 +202,7 @@
             const p = dataCache.menus.find(item => String(item.ID_PLATO) === String(idPlato));
             productoSeleccionado = { nombre: p.PLATO, precio: parseFloat(p.PRECIO) };
             sugerenciasElegidas = [];
+            
             document.getElementById('p-nombre').innerText = p.PLATO;
             document.getElementById('p-precio').innerText = formatEuro(p.PRECIO);
             document.getElementById('p-foto').src = p.FOTO_PLATO;
@@ -206,10 +210,33 @@
             
             const listaS = document.getElementById('p-sugerencias-lista');
             listaS.innerHTML = "";
-            if(p.EXTRAS) {
+
+            // LÓGICA DE EXTRAS (Botonera)
+            if(p.EXTRAS && p.EXTRAS.trim() !== "") {
+                document.getElementById('label-extras').innerText = "Personaliza tu plato";
                 p.EXTRAS.split(',').forEach(ex => {
                     const [n, pr] = ex.trim().split(':');
-                    listaS.innerHTML += `<div onclick="toggleExtra(this, '${n}', ${pr})" class="flex-none w-28 p-3 rounded-2xl border border-gray-100 bg-white text-center transition shadow-sm"><p class="text-[8px] font-black text-ae-text uppercase italic mb-1">${n}</p><p class="text-ae-main font-bold text-[9px]">+${formatEuro(pr)}</p></div>`;
+                    listaS.innerHTML += `
+                        <div onclick="toggleExtra(this, '${n}', ${pr})" class="flex-none w-28 p-3 rounded-2xl border border-gray-100 bg-white text-center transition shadow-sm active:scale-95">
+                            <p class="text-[8px] font-black text-ae-text uppercase italic mb-1">${n}</p>
+                            <p class="text-ae-main font-bold text-[9px]">+${formatEuro(pr)}</p>
+                        </div>`;
+                });
+            } 
+            // LÓGICA DE ACOMPAÑANTES (Con Foto)
+            else {
+                document.getElementById('label-extras').innerText = "¿Te apetece algo más?";
+                const sugerencias = dataCache.menus.filter(item => 
+                    item.CATEGORIA_PLATO === "Bebidas" || item.CATEGORIA_PLATO === "Acompañantes" || item.CATEGORIA_PLATO === "Postres"
+                ).slice(0, 6);
+
+                sugerencias.forEach(g => {
+                    listaS.innerHTML += `
+                        <div onclick="toggleExtra(this, '${g.PLATO}', ${g.PRECIO})" class="flex-none w-28 p-3 rounded-2xl border border-gray-100 bg-white text-center transition shadow-sm active:scale-95">
+                            <img src="${g.FOTO_PLATO}" class="w-12 h-12 rounded-xl mx-auto mb-2 object-cover">
+                            <p class="text-[8px] font-black text-ae-text uppercase truncate italic">${g.PLATO}</p>
+                            <p class="text-ae-main font-bold text-[9px]">+${formatEuro(g.PRECIO)}</p>
+                        </div>`;
                 });
             }
             document.getElementById('modal-producto').classList.remove('hidden');
@@ -222,9 +249,11 @@
         }
 
         function confirmarAgregar() {
-            carrito.push(productoSeleccionado); sugerenciasElegidas.forEach(s => carrito.push(s));
-            localStorage.setItem('ae_cart_v8', JSON.stringify(carrito));
-            actualizarCestaBar(); cerrarProducto();
+            carrito.push(productoSeleccionado);
+            sugerenciasElegidas.forEach(s => carrito.push(s));
+            localStorage.setItem('ae_cart_v9', JSON.stringify(carrito));
+            actualizarCestaBar();
+            cerrarProducto();
         }
 
         function actualizarCestaBar() {
@@ -243,25 +272,31 @@
             const hoy = new Date().getTime();
             const btn = document.getElementById('btn-finalizar');
             if (hoy < FECHA_LANZAMIENTO) {
-                btn.innerText = "LANZAMIENTO: 01 ABRIL"; btn.classList.add('bg-ae-accent');
+                btn.innerText = "PRÓXIMAMENTE 01 ABRIL"; btn.classList.add('bg-ae-accent');
             } else {
                 const t = carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO;
-                btn.innerText = `CONFIRMAR (${formatEuro(t)})`;
+                btn.innerText = `CONFIRMAR PEDIDO (${formatEuro(t)})`;
             }
-            document.getElementById('checkout-items').innerHTML = carrito.map(i => `<div class="flex justify-between text-[10px] font-bold uppercase text-ae-sub"><span>${i.nombre}</span><span>${formatEuro(i.precio)}</span></div>`).join('') + `<div class="pt-3 mt-3 border-t border-gray-100 flex justify-between text-ae-main font-black"><span>DOMICILIO</span><span>${formatEuro(COSTO_ENVIO)}</span></div>`;
+            document.getElementById('checkout-items').innerHTML = carrito.map(i => `
+                <div class="flex justify-between text-[10px] font-bold uppercase text-ae-sub">
+                    <span>${i.nombre}</span><span>${formatEuro(i.precio)}</span>
+                </div>`).join('') + `
+                <div class="pt-3 mt-3 border-t border-gray-100 flex justify-between text-ae-main font-black">
+                    <span>ENVÍO A DOMICILIO</span><span>${formatEuro(COSTO_ENVIO)}</span>
+                </div>`;
         }
 
         function finalizarCompra() {
-            if (new Date().getTime() < FECHA_LANZAMIENTO) { alert("¡Apertura el 01 de Abril! Te esperamos."); return; }
+            if (new Date().getTime() < FECHA_LANZAMIENTO) { alert("¡Apertura oficial el 01 de Abril! Te esperamos con todo el sabor."); return; }
             const n = document.getElementById('c-nombre').value, t = document.getElementById('c-tel').value, d = document.getElementById('c-dir').value;
-            if(!n || !t || !d) return alert("Completa tus datos");
+            if(!n || !t || !d) return alert("Por favor, rellena tus datos para la entrega.");
             const det = carrito.map(i => i.nombre).join(', '), tot = formatEuro(carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO);
-            window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(`*PEDIDO AGUADULCE*\n*Cliente:* ${n}\n*WhatsApp:* ${t}\n*Dirección:* ${d}\n\n*PEDIDO:* ${det}\n\n*TOTAL:* ${tot}`)}`;
-            localStorage.removeItem('ae_cart_v8');
+            window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(`*NUEVO PEDIDO AGUADULCE*\n\n*Cliente:* ${n}\n*WhatsApp:* ${t}\n*Entrega:* ${d}\n\n*PRODUCTOS:* ${det}\n\n*TOTAL CON ENVÍO:* ${tot}`)}`;
+            localStorage.removeItem('ae_cart_v9');
         }
 
-        function guardarPerfil() { const p = { n: document.getElementById('c-nombre').value, t: document.getElementById('c-tel').value, d: document.getElementById('c-dir').value }; localStorage.setItem('ae_perfil_v8', JSON.stringify(p)); }
-        function cargarPerfil() { const p = JSON.parse(localStorage.getItem('ae_perfil_v8')); if (p) { document.getElementById('c-nombre').value = p.n || ""; document.getElementById('c-tel').value = p.t || ""; document.getElementById('c-dir').value = p.d || ""; } }
+        function guardarPerfil() { const p = { n: document.getElementById('c-nombre').value, t: document.getElementById('c-tel').value, d: document.getElementById('c-dir').value }; localStorage.setItem('ae_perfil_v9', JSON.stringify(p)); }
+        function cargarPerfil() { const p = JSON.parse(localStorage.getItem('ae_perfil_v9')); if (p) { document.getElementById('c-nombre').value = p.n || ""; document.getElementById('c-tel').value = p.t || ""; document.getElementById('c-dir').value = p.d || ""; } }
         function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
         function cerrarProducto() { document.getElementById('modal-producto').classList.add('hidden'); }
 
