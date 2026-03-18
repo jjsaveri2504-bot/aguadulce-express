@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aguadulce Express | Lanzamiento Oficial</title>
+    <title>Aguadulce Express | Edición Lanzamiento</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -11,43 +11,60 @@
         tailwind.config = { 
             theme: { 
                 extend: { 
-                    colors: { 'ae-main': '#00BCD4', 'ae-accent': '#84CC16', 'ae-bg': '#F1F5F9', 'ae-card': '#FFFFFF', 'ae-text': '#1E293B', 'ae-sub': '#64748B' }
+                    colors: { 'ae-main': '#00BCD4', 'ae-accent': '#84CC16', 'ae-bg': '#F8FAFC', 'ae-card': '#FFFFFF', 'ae-text': '#1E293B', 'ae-sub': '#64748B' }
                 } 
             } 
         }
     </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F1F5F9; color: #1E293B; -webkit-tap-highlight-color: transparent; }
-        .premium-header { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 2px solid #00BCD4; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; color: #1E293B; -webkit-tap-highlight-color: transparent; }
+        .premium-header { background: rgba(255,255,255,0.98); border-bottom: 2px solid #00BCD4; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .carrusel-row { display: flex; overflow-x: auto; gap: 16px; padding: 10px 0 20px 0; scroll-snap-type: x mandatory; }
-        .card-rest { flex: 0 0 190px; scroll-snap-align: start; transition: 0.3s; border-radius: 24px; overflow: hidden; background: #fff; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05); }
-        .card-rest.cerrado { filter: grayscale(1); opacity: 0.6; }
-        .badge-cerrado { position: absolute; top: 12px; left: 12px; background: #EF4444; color: white; padding: 4px 10px; border-radius: 10px; font-size: 8px; font-weight: 800; text-transform: uppercase; z-index: 10; }
-        .plato-card { background: white; border-radius: 28px; border: 1px solid rgba(0,0,0,0.02); transition: 0.2s; }
+        
+        /* TARJETAS LIMPIAS SIN NEGRO */
+        .card-rest { 
+            flex: 0 0 190px; 
+            scroll-snap-align: start; 
+            transition: 0.3s; 
+            border-radius: 28px; 
+            overflow: hidden; 
+            background: #ffffff; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); 
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .card-rest.cerrado { filter: grayscale(1); opacity: 0.5; }
+        .img-container { position: relative; width: 100%; height: 260px; background: #f1f5f9; }
+        
+        /* DEGRADADO BLANCO (Para que se vea la foto) */
+        .white-fade { 
+            position: absolute; inset: 0; 
+            background: linear-gradient(to top, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 50%); 
+        }
+        
+        .badge-cerrado { position: absolute; top: 12px; left: 12px; background: #EF4444; color: white; padding: 4px 10px; border-radius: 12px; font-size: 8px; font-weight: 800; text-transform: uppercase; z-index: 10; box-shadow: 0 4px 10px rgba(239,68,68,0.3); }
+        
+        .plato-card { background: white; border-radius: 28px; border: 1px solid rgba(0,0,0,0.03); transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         .anim-up { animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .sug-selected { border-color: #00BCD4 !important; background-color: rgba(0, 188, 212, 0.05) !important; transform: scale(0.96); }
     </style>
 </head>
 <body class="pb-32">
 
     <script>
-        // CONFIGURACIÓN INICIAL
         const API_URL = "https://script.google.com/macros/s/AKfycbyO3k6Jo-XgrF8VhSjOfiO2tzFTnKJr-akZyqKoCQzW9ylRNe-UAjN8kgr52jVr3m5C/exec"; 
         const COSTO_ENVIO = 3.50;
-        const LISTA_NEGRA = ["600000000"]; // Teléfonos bloqueados
+        const LISTA_NEGRA = ["600000000"]; 
         const FECHA_LANZAMIENTO = new Date("April 1, 2026 00:00:00").getTime();
 
-        let carrito = JSON.parse(localStorage.getItem('ae_cart_v4')) || [];
-        let dataCache = JSON.parse(localStorage.getItem('ae_cache_v4')) || null;
+        let carrito = JSON.parse(localStorage.getItem('ae_cart_v5')) || [];
+        let dataCache = JSON.parse(localStorage.getItem('ae_cache_v5')) || null;
         let restauranteActual = null;
-        let productoSeleccionado = null;
         let sugerenciasElegidas = [];
 
         function formatEuro(m) { return `${parseFloat(m).toFixed(2).replace('.', ',')} €`; }
 
-        // RELOJ DE LANZAMIENTO
         function iniciarContador() {
             const x = setInterval(function() {
                 const ahora = new Date().getTime();
@@ -57,15 +74,11 @@
                     document.getElementById("countdown-container").classList.add('hidden');
                     return;
                 }
-                const d = Math.floor(dist / (1000 * 60 * 60 * 24));
-                const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((dist % (1000 * 60)) / 1000);
+                const d = Math.floor(dist / (1000 * 60 * 60 * 24)), h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)), m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60)), s = Math.floor((dist % (1000 * 60)) / 1000);
                 document.getElementById("timer").innerHTML = `${d}d ${h}h ${m}m ${s}s`;
             }, 1000);
         }
 
-        // VALIDACIÓN DE HORARIOS ESPAÑA
         function checkHorario(hStr, manual) {
             if (manual === "CERRADO") return { ok: false, msg: "LOCAL CERRADO" };
             if (!hStr) return { ok: true, msg: "" };
@@ -80,51 +93,51 @@
         }
     </script>
 
-    <header class="premium-header sticky top-0 z-[80] px-6 py-4">
+    <header class="premium-header sticky top-0 z-[80] px-6 py-5">
         <div class="flex flex-col items-center justify-center">
-            <div class="flex items-center gap-3">
-                <button id="btn-back" onclick="location.reload()" class="hidden absolute left-6 w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100"><i class="fas fa-arrow-left text-ae-sub"></i></button>
+            <div class="flex items-center gap-3 w-full justify-center relative">
+                <button id="btn-back" onclick="location.reload()" class="hidden absolute left-0 w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100 shadow-sm"><i class="fas fa-arrow-left text-ae-text text-sm"></i></button>
                 <i class="fas fa-shipping-fast text-ae-main text-2xl animate-pulse"></i>
                 <h1 id="header-titulo" class="font-extrabold text-2xl text-ae-text uppercase italic leading-none tracking-tighter">AGUADULCE <span class="text-ae-main font-black">EXPRESS</span></h1>
             </div>
-            <div id="countdown-container" class="mt-2 flex items-center gap-2 bg-ae-main/10 px-3 py-1 rounded-full border border-ae-main/20">
-                <span class="text-[7px] font-black text-ae-main uppercase tracking-widest italic">Gran Estreno en:</span>
-                <span id="timer" class="text-[9px] font-mono font-bold text-ae-text tracking-tighter italic">00d 00h 00m 00s</span>
+            <div id="countdown-container" class="mt-3 flex items-center gap-2 bg-ae-main/5 px-4 py-1.5 rounded-full border border-ae-main/10">
+                <span class="text-[7px] font-black text-ae-sub uppercase tracking-[0.2em] italic">Gran Estreno:</span>
+                <span id="timer" class="text-[10px] font-mono font-bold text-ae-text tracking-tighter italic">00d 00h 00m 00s</span>
             </div>
         </div>
     </header>
 
-    <div id="modal-resume" class="fixed inset-0 z-[300] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-xs p-8 rounded-[40px] text-center shadow-2xl anim-up">
+    <div id="modal-resume" class="fixed inset-0 z-[300] hidden bg-ae-text/20 backdrop-blur-sm flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-xs p-8 rounded-[40px] text-center shadow-2xl anim-up border border-gray-100">
             <div class="w-16 h-16 bg-ae-main/10 rounded-full flex items-center justify-center mx-auto mb-6 text-ae-main text-2xl"><i class="fas fa-shopping-basket"></i></div>
-            <h3 class="text-ae-text font-black uppercase italic text-lg mb-2">¿Continuamos?</h3>
-            <p class="text-ae-sub text-[10px] mb-8 leading-relaxed">Tienes productos guardados de tu última visita.</p>
+            <h3 class="text-ae-text font-black uppercase italic text-lg mb-2 tracking-tight">¿Seguimos pidiendo?</h3>
+            <p class="text-ae-sub text-[10px] mb-8 leading-relaxed">Guardamos tus platos de la última vez.</p>
             <div class="space-y-3">
-                <button onclick="document.getElementById('modal-resume').classList.add('hidden')" class="w-full bg-ae-main text-white py-4 rounded-2xl font-black uppercase text-[10px] italic shadow-lg shadow-ae-main/20">Seguir pedido</button>
-                <button onclick="reiniciarPedido()" class="w-full text-ae-sub font-bold text-[10px] uppercase">Borrar y empezar</button>
+                <button onclick="document.getElementById('modal-resume').classList.add('hidden')" class="w-full bg-ae-main text-white py-4 rounded-2xl font-black uppercase text-[10px] italic shadow-lg shadow-ae-main/20">Continuar</button>
+                <button onclick="reiniciarPedido()" class="w-full text-ae-sub font-bold text-[10px] uppercase">Empezar de nuevo</button>
             </div>
         </div>
     </div>
 
-    <main id="main-container" class="p-6 max-w-xl mx-auto space-y-10"></main>
+    <main id="main-container" class="p-6 max-w-xl mx-auto space-y-12"></main>
 
-    <div id="modal-producto" class="fixed inset-0 z-[200] hidden bg-black/60 backdrop-blur-md flex items-end justify-center">
+    <div id="modal-producto" class="fixed inset-0 z-[200] hidden bg-ae-text/40 backdrop-blur-md flex items-end justify-center">
         <div class="bg-white w-full max-w-md rounded-t-[45px] anim-up overflow-hidden shadow-2xl">
-            <div class="relative h-64">
+            <div class="relative h-72">
                 <img id="p-foto" src="" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
-                <button onclick="cerrarProducto()" class="absolute top-6 right-6 w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-times text-xs"></i></button>
+                <div class="white-fade"></div>
+                <button onclick="cerrarProducto()" class="absolute top-6 right-6 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-times text-ae-text text-xs"></i></button>
             </div>
             <div class="p-8">
-                <h3 id="p-nombre" class="text-2xl font-black text-ae-text uppercase italic tracking-tight"></h3>
+                <h3 id="p-nombre" class="text-2xl font-black text-ae-text uppercase italic tracking-tighter"></h3>
                 <p id="p-desc" class="text-ae-sub mt-2 text-[10px] leading-relaxed"></p>
                 <div class="mt-8">
-                    <p class="text-[9px] font-black text-ae-accent uppercase tracking-widest mb-4 italic">Personaliza tu pedido</p>
+                    <p class="text-[9px] font-black text-ae-accent uppercase tracking-[0.2em] mb-4 italic">Añadir a tu gusto</p>
                     <div id="p-sugerencias-lista" class="flex gap-4 overflow-x-auto hide-scroll pb-2"></div>
                 </div>
                 <div class="flex items-center justify-between mt-10 pt-6 border-t border-gray-50">
                     <span id="p-precio" class="text-3xl font-black text-ae-text italic tracking-tighter"></span>
-                    <button onclick="confirmarAgregar()" class="bg-ae-main text-white px-10 py-4 rounded-2xl font-black italic uppercase text-xs shadow-lg shadow-ae-main/20 active:scale-95 transition-all">Añadir</button>
+                    <button onclick="confirmarAgregar()" class="bg-ae-main text-white px-10 py-4 rounded-2xl font-black italic uppercase text-xs shadow-lg shadow-ae-main/20 active:scale-95 transition-all">Añadir Cesta</button>
                 </div>
             </div>
         </div>
@@ -132,23 +145,23 @@
 
     <div id="basket-bar" onclick="abrirCheckout()" class="fixed bottom-6 left-6 right-6 h-16 bg-ae-main rounded-2xl flex justify-between items-center px-6 shadow-2xl hidden z-[90] active:scale-95 transition cursor-pointer">
         <div class="flex items-center gap-3 text-white font-black"><i class="fas fa-shopping-bag"></i><span id="basket-count" class="text-sm">0</span></div>
-        <span class="text-white font-black uppercase italic text-[10px] tracking-widest">Revisar Pedido</span>
+        <span class="text-white font-black uppercase italic text-[10px] tracking-widest">Ver mi Pedido</span>
         <span id="basket-total" class="text-white font-black text-lg italic"></span>
     </div>
 
-    <div id="modal-checkout" class="fixed inset-0 z-[150] hidden bg-black/40 backdrop-blur-md flex items-end justify-center">
+    <div id="modal-checkout" class="fixed inset-0 z-[150] hidden bg-ae-text/30 backdrop-blur-sm flex items-end justify-center">
         <div class="bg-white w-full max-w-md p-8 rounded-t-[40px] anim-up max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="w-12 h-1 bg-gray-100 rounded-full mx-auto mb-8"></div>
-            <h3 class="text-xl font-black text-ae-text text-center mb-6 uppercase italic tracking-tighter">Tus Datos de Envío</h3>
-            <div id="checkout-items" class="space-y-2 mb-8 border-b pb-6"></div>
+            <h3 class="text-xl font-black text-ae-text text-center mb-6 uppercase italic">Finalizar Pedido</h3>
+            <div id="checkout-items" class="space-y-3 mb-8 border-b border-gray-50 pb-6"></div>
             <div class="space-y-4">
-                <input type="text" id="c-nombre" oninput="guardarPerfil()" placeholder="Nombre y Apellidos" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold focus:border-ae-main transition-all">
-                <input type="tel" id="c-tel" oninput="guardarPerfil(); verificarBloqueo();" placeholder="WhatsApp (Ej: 600000000)" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold focus:border-ae-main transition-all">
-                <div id="msg-bloqueo" class="hidden bg-red-50 p-4 rounded-2xl border border-red-100 text-center"><p class="text-[9px] text-red-600 font-black uppercase italic"><i class="fas fa-user-slash mr-2"></i> Número con restricciones de acceso</p></div>
-                <input type="text" id="c-dir" oninput="guardarPerfil()" placeholder="Dirección Exacta" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold focus:border-ae-main transition-all">
+                <input type="text" id="c-nombre" oninput="guardarPerfil()" placeholder="Tu nombre" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm focus:border-ae-main outline-none">
+                <input type="tel" id="c-tel" oninput="guardarPerfil(); verificarBloqueo();" placeholder="Teléfono de contacto" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm focus:border-ae-main outline-none">
+                <div id="msg-bloqueo" class="hidden bg-red-50 p-4 rounded-2xl border border-red-100 text-center"><p class="text-[9px] text-red-600 font-black uppercase italic">Número no autorizado</p></div>
+                <input type="text" id="c-dir" oninput="guardarPerfil()" placeholder="Dirección de entrega" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm focus:border-ae-main outline-none">
             </div>
             <button id="btn-finalizar" onclick="finalizarCompra()" class="w-full mt-8 bg-ae-main text-white py-5 rounded-2xl font-black italic uppercase text-xs shadow-xl shadow-ae-main/20 active:scale-95 transition-all">FINALIZAR PEDIDO</button>
-            <button onclick="cerrarCheckout()" class="w-full mt-4 text-ae-sub font-bold text-[10px] uppercase">Volver al Menú</button>
+            <button onclick="cerrarCheckout()" class="w-full mt-4 text-ae-sub font-bold text-[10px] uppercase">Volver</button>
         </div>
     </div>
 
@@ -161,13 +174,13 @@
             try {
                 const res = await fetch(`${API_URL}?v=${Date.now()}`);
                 dataCache = await res.json();
-                localStorage.setItem('ae_cache_v4', JSON.stringify(dataCache));
+                localStorage.setItem('ae_cache_v5', JSON.stringify(dataCache));
                 renderNetflixLayout();
-            } catch (e) { console.log("Offline"); }
+            } catch (e) { console.log("Modo Offline"); }
         }
 
         function reiniciarPedido() {
-            carrito = []; localStorage.removeItem('ae_cart_v4');
+            carrito = []; localStorage.removeItem('ae_cart_v5');
             document.getElementById('modal-resume').classList.add('hidden');
             actualizarCestaBar();
         }
@@ -180,9 +193,9 @@
             cats.forEach(c => {
                 if(!c) return;
                 const fila = dataCache.restaurantes.filter(r => r.CATEGORIA === c);
-                container.innerHTML += `<div class="mb-8"><div class="flex items-center gap-3 mb-4"><h2 class="text-[10px] font-black text-ae-sub uppercase tracking-[0.4em] italic">${c}</h2><div class="h-px flex-1 bg-gray-100"></div></div><div class="carrusel-row hide-scroll">${fila.map(r => {
-                    const status = checkHorario(r.HORARIO, r.ESTADO_MANUAL);
-                    return `<div onclick="${status.ok ? `verMenu('${r.ID_RESTAURANTE}')` : ''}" class="card-rest ${!status.ok ? 'cerrado' : ''}"><div class="img-container">${!status.ok ? `<div class="badge-cerrado">${status.msg}</div>` : ''}<img src="${r.FOTO}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div><div class="absolute bottom-4 left-4 right-4"><p class="text-[11px] font-black uppercase text-white leading-tight italic tracking-tighter">${r.NOMBRE_RESTAURANTE}</p></div></div></div>`;
+                container.innerHTML += `<div class="mb-10"><div class="flex items-center gap-3 mb-5 px-1"><h2 class="text-[9px] font-black text-ae-sub uppercase tracking-[0.4em] italic">${c}</h2><div class="h-px flex-1 bg-gray-100"></div></div><div class="carrusel-row hide-scroll">${fila.map(r => {
+                    const st = checkHorario(r.HORARIO, r.ESTADO_MANUAL);
+                    return `<div onclick="${st.ok ? `verMenu('${r.ID_RESTAURANTE}')` : ''}" class="card-rest ${!st.ok ? 'cerrado' : ''}"><div class="img-container">${!st.ok ? `<div class="badge-cerrado">${st.msg}</div>` : ''}<img src="${r.FOTO}" class="w-full h-full object-cover"><div class="white-fade"></div><div class="absolute bottom-5 left-5 right-5"><p class="text-[12px] font-black uppercase text-ae-text leading-tight italic tracking-tighter">${r.NOMBRE_RESTAURANTE}</p></div></div></div>`;
                 }).join('')}</div></div>`;
             });
         }
@@ -192,10 +205,10 @@
             const platos = dataCache.menus.filter(p => String(p.ID_RESTAURANTE) === String(id));
             document.getElementById('header-titulo').innerText = restauranteActual.NOMBRE_RESTAURANTE;
             document.getElementById('btn-back').classList.remove('hidden');
-            document.getElementById('main-container').innerHTML = `<div class="grid grid-cols-1 gap-4">${platos.map(p => `
-                <div onclick="abrirProducto('${p.ID_PLATO}')" class="plato-card p-4 flex gap-5 items-center shadow-sm active:scale-95 transition-all">
-                    <img src="${p.FOTO_PLATO}" class="w-24 h-24 rounded-[22px] object-cover bg-gray-50 shadow-sm">
-                    <div class="flex-1"><h3 class="font-black text-ae-text uppercase italic text-[11px] leading-tight">${p.PLATO}</h3><p class="text-[9px] text-ae-sub mt-2 line-clamp-2">${p.DESCRIPCION || ''}</p><span class="block mt-3 font-black text-ae-main text-lg italic tracking-tighter">${formatEuro(p.PRECIO)}</span></div>
+            document.getElementById('main-container').innerHTML = `<div class="grid grid-cols-1 gap-5 anim-up">${platos.map(p => `
+                <div onclick="abrirProducto('${p.ID_PLATO}')" class="plato-card p-4 flex gap-5 items-center active:scale-95 transition-all shadow-sm">
+                    <img src="${p.FOTO_PLATO}" class="w-24 h-24 rounded-[24px] object-cover bg-gray-50 shadow-sm">
+                    <div class="flex-1"><h3 class="font-black text-ae-text uppercase italic text-[12px] leading-tight tracking-tight">${p.PLATO}</h3><p class="text-[9px] text-ae-sub mt-1.5 line-clamp-2">${p.DESCRIPCION || ''}</p><span class="block mt-4 font-black text-ae-main text-xl italic tracking-tighter">${formatEuro(p.PRECIO)}</span></div>
                 </div>`).join('')}</div>`;
         }
 
@@ -206,19 +219,18 @@
             document.getElementById('p-nombre').innerText = p.PLATO;
             document.getElementById('p-precio').innerText = formatEuro(p.PRECIO);
             document.getElementById('p-foto').src = p.FOTO_PLATO;
-            document.getElementById('p-desc').innerText = p.DESCRIPCION || "Sabor premium de Aguadulce Express.";
-            
+            document.getElementById('p-desc').innerText = p.DESCRIPCION || "Sabor premium artesanal.";
             const listaS = document.getElementById('p-sugerencias-lista');
             listaS.innerHTML = "";
             if(p.EXTRAS) {
                 p.EXTRAS.split(',').forEach(ex => {
                     const [n, pr] = ex.trim().split(':');
-                    listaS.innerHTML += `<div onclick="toggleExtra(this, '${n}', ${pr})" class="flex-none w-28 p-3 rounded-2xl border bg-gray-50 text-center transition shadow-sm"><p class="text-[8px] font-black text-ae-text uppercase italic mb-1">${n}</p><p class="text-ae-main font-bold text-[9px]">+${formatEuro(pr)}</p></div>`;
+                    listaS.innerHTML += `<div onclick="toggleExtra(this, '${n}', ${pr})" class="flex-none w-28 p-3 rounded-2xl border border-gray-100 bg-white text-center transition shadow-sm"><p class="text-[8px] font-black text-ae-text uppercase italic mb-1">${n}</p><p class="text-ae-main font-bold text-[9px]">+${formatEuro(pr)}</p></div>`;
                 });
             } else {
                 const comodines = dataCache.menus.filter(item => ["Refresco 600ml", "Papas Supreme", "Malteada Oreo"].includes(item.PLATO));
                 comodines.forEach(g => {
-                    listaS.innerHTML += `<div onclick="toggleExtra(this, '${g.PLATO}', ${g.PRECIO})" class="flex-none w-28 p-3 rounded-2xl border bg-gray-50 text-center transition shadow-sm"><img src="${g.FOTO_PLATO}" class="w-10 h-10 rounded-lg mx-auto mb-2 object-cover"><p class="text-[8px] font-black text-ae-text uppercase truncate italic">${g.PLATO}</p><p class="text-ae-main font-bold text-[9px]">+${formatEuro(g.PRECIO)}</p></div>`;
+                    listaS.innerHTML += `<div onclick="toggleExtra(this, '${g.PLATO}', ${g.PRECIO})" class="flex-none w-28 p-3 rounded-2xl border border-gray-100 bg-white text-center transition shadow-sm"><img src="${g.FOTO_PLATO}" class="w-12 h-12 rounded-xl mx-auto mb-2 object-cover shadow-sm"><p class="text-[8px] font-black text-ae-text uppercase truncate italic">${g.PLATO}</p><p class="text-ae-main font-bold text-[9px]">+${formatEuro(g.PRECIO)}</p></div>`;
                 });
             }
             document.getElementById('modal-producto').classList.remove('hidden');
@@ -231,9 +243,8 @@
         }
 
         function confirmarAgregar() {
-            carrito.push(productoSeleccionado);
-            sugerenciasElegidas.forEach(s => carrito.push(s));
-            localStorage.setItem('ae_cart_v4', JSON.stringify(carrito));
+            carrito.push(productoSeleccionado); sugerenciasElegidas.forEach(s => carrito.push(s));
+            localStorage.setItem('ae_cart_v5', JSON.stringify(carrito));
             actualizarCestaBar(); cerrarProducto();
         }
 
@@ -253,40 +264,27 @@
             const hoy = new Date().getTime();
             const btn = document.getElementById('btn-finalizar');
             if (hoy < FECHA_LANZAMIENTO) {
-                btn.innerText = "PRÓXIMAMENTE: 01 DE ABRIL";
-                btn.classList.add('bg-ae-accent'); 
+                btn.innerText = "LANZAMIENTO: 01 ABRIL"; btn.classList.add('bg-ae-accent');
             } else {
                 const t = carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO;
-                btn.innerText = `CONFIRMAR PEDIDO (${formatEuro(t)})`;
+                btn.innerText = `CONFIRMAR (${formatEuro(t)})`;
             }
-            document.getElementById('checkout-items').innerHTML = carrito.map(i => `<div class="flex justify-between text-[9px] font-bold uppercase text-ae-sub"><span>${i.nombre}</span><span>${formatEuro(i.precio)}</span></div>`).join('') + `<div class="pt-2 mt-2 border-t flex justify-between text-ae-main font-black"><span>ENVÍO EXPRESS</span><span>${formatEuro(COSTO_ENVIO)}</span></div>`;
-        }
-
-        function verificarBloqueo() {
-            const tel = document.getElementById('c-tel').value.trim();
-            const btn = document.getElementById('btn-finalizar');
-            const msg = document.getElementById('msg-bloqueo');
-            if (LISTA_NEGRA.includes(tel)) { btn.disabled = true; btn.classList.add('opacity-30'); msg.classList.remove('hidden'); }
-            else { btn.disabled = false; btn.classList.remove('opacity-30'); msg.classList.add('hidden'); }
+            document.getElementById('checkout-items').innerHTML = carrito.map(i => `<div class="flex justify-between text-[10px] font-bold uppercase text-ae-sub"><span>${i.nombre}</span><span>${formatEuro(i.precio)}</span></div>`).join('') + `<div class="pt-3 mt-3 border-t border-gray-100 flex justify-between text-ae-main font-black"><span>DOMICILIO</span><span>${formatEuro(COSTO_ENVIO)}</span></div>`;
         }
 
         function finalizarCompra() {
             const hoy = new Date().getTime();
-            if (hoy < FECHA_LANZAMIENTO) {
-                alert("🚀 ¡Faltan pocos días! Aguadulce Express abre oficialmente el 01 DE ABRIL. ¡Guarda el link para el gran día!");
-                return;
-            }
+            if (hoy < FECHA_LANZAMIENTO) { alert("🚀 ¡Estamos calentando! El servicio estará activo el 01 de Abril. ¡Te esperamos!"); return; }
             const n = document.getElementById('c-nombre').value, t = document.getElementById('c-tel').value, d = document.getElementById('c-dir').value;
-            if(!n || !t || !d) return alert("Completa tus datos de envío");
-            const det = carrito.map(i => i.nombre).join(', ');
-            const tot = formatEuro(carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO);
-            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ r: restauranteActual.NOMBRE_RESTAURANTE, c: n, t: t, d: d, p: det, total: tot })});
+            if(!n || !t || !d) return alert("Completa tus datos");
+            const det = carrito.map(i => i.nombre).join(', '), tot = formatEuro(carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO);
             window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(`*PEDIDO AGUADULCE*\n*Cliente:* ${n}\n*WhatsApp:* ${t}\n*Dirección:* ${d}\n\n*PEDIDO:* ${det}\n\n*TOTAL:* ${tot}`)}`;
-            localStorage.removeItem('ae_cart_v4');
+            localStorage.removeItem('ae_cart_v5');
         }
 
-        function guardarPerfil() { const p = { n: document.getElementById('c-nombre').value, t: document.getElementById('c-tel').value, d: document.getElementById('c-dir').value }; localStorage.setItem('ae_perfil_v4', JSON.stringify(p)); }
-        function cargarPerfil() { const p = JSON.parse(localStorage.getItem('ae_perfil_v4')); if (p) { document.getElementById('c-nombre').value = p.n || ""; document.getElementById('c-tel').value = p.t || ""; document.getElementById('c-dir').value = p.d || ""; } }
+        function guardarPerfil() { const p = { n: document.getElementById('c-nombre').value, t: document.getElementById('c-tel').value, d: document.getElementById('c-dir').value }; localStorage.setItem('ae_perfil_v5', JSON.stringify(p)); }
+        function cargarPerfil() { const p = JSON.parse(localStorage.getItem('ae_perfil_v5')); if (p) { document.getElementById('c-nombre').value = p.n || ""; document.getElementById('c-tel').value = p.t || ""; document.getElementById('c-dir').value = p.d || ""; } }
+        function verificarBloqueo() { const tel = document.getElementById('c-tel').value.trim(); const btn = document.getElementById('btn-finalizar'); const msg = document.getElementById('msg-bloqueo'); if (LISTA_NEGRA.includes(tel)) { btn.disabled = true; btn.classList.add('opacity-30'); msg.classList.remove('hidden'); } else { btn.disabled = false; btn.classList.remove('opacity-30'); msg.classList.add('hidden'); } }
         function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
         function cerrarProducto() { document.getElementById('modal-producto').classList.add('hidden'); }
 
