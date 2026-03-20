@@ -3,167 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aguadulce Express | Oficial</title>
+    <title>Aguadulce Express</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; color: #1E293B; overflow-x: hidden; margin: 0; padding: 0; }
+        body { font-family: sans-serif; background: #F8FAFC; margin: 0; }
         .hide-scroll::-webkit-scrollbar { display: none; }
-        .carrusel-row { display: flex; overflow-x: auto; gap: 14px; padding: 10px 0 25px 0; scroll-snap-type: x mandatory; }
-        .card-rest { flex: 0 0 160px; border-radius: 28px; overflow: hidden; background: white; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 6px 15px rgba(0,0,0,0.04); cursor: pointer; }
-        .img-wrapper { width: 100%; height: 120px; background: #f1f5f9; }
-        .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .rest-name { font-size: 10px; font-weight: 800; text-transform: uppercase; font-style: italic; line-height: 1.2; text-align: center; padding: 10px; }
-        .plato-card { background: white; border-radius: 26px; border: 1px solid rgba(0,0,0,0.04); transition: 0.3s; }
-        .anim-up { animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .carrusel { display: flex; overflow-x: auto; gap: 15px; padding: 10px; }
+        .card { flex: 0 0 150px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .plato { background: white; border-radius: 20px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
     </style>
 </head>
-<body class="pb-32">
+<body class="pb-24">
 
-    <header class="bg-white sticky top-0 z-50 p-5 border-b-2 border-[#00BCD4] flex items-center gap-4">
-        <button id="btn-back" onclick="location.reload()" class="hidden w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center"><i class="fas fa-arrow-left text-xs"></i></button>
-        <h1 id="header-titulo" class="font-black italic uppercase text-lg tracking-tighter">AGUADULCE <span class="text-[#00BCD4]">EXPRESS</span></h1>
+    <header class="bg-white p-5 sticky top-0 z-50 border-b-2 border-cyan-500 flex items-center gap-4">
+        <button id="back" onclick="location.reload()" class="hidden">←</button>
+        <h1 id="titulo" class="font-bold italic text-lg uppercase">AGUADULCE EXPRESS</h1>
     </header>
 
-    <main id="main-container" class="p-6 max-w-lg mx-auto">
-        <div id="loader" class="flex flex-col items-center py-20 text-gray-400">
-            <div class="w-10 h-10 border-4 border-[#00BCD4] border-t-transparent rounded-full animate-spin"></div>
-            <p class="mt-4 text-[10px] font-black uppercase tracking-widest italic">Cargando Menú...</p>
+    <main id="app" class="p-4">
+        <div id="loading" class="text-center py-20">
+            <p class="animate-bounce font-bold text-cyan-500">CARGANDO MENÚS...</p>
         </div>
     </main>
 
-    <div id="basket-bar" onclick="abrirCheckout()" class="fixed bottom-6 left-6 right-6 h-16 bg-[#00BCD4] rounded-2xl hidden flex items-center justify-between px-6 text-white shadow-2xl z-50 active:scale-95 transition cursor-pointer">
-        <div class="flex items-center gap-3 font-black"><i class="fas fa-shopping-bag"></i><span id="basket-count">0</span></div>
-        <span class="font-black uppercase italic text-[10px] tracking-widest">Ver mi pedido</span>
-        <span id="basket-total" class="font-black text-lg italic"></span>
+    <div id="bar" onclick="checkout()" class="fixed bottom-5 left-5 right-5 h-16 bg-cyan-500 rounded-2xl hidden flex items-center justify-between px-6 text-white font-bold shadow-xl">
+        <span>VER PEDIDO</span>
+        <span id="total"></span>
     </div>
 
     <script>
-        // URL DE TU GOOGLE SCRIPT ACTUALIZADA
-        const API_URL = "https://script.google.com/macros/s/AKfycbx1H3ZwRycKEok84xOrGSuayz9Bgu5bORLjoxYuLoNULGUbR0RbdWa2_SAKPgkH0bC8/exec";
-        const COSTO_ENVIO = 3.50;
-
+        const API = "https://script.google.com/macros/s/AKfycbxWc07aZ_Xby6QbTmD5REME00bqlhUUVT70XCLfdJeTQiOxz2vgVsqAVdCpfuBUQpJc/exec";
+        let BD = null;
         let carrito = [];
-        let dataCache = null;
-        let restauranteActual = null;
+        let restSel = null;
 
-        function formatEuro(m) { return `${parseFloat(m).toFixed(2).replace('.', ',')} €`; }
-
-        // 1. CARGAR DATOS DEL EXCEL
-        async function cargarTienda() {
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-                if (data && data.restaurantes) {
-                    dataCache = data;
-                    renderHome();
-                }
-            } catch (e) {
-                document.getElementById('loader').innerHTML = `
-                    <div class="text-center p-6 anim-up">
-                        <i class="fas fa-sync text-[#00BCD4] text-3xl mb-4"></i>
-                        <p class="text-gray-500 font-bold uppercase text-[10px]">Error al conectar con el servidor</p>
-                        <button onclick="location.reload()" class="mt-4 bg-[#00BCD4] text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase">Reintentar</button>
-                    </div>`;
-            }
+        // ESTA FUNCIÓN RECIBE LOS DATOS SIN BLOQUEOS
+        function respuestaServidor(datos) {
+            BD = datos;
+            renderHome();
         }
 
-        // 2. MOSTRAR RESTAURANTES POR CATEGORÍA
+        function llamarServidor() {
+            const script = document.createElement('script');
+            script.src = API + "?callback=respuestaServidor";
+            document.body.appendChild(script);
+        }
+
         function renderHome() {
-            const container = document.getElementById('main-container');
-            container.innerHTML = "";
-            document.getElementById('btn-back').classList.add('hidden');
-            
-            const cats = [...new Set(dataCache.restaurantes.map(r => r.CATEGORIA))].filter(c => c);
+            const app = document.getElementById('app');
+            app.innerHTML = "";
+            const cats = [...new Set(BD.restaurantes.map(r => r.CATEGORIA))];
             
             cats.forEach(c => {
-                const rests = dataCache.restaurantes.filter(r => r.CATEGORIA === c);
-                let html = `<div class="mb-8 anim-up">
-                    <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 italic ml-2">${c}</h2>
-                    <div class="carrusel-row hide-scroll">`;
+                const rests = BD.restaurantes.filter(r => r.CATEGORIA === c);
+                let html = `<p class="text-xs font-bold text-gray-400 mb-2 uppercase">${c}</p><div class="carrusel hide-scroll">`;
                 rests.forEach(r => {
-                    html += `
-                        <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="card-rest active:scale-95 transition">
-                            <div class="img-wrapper"><img src="${r.FOTO}" onerror="this.src='https://via.placeholder.com/150'"></div>
-                            <p class="rest-name">${r.NOMBRE_RESTAURANTE}</p>
-                        </div>`;
-                });
-                container.innerHTML += html + `</div></div>`;
-            });
-        }
-
-        // 3. MOSTRAR MENÚ DEL RESTAURANTE
-        function verMenu(id) {
-            restauranteActual = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
-            const platos = dataCache.menus.filter(p => String(p.ID_RESTAURANTE) === String(id));
-            
-            document.getElementById('header-titulo').innerText = restauranteActual.NOMBRE_RESTAURANTE;
-            document.getElementById('btn-back').classList.remove('hidden');
-            
-            let html = `<div class="grid gap-4 anim-up">`;
-            platos.forEach(p => {
-                html += `
-                    <div onclick="agregarAlCarrito('${p.PLATO}', ${p.PRECIO})" class="plato-card p-4 flex gap-4 items-center active:scale-95 transition cursor-pointer">
-                        <img src="${p.FOTO_PLATO}" class="w-20 h-20 rounded-2xl object-cover shadow-sm">
-                        <div class="flex-1">
-                            <p class="font-black text-[#1E293B] uppercase italic text-[11px] leading-tight">${p.PLATO}</p>
-                            <p class="text-[#00BCD4] font-black text-lg mt-1 italic">${formatEuro(p.PRECIO)}</p>
-                        </div>
-                        <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-[#00BCD4]"><i class="fas fa-plus text-xs"></i></div>
+                    html += `<div onclick="verMenu('${r.ID_RESTAURANTE}')" class="card">
+                        <img src="${r.FOTO}" class="w-full h-24 object-cover">
+                        <p class="p-2 text-[10px] font-bold text-center">${r.NOMBRE_RESTAURANTE}</p>
                     </div>`;
+                });
+                app.innerHTML += html + `</div>`;
             });
-            document.getElementById('main-container').innerHTML = html + `</div>`;
-            window.scrollTo(0,0);
         }
 
-        // 4. LÓGICA DEL CARRITO
-        function agregarAlCarrito(nombre, precio) {
-            carrito.push({ nombre, precio });
-            actualizarBarra();
-        }
-
-        function actualizarBarra() {
-            const bar = document.getElementById('basket-bar');
-            if (carrito.length > 0) {
-                const sub = carrito.reduce((s, i) => s + i.precio, 0);
-                document.getElementById('basket-count').innerText = carrito.length;
-                document.getElementById('basket-total').innerText = formatEuro(sub + COSTO_ENVIO);
-                bar.classList.remove('hidden');
-            }
-        }
-
-        // 5. FINALIZAR Y ENVIAR DATOS
-        function abrirCheckout() {
-            const nombre = prompt("Ingresa tu Nombre:");
-            if (!nombre) return;
-            const direccion = prompt("Dirección de entrega:");
-            if (!direccion) return;
-
-            const sub = carrito.reduce((s, i) => s + i.precio, 0);
-            const total = sub + COSTO_ENVIO;
-            const lista = carrito.map(i => i.nombre).join(", ");
-
-            // ENVIAR AL EXCEL (Cindy lo recibe en la tableta)
-            const params = new URLSearchParams({
-                cliente: nombre,
-                whatsapp: "Móvil",
-                direccion: direccion,
-                productos: lista,
-                total: total.toFixed(2),
-                restaurante: restauranteActual.ID_RESTAURANTE
+        function verMenu(id) {
+            restSel = BD.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
+            const platos = BD.menus.filter(p => String(p.ID_RESTAURANTE) === String(id));
+            document.getElementById('titulo').innerText = restSel.NOMBRE_RESTAURANTE;
+            document.getElementById('back').classList.remove('hidden');
+            
+            let html = `<div class="fade-in">`;
+            platos.forEach(p => {
+                html += `<div onclick="add('${p.PLATO}', ${p.PRECIO})" class="plato shadow-sm">
+                    <img src="${p.FOTO_PLATO}" class="w-16 h-16 rounded-xl object-cover">
+                    <div class="flex-1"><p class="font-bold text-xs uppercase">${p.PLATO}</p><p class="text-cyan-600 font-bold">${p.PRECIO} €</p></div>
+                    <div class="text-cyan-500">+</div>
+                </div>`;
             });
-
-            fetch(`${API_URL}?${params.toString()}`, { mode: 'no-cors' });
-
-            // ENVIAR POR WHATSAPP AL RESTAURANTE
-            const msg = `*NUEVO PEDIDO AGUADULCE EXPRESS*\n\n*Cliente:* ${nombre}\n*Dirección:* ${direccion}\n*Productos:* ${lista}\n\n*Total:* ${formatEuro(total)}`;
-            window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`;
+            document.getElementById('app').innerHTML = html + `</div>`;
         }
 
-        // Iniciar app
-        cargarTienda();
+        function add(n, p) {
+            carrito.push({n, p});
+            document.getElementById('bar').classList.remove('hidden');
+            const total = carrito.reduce((s, i) => s + i.p, 0) + 3.50;
+            document.getElementById('total').innerText = total.toFixed(2) + " €";
+        }
+
+        function checkout() {
+            const nom = prompt("Tu nombre:");
+            const dir = prompt("Dirección:");
+            if(!nom || !dir) return;
+            
+            const total = carrito.reduce((s, i) => s + i.p, 0) + 3.50;
+            const prods = carrito.map(i => i.n).join(", ");
+            
+            // Enviar pedido al Excel
+            const img = new Image();
+            img.src = `${API}?cliente=${nom}&whatsapp=Móvil&direccion=${dir}&productos=${prods}&total=${total.toFixed(2)}&restaurante=${restSel.ID_RESTAURANTE}`;
+
+            // Enviar a WhatsApp
+            const msg = `*NUEVO PEDIDO*\nCliente: ${nom}\nDirección: ${dir}\nProductos: ${prods}\nTotal: ${total.toFixed(2)}€`;
+            window.location.href = `https://wa.me/${restSel.TELEFONO}?text=${encodeURIComponent(msg)}`;
+        }
+
+        llamarServidor();
     </script>
 </body>
 </html>
