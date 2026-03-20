@@ -7,109 +7,118 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #F8FAFC; margin: 0; }
+        body { font-family: sans-serif; background-color: #F8FAFC; color: #1E293B; margin: 0; }
         .hide-scroll::-webkit-scrollbar { display: none; }
-        .carrusel { display: flex; overflow-x: auto; gap: 15px; padding: 10px; }
-        .card { flex: 0 0 150px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .plato { background: white; border-radius: 20px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .card-rest { flex: 0 0 160px; border-radius: 25px; overflow: hidden; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .plato-card { background: white; border-radius: 25px; border: 1px solid rgba(0,0,0,0.04); }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-32">
 
-    <header class="bg-white p-5 sticky top-0 z-50 border-b-2 border-cyan-500 flex items-center gap-4">
-        <button id="back" onclick="location.reload()" class="hidden">←</button>
-        <h1 id="titulo" class="font-bold italic text-lg uppercase">AGUADULCE EXPRESS</h1>
+    <header class="bg-white sticky top-0 z-50 p-5 border-b-2 border-cyan-500 flex items-center gap-4">
+        <button id="btn-back" onclick="location.reload()" class="hidden w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">←</button>
+        <h1 id="header-titulo" class="font-black italic uppercase text-lg">AGUADULCE <span class="text-cyan-500">EXPRESS</span></h1>
     </header>
 
-    <main id="app" class="p-4">
-        <div id="loading" class="text-center py-20">
-            <p class="animate-bounce font-bold text-cyan-500">CARGANDO MENÚS...</p>
+    <main id="main-container" class="p-6 max-w-lg mx-auto">
+        <div id="loader" class="flex flex-col items-center py-20 text-gray-400">
+            <div class="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 text-[10px] font-black uppercase italic">Sincronizando...</p>
         </div>
     </main>
 
-    <div id="bar" onclick="checkout()" class="fixed bottom-5 left-5 right-5 h-16 bg-cyan-500 rounded-2xl hidden flex items-center justify-between px-6 text-white font-bold shadow-xl">
-        <span>VER PEDIDO</span>
-        <span id="total"></span>
+    <div id="basket-bar" onclick="abrirFormulario()" class="fixed bottom-6 left-6 right-6 h-16 bg-cyan-500 rounded-2xl hidden flex items-center justify-between px-6 text-white shadow-2xl z-50 active:scale-95 transition cursor-pointer font-bold">
+        <span>PEDIR AHORA</span>
+        <span id="basket-total"></span>
     </div>
 
     <script>
-        const API = "https://script.google.com/macros/s/AKfycbxWc07aZ_Xby6QbTmD5REME00bqlhUUVT70XCLfdJeTQiOxz2vgVsqAVdCpfuBUQpJc/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbx1H3ZwRycKEok84xOrGSuayz9Bgu5bORLjoxYuLoNULGUbR0RbdWa2_SAKPgkH0bC8/exec";
         let BD = null;
         let carrito = [];
-        let restSel = null;
+        let restActual = null;
 
-        // ESTA FUNCIÓN RECIBE LOS DATOS SIN BLOQUEOS
+        // Función para recibir datos JSONP (Salta el bloqueo de comunicación)
         function respuestaServidor(datos) {
             BD = datos;
             renderHome();
         }
 
-        function llamarServidor() {
+        async function cargarTienda() {
             const script = document.createElement('script');
-            script.src = API + "?callback=respuestaServidor";
+            script.src = API_URL + "?callback=respuestaServidor";
             document.body.appendChild(script);
         }
 
         function renderHome() {
-            const app = document.getElementById('app');
-            app.innerHTML = "";
+            const container = document.getElementById('main-container');
+            container.innerHTML = "";
             const cats = [...new Set(BD.restaurantes.map(r => r.CATEGORIA))];
             
             cats.forEach(c => {
                 const rests = BD.restaurantes.filter(r => r.CATEGORIA === c);
-                let html = `<p class="text-xs font-bold text-gray-400 mb-2 uppercase">${c}</p><div class="carrusel hide-scroll">`;
+                let html = `<p class="text-[10px] font-bold text-gray-400 uppercase mb-3 ml-2 italic">${c}</p>
+                            <div class="flex overflow-x-auto gap-4 hide-scroll mb-8">`;
                 rests.forEach(r => {
-                    html += `<div onclick="verMenu('${r.ID_RESTAURANTE}')" class="card">
-                        <img src="${r.FOTO}" class="w-full h-24 object-cover">
-                        <p class="p-2 text-[10px] font-bold text-center">${r.NOMBRE_RESTAURANTE}</p>
-                    </div>`;
+                    html += `
+                        <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="card-rest active:scale-95 transition cursor-pointer">
+                            <img src="${r.FOTO}" class="w-full h-28 object-cover">
+                            <p class="p-3 text-[10px] font-black text-center uppercase italic">${r.NOMBRE_RESTAURANTE}</p>
+                        </div>`;
                 });
-                app.innerHTML += html + `</div>`;
+                container.innerHTML += html + `</div>`;
             });
         }
 
         function verMenu(id) {
-            restSel = BD.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
+            restActual = BD.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
             const platos = BD.menus.filter(p => String(p.ID_RESTAURANTE) === String(id));
-            document.getElementById('titulo').innerText = restSel.NOMBRE_RESTAURANTE;
-            document.getElementById('back').classList.remove('hidden');
+            document.getElementById('header-titulo').innerText = restActual.NOMBRE_RESTAURANTE;
+            document.getElementById('btn-back').classList.remove('hidden');
             
-            let html = `<div class="fade-in">`;
+            let html = `<div class="grid gap-4">`;
             platos.forEach(p => {
-                html += `<div onclick="add('${p.PLATO}', ${p.PRECIO})" class="plato shadow-sm">
-                    <img src="${p.FOTO_PLATO}" class="w-16 h-16 rounded-xl object-cover">
-                    <div class="flex-1"><p class="font-bold text-xs uppercase">${p.PLATO}</p><p class="text-cyan-600 font-bold">${p.PRECIO} €</p></div>
-                    <div class="text-cyan-500">+</div>
-                </div>`;
+                html += `
+                    <div onclick="add('${p.PLATO}', ${p.PRECIO})" class="plato-card p-4 flex gap-4 items-center active:scale-95 transition cursor-pointer">
+                        <img src="${p.FOTO_PLATO}" class="w-16 h-16 rounded-2xl object-cover">
+                        <div class="flex-1"><p class="font-bold text-xs uppercase italic">${p.PLATO}</p><p class="text-cyan-500 font-bold">${parseFloat(p.PRECIO).toFixed(2)} €</p></div>
+                        <div class="text-cyan-500 font-bold text-xl">+</div>
+                    </div>`;
             });
-            document.getElementById('app').innerHTML = html + `</div>`;
+            document.getElementById('main-container').innerHTML = html + `</div>`;
         }
 
         function add(n, p) {
             carrito.push({n, p});
-            document.getElementById('bar').classList.remove('hidden');
             const total = carrito.reduce((s, i) => s + i.p, 0) + 3.50;
-            document.getElementById('total').innerText = total.toFixed(2) + " €";
+            document.getElementById('basket-total').innerText = total.toFixed(2) + " €";
+            document.getElementById('basket-bar').classList.remove('hidden');
         }
 
-        function checkout() {
-            const nom = prompt("Tu nombre:");
-            const dir = prompt("Dirección:");
-            if(!nom || !dir) return;
-            
-            const total = carrito.reduce((s, i) => s + i.p, 0) + 3.50;
+        function abrirFormulario() {
+            const nom = prompt("Tu Nombre:");
+            const dir = prompt("Dirección de entrega:");
+            if (!nom || !dir) return alert("Datos necesarios para el envío.");
+
+            const total = (carrito.reduce((s, i) => s + i.p, 0) + 3.50).toFixed(2);
             const prods = carrito.map(i => i.n).join(", ");
-            
-            // Enviar pedido al Excel
-            const img = new Image();
-            img.src = `${API}?cliente=${nom}&whatsapp=Móvil&direccion=${dir}&productos=${prods}&total=${total.toFixed(2)}&restaurante=${restSel.ID_RESTAURANTE}`;
 
-            // Enviar a WhatsApp
-            const msg = `*NUEVO PEDIDO*\nCliente: ${nom}\nDirección: ${dir}\nProductos: ${prods}\nTotal: ${total.toFixed(2)}€`;
-            window.location.href = `https://wa.me/${restSel.TELEFONO}?text=${encodeURIComponent(msg)}`;
+            // ENVIAR AL EXCEL (Cindy)
+            // Usamos un Beacon o Image para asegurar que salga antes de cerrar
+            const logUrl = `${API_URL}?cliente=${encodeURIComponent(nom)}&whatsapp=Movil&direccion=${encodeURIComponent(dir)}&productos=${encodeURIComponent(prods)}&total=${total}&restaurante=${restActual.ID_RESTAURANTE}`;
+            
+            const img = new Image();
+            img.src = logUrl; 
+
+            // ENVIAR A WHATSAPP
+            const msg = `*NUEVO PEDIDO AGUADULCE EXPRESS*\n\n*Cliente:* ${nom}\n*Dirección:* ${dir}\n*Productos:* ${prods}\n\n*Total:* ${total} €`;
+            
+            setTimeout(() => {
+                window.location.href = `https://wa.me/${restActual.TELEFONO}?text=${encodeURIComponent(msg)}`;
+            }, 500);
         }
 
-        llamarServidor();
+        cargarTienda();
     </script>
 </body>
 </html>
