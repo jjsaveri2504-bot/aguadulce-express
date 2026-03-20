@@ -30,13 +30,11 @@
         .plato-card { background: white; border-radius: 28px; border: 1px solid rgba(0,0,0,0.04); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); cursor: pointer; }
         .anim-up { animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .sug-selected { border: 2px solid #00BCD4 !important; background-color: rgba(0, 188, 212, 0.05) !important; transform: scale(0.95); }
     </style>
 </head>
 <body class="pb-32">
 
     <script>
-        // NUEVA URL DEL SCRIPT PROPORCIONADA POR EL USUARIO
         const API_URL = "https://script.google.com/macros/s/AKfycbw-H-ai6FroRs7FardbkQWANsHSSJ5lNBvdqwKjl2vhj14sWv4Z-Y_BlNOitcchKize/exec"; 
         const COSTO_ENVIO = 3.50;
 
@@ -57,16 +55,13 @@
                 </div>
                 <h1 id="header-titulo" class="font-extrabold text-xl text-ae-text uppercase italic tracking-tighter">AGUADULCE <span class="text-ae-main font-black">EXPRESS</span></h1>
             </div>
-            <div id="status-demo" class="mt-3 bg-ae-accent/10 px-4 py-1 rounded-full border border-ae-accent/20">
-                <span class="text-[9px] font-black text-ae-accent uppercase tracking-widest italic">Panel de Control Activo</span>
-            </div>
         </div>
     </header>
 
     <main id="main-container" class="p-6 max-w-xl mx-auto space-y-10">
         <div class="flex flex-col items-center justify-center py-20 text-ae-sub">
             <i class="fas fa-spinner fa-spin text-3xl mb-4 text-ae-main"></i>
-            <p class="font-bold text-[10px] uppercase tracking-widest">Sincronizando Menús...</p>
+            <p class="font-bold text-[10px] uppercase tracking-widest">Cargando Tienda...</p>
         </div>
     </main>
 
@@ -81,7 +76,7 @@
                 <p id="p-desc" class="text-ae-sub mt-2 text-[10px] leading-relaxed"></p>
                 <div class="flex items-center justify-between mt-10 pt-6 border-t border-gray-100">
                     <span id="p-precio" class="text-3xl font-black text-ae-text italic tracking-tighter"></span>
-                    <button onclick="confirmarAgregar()" class="bg-ae-main text-white px-10 py-4 rounded-2xl font-black italic uppercase text-xs shadow-lg shadow-ae-main/20 active:scale-95 transition-all">Añadir</button>
+                    <button onclick="confirmarAgregar()" class="bg-ae-main text-white px-10 py-4 rounded-2xl font-black italic uppercase text-xs shadow-lg shadow-ae-main/20">Añadir</button>
                 </div>
             </div>
         </div>
@@ -94,13 +89,13 @@
     </div>
 
     <div id="modal-checkout" class="fixed inset-0 z-[150] hidden bg-ae-text/30 backdrop-blur-sm flex items-end justify-center">
-        <div class="bg-white w-full max-w-md p-8 rounded-t-[40px] anim-up max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-black text-ae-text text-center mb-6 uppercase italic tracking-tighter">Datos de Entrega</h3>
+        <div class="bg-white w-full max-w-md p-8 rounded-t-[40px] anim-up max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h3 class="text-xl font-black text-ae-text text-center mb-6 uppercase italic tracking-tighter">Finalizar Pedido</h3>
             <div id="checkout-items" class="space-y-3 mb-8 border-b border-gray-100 pb-6"></div>
             <div class="space-y-4">
-                <input type="text" id="c-nombre" oninput="guardarPerfil()" placeholder="Tu nombre" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none focus:border-ae-main">
-                <input type="tel" id="c-tel" oninput="guardarPerfil()" placeholder="WhatsApp (Ej: +34...)" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none focus:border-ae-main">
-                <input type="text" id="c-dir" oninput="guardarPerfil()" placeholder="Dirección de entrega" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none focus:border-ae-main">
+                <input type="text" id="c-nombre" oninput="guardarPerfil()" placeholder="Tu nombre" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none">
+                <input type="tel" id="c-tel" oninput="guardarPerfil()" placeholder="WhatsApp (Ej: +34...)" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none">
+                <input type="text" id="c-dir" oninput="guardarPerfil()" placeholder="Dirección de entrega" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none">
             </div>
             <button id="btn-finalizar" onclick="finalizarCompra()" class="w-full mt-8 bg-ae-main text-white py-5 rounded-2xl font-black italic uppercase text-xs shadow-xl active:scale-95 transition-all">CONFIRMAR COMPRA</button>
             <button onclick="cerrarCheckout()" class="w-full mt-4 text-ae-sub font-bold text-[10px] uppercase text-center block tracking-widest">Seguir comprando</button>
@@ -166,7 +161,7 @@
             document.getElementById('p-nombre').innerText = p.PLATO;
             document.getElementById('p-precio').innerText = formatEuro(p.PRECIO);
             document.getElementById('p-foto').src = p.FOTO_PLATO;
-            document.getElementById('p-desc').innerText = p.DESCRIPCION || "Sabor premium de Aguadulce Express.";
+            document.getElementById('p-desc').innerText = p.DESCRIPCION || "Sabor premium Aguadulce Express.";
             document.getElementById('modal-producto').classList.remove('hidden');
         }
 
@@ -196,52 +191,45 @@
                 <div class="flex justify-between text-[10px] font-bold uppercase text-ae-sub"><span>${i.nombre}</span><span>${formatEuro(i.precio)}</span></div>`).join('');
         }
 
-        async function finalizarCompra() {
+        function finalizarCompra() {
             const n = document.getElementById('c-nombre').value;
             const t = document.getElementById('c-tel').value;
             const d = document.getElementById('c-dir').value;
-            if(!n || !t || !d) return alert("Por favor, completa tus datos.");
-
-            const btn = document.getElementById('btn-finalizar');
-            btn.innerText = "PROCESANDO...";
-            btn.disabled = true;
+            if(!n || !t || !d) return alert("Por favor, rellena tus datos.");
 
             const total = carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO;
             const listaProd = carrito.map(i => i.nombre).join(', ');
 
-            // DATOS PARA GOOGLE SHEETS
-            const formData = new URLSearchParams();
-            formData.append('cliente', n);
-            formData.append('whatsapp', t);
-            formData.append('direccion', d);
-            formData.append('productos', listaProd);
-            formData.append('total', total);
-            formData.append('restaurante', restauranteActual.ID_RESTAURANTE);
+            // ENVÍO DE DATOS AL EXCEL (VÍA URL PARAMS - EL MÉTODO MÁS SEGURO)
+            const queryParams = new URLSearchParams({
+                cliente: n,
+                whatsapp: t,
+                direccion: d,
+                productos: listaProd,
+                total: total.toFixed(2),
+                restaurante: restauranteActual.ID_RESTAURANTE
+            });
 
-            try {
-                // ENVIAR A GOOGLE SHEETS
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData
-                });
+            // DISPARAMOS EL ENVÍO AL SCRIPT SIN ESPERAR RESPUESTA (PARA EVITAR BLOQUEOS EN MÓVIL)
+            fetch(`${API_URL}?${queryParams.toString()}`, { mode: 'no-cors' });
 
-                // DESPUÉS DE ENVIAR, ABRIR WHATSAPP
-                const msg = `*NUEVO PEDIDO AGUADULCE EXPRESS*\n\n*Cliente:* ${n}\n*WhatsApp:* ${t}\n*Dirección:* ${d}\n\n*Productos:* ${listaProd}\n\n*Total:* ${formatEuro(total)}`;
-                window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`;
+            // ABRIR WHATSAPP
+            const msg = `*NUEVO PEDIDO AGUADULCE EXPRESS*\n\n*Cliente:* ${n}\n*WhatsApp:* ${t}\n*Dirección:* ${d}\n\n*Productos:* ${listaProd}\n\n*Total:* ${formatEuro(total)}`;
+            window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`;
 
-                carrito = [];
-                localStorage.removeItem('ae_cart_v11');
-                actualizarCestaBar();
-                cerrarCheckout();
-            } catch (e) {
-                alert("Error al enviar el pedido. Inténtalo de nuevo.");
-                btn.disabled = false;
-                btn.innerText = "CONFIRMAR COMPRA";
-            }
+            // LIMPIEZA
+            carrito = [];
+            localStorage.removeItem('ae_cart_v11');
+            actualizarCestaBar();
+            cerrarCheckout();
         }
 
         function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
         function cerrarProducto() { document.getElementById('modal-producto').classList.add('hidden'); }
-        function guardarPerfil() { const p = { n: document.
+        function guardarPerfil() { const p = { n: document.getElementById('c-nombre').value, t: document.getElementById('c-tel').value, d: document.getElementById('c-dir').value }; localStorage.setItem('ae_perfil', JSON.stringify(p)); }
+        function cargarPerfil() { const p = JSON.parse(localStorage.getItem('ae_perfil')); if (p) { document.getElementById('c-nombre').value = p.n || ""; document.getElementById('c-tel').value = p.t || ""; document.getElementById('c-dir').value = p.d || ""; } }
+
+        iniciar();
+    </script>
+</body>
+</html>
