@@ -35,6 +35,7 @@
 <body class="pb-32">
 
     <script>
+        // URL ACTUALIZADA
         const API_URL = "https://script.google.com/macros/s/AKfycbw-H-ai6FroRs7FardbkQWANsHSSJ5lNBvdqwKjl2vhj14sWv4Z-Y_BlNOitcchKize/exec"; 
         const COSTO_ENVIO = 3.50;
 
@@ -59,9 +60,9 @@
     </header>
 
     <main id="main-container" class="p-6 max-w-xl mx-auto space-y-10">
-        <div class="flex flex-col items-center justify-center py-20 text-ae-sub">
+        <div id="loader" class="flex flex-col items-center justify-center py-20 text-ae-sub">
             <i class="fas fa-spinner fa-spin text-3xl mb-4 text-ae-main"></i>
-            <p class="font-bold text-[10px] uppercase tracking-widest">Cargando Tienda...</p>
+            <p class="font-bold text-[10px] uppercase tracking-widest">Sincronizando Menús...</p>
         </div>
     </main>
 
@@ -76,7 +77,7 @@
                 <p id="p-desc" class="text-ae-sub mt-2 text-[10px] leading-relaxed"></p>
                 <div class="flex items-center justify-between mt-10 pt-6 border-t border-gray-100">
                     <span id="p-precio" class="text-3xl font-black text-ae-text italic tracking-tighter"></span>
-                    <button onclick="confirmarAgregar()" class="bg-ae-main text-white px-10 py-4 rounded-2xl font-black italic uppercase text-xs shadow-lg shadow-ae-main/20">Añadir</button>
+                    <button onclick="confirmarAgregar()" class="bg-ae-main text-white px-10 py-4 rounded-2xl font-black italic uppercase text-xs shadow-lg shadow-ae-main/20 active:scale-95 transition-all">Añadir</button>
                 </div>
             </div>
         </div>
@@ -105,13 +106,26 @@
     <script>
         async function iniciar() {
             try {
-                const res = await fetch(`${API_URL}?v=${Date.now()}`);
-                const data = await res.json();
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("Error en la respuesta del servidor");
+                const data = await response.json();
+                
                 if (data && data.restaurantes) {
                     dataCache = data;
                     renderLayout();
+                } else {
+                    throw new Error("Datos mal formateados");
                 }
-            } catch (e) { console.error("Error cargando datos:", e); }
+            } catch (e) { 
+                console.error("Fallo de inicio:", e);
+                document.getElementById('loader').innerHTML = `
+                    <div class="text-center p-6 bg-red-50 rounded-2xl border border-red-100">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-2"></i>
+                        <p class="text-red-700 font-bold text-[10px] uppercase tracking-widest">Error de Conexión</p>
+                        <p class="text-red-400 text-[9px] mt-1">Revisa el Apps Script o la señal.</p>
+                        <button onclick="location.reload()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg text-[9px] font-bold">REINTENTAR</button>
+                    </div>`;
+            }
             actualizarCestaBar();
         }
 
@@ -161,7 +175,7 @@
             document.getElementById('p-nombre').innerText = p.PLATO;
             document.getElementById('p-precio').innerText = formatEuro(p.PRECIO);
             document.getElementById('p-foto').src = p.FOTO_PLATO;
-            document.getElementById('p-desc').innerText = p.DESCRIPCION || "Sabor premium Aguadulce Express.";
+            document.getElementById('p-desc').innerText = p.DESCRIPCION || "Calidad seleccionada por Aguadulce Express.";
             document.getElementById('modal-producto').classList.remove('hidden');
         }
 
@@ -191,33 +205,28 @@
                 <div class="flex justify-between text-[10px] font-bold uppercase text-ae-sub"><span>${i.nombre}</span><span>${formatEuro(i.precio)}</span></div>`).join('');
         }
 
-        function finalizarCompra() {
-            const n = document.getElementById('c-nombre').value;
-            const t = document.getElementById('c-tel').value;
-            const d = document.getElementById('c-dir').value;
-            if(!n || !t || !d) return alert("Por favor, rellena tus datos.");
+        async function finalizarCompra() {
+            const n = document.getElementById('c-nombre').value.trim();
+            const t = document.getElementById('c-tel').value.trim();
+            const d = document.getElementById('c-dir').value.trim();
+            
+            if(!n || !t || !d) return alert("Por favor, rellena todos los datos.");
 
             const total = carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO;
             const listaProd = carrito.map(i => i.nombre).join(', ');
 
-            // ENVÍO DE DATOS AL EXCEL (VÍA URL PARAMS - EL MÉTODO MÁS SEGURO)
+            // ENVÍO DE DATOS (QUERY PARAMS PARA EVITAR BLOQUEOS)
             const queryParams = new URLSearchParams({
-                cliente: n,
-                whatsapp: t,
-                direccion: d,
-                productos: listaProd,
-                total: total.toFixed(2),
-                restaurante: restauranteActual.ID_RESTAURANTE
+                cliente: n, whatsapp: t, direccion: d, productos: listaProd, total: total.toFixed(2), restaurante: restauranteActual.ID_RESTAURANTE
             });
 
-            // DISPARAMOS EL ENVÍO AL SCRIPT SIN ESPERAR RESPUESTA (PARA EVITAR BLOQUEOS EN MÓVIL)
+            // DISPARO SILENCIOSO AL EXCEL
             fetch(`${API_URL}?${queryParams.toString()}`, { mode: 'no-cors' });
 
-            // ABRIR WHATSAPP
+            // SALTO A WHATSAPP
             const msg = `*NUEVO PEDIDO AGUADULCE EXPRESS*\n\n*Cliente:* ${n}\n*WhatsApp:* ${t}\n*Dirección:* ${d}\n\n*Productos:* ${listaProd}\n\n*Total:* ${formatEuro(total)}`;
             window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`;
 
-            // LIMPIEZA
             carrito = [];
             localStorage.removeItem('ae_cart_v11');
             actualizarCestaBar();
