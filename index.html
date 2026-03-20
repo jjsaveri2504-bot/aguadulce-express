@@ -7,143 +7,74 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = { 
-            theme: { 
-                extend: { 
-                    colors: { 'ae-main': '#00BCD4', 'ae-accent': '#84CC16', 'ae-bg': '#F8FAFC', 'ae-card': '#FFFFFF', 'ae-text': '#1E293B', 'ae-sub': '#64748B' }
-                } 
-            } 
-        }
-    </script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; color: #1E293B; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-        .premium-header { background: linear-gradient(135deg, rgba(0, 188, 212, 0.12) 0%, #FFFFFF 50%, rgba(132, 204, 22, 0.12) 100%); border-bottom: 2px solid #00BCD4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; color: #1E293B; -webkit-tap-highlight-color: transparent; }
+        .premium-header { background: white; border-bottom: 2px solid #00BCD4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
         .hide-scroll::-webkit-scrollbar { display: none; }
-        .carrusel-row { display: flex; overflow-x: auto; gap: 14px; padding: 5px 0 25px 0; scroll-snap-type: x mandatory; }
-        .card-rest { flex: 0 0 165px; width: 165px; height: 235px; scroll-snap-align: start; border-radius: 28px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 6px 15px -3px rgba(0,0,0,0.04); transition: 0.3s; position: relative; cursor: pointer; }
-        .img-wrapper { width: 100%; height: 165px; overflow: hidden; background: #f1f5f9; position: relative; }
+        .carrusel-row { display: flex; overflow-x: auto; gap: 14px; padding: 10px 0 25px 0; scroll-snap-type: x mandatory; }
+        .card-rest { flex: 0 0 160px; border-radius: 28px; overflow: hidden; background: white; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 6px 15px rgba(0,0,0,0.04); cursor: pointer; }
+        .img-wrapper { width: 100%; height: 130px; overflow: hidden; }
         .img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .info-wrapper { padding: 12px; height: 70px; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .rest-name { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #1E293B; line-height: 1.2; font-style: italic; }
-        .cat-line { height: 1px; flex: 1; background: linear-gradient(to right, #00BCD4, transparent); }
-        .plato-card { background: white; border-radius: 28px; border: 1px solid rgba(0,0,0,0.04); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); cursor: pointer; }
+        .rest-name { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #1E293B; text-align: center; padding: 10px; italic; }
+        .plato-card { background: white; border-radius: 24px; border: 1px solid rgba(0,0,0,0.04); transition: 0.2s; }
         .anim-up { animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .sug-selected { border: 2px solid #00BCD4 !important; background-color: rgba(0, 188, 212, 0.05) !important; transform: scale(0.95); }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body class="pb-32">
 
     <script>
-        // NUEVO LINK PROPORCIONADO
-        const API_URL = "https://script.google.com/macros/s/AKfycbwNYUaec2b0QNSAMVlDaC-WMICrnj78HeSVK_rMJON2VHrNF8Y8s6iEP-lMrmks3AJk/exec"; 
+        // URL ACTUALIZADA
+        const API_URL = "https://script.google.com/macros/s/AKfycbx1H3ZwRycKEok84xOrGSuayz9Bgu5bORLjoxYuLoNULGUbR0RbdWa2_SAKPgkH0bC8/exec"; 
         const COSTO_ENVIO = 3.50;
 
-        let carrito = JSON.parse(localStorage.getItem('ae_cart_v11')) || [];
+        let carrito = [];
         let dataCache = null;
         let restauranteActual = null;
-        let productoSeleccionado = null;
-        let sugerenciasElegidas = [];
 
         function formatEuro(m) { return `${parseFloat(m).toFixed(2).replace('.', ',')} €`; }
-    </script>
 
-    <header class="premium-header sticky top-0 z-[80] px-6 py-5">
-        <div class="flex flex-col items-center">
-            <div class="flex items-center gap-3 relative w-full justify-center">
-                <button id="btn-back" onclick="location.reload()" class="hidden absolute left-0 text-ae-text w-10 h-10 flex items-center justify-center border border-gray-100 bg-white rounded-xl shadow-sm"><i class="fas fa-chevron-left text-sm"></i></button>
-                <div class="w-10 h-10 bg-ae-main rounded-xl flex items-center justify-center shadow-lg shadow-ae-main/20">
-                    <i class="fas fa-shipping-fast text-white text-lg"></i>
-                </div>
-                <h1 id="header-titulo" class="font-extrabold text-xl text-ae-text uppercase italic tracking-tighter">AGUADULCE <span class="text-ae-main font-black">EXPRESS</span></h1>
-            </div>
-        </div>
-    </header>
-
-    <main id="main-container" class="p-6 max-w-xl mx-auto space-y-10">
-        <div id="loader" class="flex flex-col items-center justify-center py-20 text-ae-sub">
-            <i class="fas fa-spinner fa-spin text-3xl mb-4 text-ae-main"></i>
-            <p class="font-bold text-[10px] uppercase tracking-widest text-center">Conectando con la central de pedidos...</p>
-        </div>
-    </main>
-
-    <div id="modal-producto" class="fixed inset-0 z-[200] hidden bg-ae-text/40 backdrop-blur-md flex items-end justify-center">
-        <div class="bg-white w-full max-w-md rounded-t-[45px] anim-up overflow-hidden shadow-2xl">
-            <div class="relative h-64">
-                <img id="p-foto" src="" class="w-full h-full object-cover">
-                <button onclick="cerrarProducto()" class="absolute top-6 right-6 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg text-ae-text"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="p-8">
-                <h3 id="p-nombre" class="text-2xl font-black text-ae-text uppercase italic tracking-tighter"></h3>
-                <p id="p-desc" class="text-ae-sub mt-2 text-[10px] leading-relaxed"></p>
-                
-                <div id="seccion-sugerencias" class="mt-8 hidden">
-                    <p class="text-[9px] font-black text-ae-main uppercase tracking-[0.2em] mb-4 italic">¿Deseas añadir extras?</p>
-                    <div id="p-sugerencias-lista" class="flex gap-4 overflow-x-auto hide-scroll pb-2"></div>
-                </div>
-
-                <div class="flex items-center justify-between mt-10 pt-6 border-t border-gray-100">
-                    <span id="p-precio" class="text-3xl font-black text-ae-text italic tracking-tighter"></span>
-                    <button onclick="confirmarAgregar()" class="bg-ae-main text-white px-10 py-4 rounded-2xl font-black italic uppercase text-xs shadow-lg shadow-ae-main/20 active:scale-95 transition-all">Añadir</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="basket-bar" onclick="abrirCheckout()" class="fixed bottom-6 left-6 right-6 h-16 bg-ae-main rounded-2xl flex justify-between items-center px-6 shadow-2xl hidden z-[90] active:scale-95 transition cursor-pointer">
-        <div class="flex items-center gap-3 text-white font-black"><i class="fas fa-shopping-bag"></i><span id="basket-count" class="text-sm">0</span></div>
-        <span class="text-white font-black uppercase italic text-[10px] tracking-widest">Revisar Pedido</span>
-        <span id="basket-total" class="text-white font-black text-lg italic"></span>
-    </div>
-
-    <div id="modal-checkout" class="fixed inset-0 z-[150] hidden bg-ae-text/30 backdrop-blur-sm flex items-end justify-center">
-        <div class="bg-white w-full max-w-md p-8 rounded-t-[40px] anim-up max-h-[90vh] overflow-y-auto shadow-2xl">
-            <h3 class="text-xl font-black text-ae-text text-center mb-6 uppercase italic tracking-tighter">Confirmar Entrega</h3>
-            <div id="checkout-items" class="space-y-3 mb-8 border-b border-gray-100 pb-6"></div>
-            <div class="space-y-4">
-                <input type="text" id="c-nombre" oninput="guardarPerfil()" placeholder="Nombre completo" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none focus:border-ae-main">
-                <input type="tel" id="c-tel" oninput="guardarPerfil()" placeholder="WhatsApp (Ej: +34...)" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none focus:border-ae-main">
-                <input type="text" id="c-dir" oninput="guardarPerfil()" placeholder="Dirección exacta" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 text-ae-text font-bold text-sm outline-none focus:border-ae-main">
-            </div>
-            <button id="btn-finalizar" onclick="finalizarCompra()" class="w-full mt-8 bg-ae-main text-white py-5 rounded-2xl font-black italic uppercase text-xs shadow-xl active:scale-95 transition-all">ENVIAR PEDIDO</button>
-            <button onclick="cerrarCheckout()" class="w-full mt-4 text-ae-sub font-bold text-[10px] uppercase text-center block tracking-widest">Volver a la carta</button>
-        </div>
-    </div>
-
-    <script>
         async function iniciar() {
+            const loader = document.getElementById('loader');
             try {
-                const res = await fetch(`${API_URL}?v=${Date.now()}`);
+                // Intento de conexión con tiempo límite (timeout)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+                const res = await fetch(API_URL, { signal: controller.signal });
                 const data = await res.json();
+                
                 if (data && data.restaurantes) {
                     dataCache = data;
                     renderLayout();
                 }
             } catch (e) { 
-                console.error("Error cargando base de datos:", e);
-                document.getElementById('loader').innerHTML = `<p class="text-red-500 font-bold text-xs">Error de conexión. Reintenta.</p>`;
+                console.error("Error de comunicación:", e);
+                loader.innerHTML = `
+                    <div class="text-center p-8 bg-white rounded-3xl shadow-xl">
+                        <i class="fas fa-exclamation-triangle text-ae-main text-3xl mb-4"></i>
+                        <p class="font-bold text-xs uppercase">Error de Sincronización</p>
+                        <p class="text-[10px] text-gray-400 mt-2">Revisa tu conexión o el estado del servidor.</p>
+                        <button onclick="location.reload()" class="mt-6 bg-[#00BCD4] text-white px-8 py-3 rounded-2xl font-bold text-[10px] uppercase">Reintentar</button>
+                    </div>`;
             }
-            actualizarCestaBar();
         }
 
         function renderLayout() {
-            if (!dataCache) return;
-            document.getElementById('btn-back').classList.add('hidden');
             const container = document.getElementById('main-container');
             container.innerHTML = "";
             const cats = [...new Set(dataCache.restaurantes.map(r => r.CATEGORIA))].filter(c => c);
             
             cats.forEach(c => {
                 const fila = dataCache.restaurantes.filter(r => r.CATEGORIA === c);
-                let htmlFila = `<div class="mb-8">
-                    <div class="flex items-center gap-4 mb-4"><h2 class="text-[10px] font-black text-ae-sub uppercase tracking-[0.3em] italic flex-none">${c}</h2><div class="cat-line"></div></div>
+                let htmlFila = `<div class="mb-8 anim-up">
+                    <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-2 italic">${c}</h2>
                     <div class="carrusel-row hide-scroll">`;
                 fila.forEach(r => {
                     htmlFila += `
-                        <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="card-rest">
+                        <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="card-rest active:scale-95 transition">
                             <div class="img-wrapper"><img src="${r.FOTO}"></div>
-                            <div class="info-wrapper"><p class="rest-name">${r.NOMBRE_RESTAURANTE}</p></div>
+                            <p class="rest-name">${r.NOMBRE_RESTAURANTE}</p>
                         </div>`;
                 });
                 container.innerHTML += htmlFila + `</div></div>`;
@@ -153,121 +84,69 @@
         function verMenu(id) {
             restauranteActual = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
             const platos = dataCache.menus.filter(p => String(p.ID_RESTAURANTE) === String(id));
+            
             document.getElementById('header-titulo').innerText = restauranteActual.NOMBRE_RESTAURANTE;
             document.getElementById('btn-back').classList.remove('hidden');
-            document.getElementById('main-container').innerHTML = `<div class="grid grid-cols-1 gap-5 anim-up">${platos.map(p => `
-                <div onclick="abrirProducto('${p.ID_PLATO}')" class="plato-card p-4 flex gap-5 items-center active:scale-95 transition-all">
-                    <img src="${p.FOTO_PLATO}" class="w-24 h-24 rounded-[24px] object-cover shadow-sm">
+            
+            document.getElementById('main-container').innerHTML = `<div class="grid grid-cols-1 gap-4 anim-up">${platos.map(p => `
+                <div onclick="agregarCarrito('${p.PLATO}', ${p.PRECIO})" class="plato-card p-4 flex gap-4 items-center active:scale-95 transition cursor-pointer">
+                    <img src="${p.FOTO_PLATO}" class="w-20 h-20 rounded-2xl object-cover shadow-sm">
                     <div class="flex-1">
-                        <h3 class="font-black text-ae-text uppercase italic text-[12px] leading-tight">${p.PLATO}</h3>
-                        <span class="block mt-3 font-black text-ae-main text-xl italic tracking-tighter">${formatEuro(p.PRECIO)}</span>
+                        <h3 class="font-black text-[#1E293B] uppercase italic text-[11px]">${p.PLATO}</h3>
+                        <span class="block mt-2 font-black text-[#00BCD4] text-lg italic">${formatEuro(p.PRECIO)}</span>
                     </div>
+                    <div class="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-[#00BCD4] border border-gray-100"><i class="fas fa-plus text-xs"></i></div>
                 </div>`).join('')}</div>`;
             window.scrollTo(0,0);
         }
 
-        function abrirProducto(idPlato) {
-            const p = dataCache.menus.find(item => String(item.ID_PLATO) === String(idPlato));
-            if(!p) return;
-            
-            productoSeleccionado = { nombre: p.PLATO, precio: parseFloat(p.PRECIO) };
-            sugerenciasElegidas = [];
-            
-            document.getElementById('p-nombre').innerText = p.PLATO;
-            document.getElementById('p-precio').innerText = formatEuro(p.PRECIO);
-            document.getElementById('p-foto').src = p.FOTO_PLATO;
-            document.getElementById('p-desc').innerText = p.DESCRIPCION || "Sabor artesanal seleccionado por Aguadulce Express.";
-            
-            // Lógica de Sugerencias/Extras
-            const listaSugerencias = document.getElementById('p-sugerencias-lista');
-            listaSugerencias.innerHTML = "";
-            const sugs = dataCache.sugerencias ? dataCache.sugerencias.filter(s => String(s.ID_PLATO) === String(idPlato)) : [];
-            
-            if(sugs.length > 0) {
-                document.getElementById('seccion-sugerencias').classList.remove('hidden');
-                sugs.forEach(s => {
-                    const card = document.createElement('div');
-                    card.className = "flex-none w-24 p-3 bg-gray-50 rounded-2xl border border-gray-100 text-center transition-all";
-                    card.innerHTML = `<p class="text-[8px] font-black text-ae-text uppercase italic">${s.NOMBRE}</p><p class="text-[10px] font-bold text-ae-main mt-1">+${formatEuro(s.PRECIO)}</p>`;
-                    card.onclick = () => {
-                        card.classList.toggle('sug-selected');
-                        const idx = sugerenciasElegidas.findIndex(x => x.nombre === s.NOMBRE);
-                        if(idx > -1) sugerenciasElegidas.splice(idx, 1);
-                        else sugerenciasElegidas.push({nombre: s.NOMBRE, precio: parseFloat(s.PRECIO)});
-                    };
-                    listaSugerencias.appendChild(card);
-                });
-            } else {
-                document.getElementById('seccion-sugerencias').classList.add('hidden');
-            }
-
-            document.getElementById('modal-producto').classList.remove('hidden');
-        }
-
-        function confirmarAgregar() {
-            if(!productoSeleccionado) return;
-            const itemFinal = {
-                nombre: productoSeleccionado.nombre + (sugerenciasElegidas.length > 0 ? " (con " + sugerenciasElegidas.map(s => s.nombre).join(', ') + ")" : ""),
-                precio: productoSeleccionado.precio + sugerenciasElegidas.reduce((a, b) => a + b.precio, 0)
-            };
-            carrito.push(itemFinal);
-            localStorage.setItem('ae_cart_v11', JSON.stringify(carrito));
-            actualizarCestaBar();
-            cerrarProducto();
-        }
-
-        function actualizarCestaBar() {
-            const b = document.getElementById('basket-bar');
-            if(carrito.length > 0) {
-                const sub = carrito.reduce((s, i) => s + i.precio, 0);
-                document.getElementById('basket-count').innerText = carrito.length;
-                document.getElementById('basket-total').innerText = formatEuro(sub + COSTO_ENVIO);
-                b.classList.remove('hidden');
-            } else { b.classList.add('hidden'); }
-        }
-
-        function abrirCheckout() {
-            document.getElementById('modal-checkout').classList.remove('hidden');
-            cargarPerfil();
+        function agregarCarrito(nombre, precio) {
+            carrito.push({ nombre, precio });
+            const bar = document.getElementById('basket-bar');
             const sub = carrito.reduce((s, i) => s + i.precio, 0);
-            document.getElementById('btn-finalizar').innerText = `ENVIAR PEDIDO (${formatEuro(sub + COSTO_ENVIO)})`;
-            document.getElementById('checkout-items').innerHTML = carrito.map(i => `
-                <div class="flex justify-between text-[10px] font-bold uppercase text-ae-sub"><span>${i.nombre}</span><span>${formatEuro(i.precio)}</span></div>`).join('');
+            document.getElementById('basket-count').innerText = carrito.length;
+            document.getElementById('basket-total').innerText = formatEuro(sub + COSTO_ENVIO);
+            bar.classList.remove('hidden');
         }
 
-        async function finalizarCompra() {
-            const n = document.getElementById('c-nombre').value.trim();
-            const t = document.getElementById('c-tel').value.trim();
-            const d = document.getElementById('c-dir').value.trim();
-            if(!n || !t || !d) return alert("Por favor, completa tus datos de entrega.");
+        function finalizarPedido() {
+            const n = prompt("Nombre para la entrega:");
+            const d = prompt("Dirección exacta:");
+            if(!n || !d) return;
 
             const total = carrito.reduce((s, i) => s + i.precio, 0) + COSTO_ENVIO;
-            const listaProd = carrito.map(i => i.nombre).join(', ');
+            const lista = carrito.map(i => i.nombre).join(', ');
 
-            // ENVÍO DE DATOS ROBUSTO
+            // ENVÍO AL EXCEL (Modo silencioso para no bloquear)
             const params = new URLSearchParams({
-                cliente: n, whatsapp: t, direccion: d, productos: listaProd, total: total.toFixed(2), restaurante: restauranteActual.ID_RESTAURANTE
+                cliente: n, whatsapp: "Movil", direccion: d, productos: lista, total: total.toFixed(2), restaurante: restauranteActual.ID_RESTAURANTE
             });
-
-            // Disparo al Excel
             fetch(`${API_URL}?${params.toString()}`, { mode: 'no-cors' });
 
-            // Redirección a WhatsApp inmediata
-            const msg = `*NUEVO PEDIDO AGUADULCE EXPRESS*\n\n*Cliente:* ${n}\n*WhatsApp:* ${t}\n*Dirección:* ${d}\n\n*Productos:* ${listaProd}\n\n*Total:* ${formatEuro(total)}`;
+            // SALTO A WHATSAPP
+            const msg = `*NUEVO PEDIDO*\n\n*Cliente:* ${n}\n*Dirección:* ${d}\n*Productos:* ${lista}\n\n*Total:* ${formatEuro(total)}`;
             window.location.href = `https://wa.me/${restauranteActual.TELEFONO}?text=${encodeURIComponent(msg)}`;
-
-            carrito = [];
-            localStorage.removeItem('ae_cart_v11');
-            actualizarCestaBar();
-            cerrarCheckout();
         }
-
-        function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
-        function cerrarProducto() { document.getElementById('modal-producto').classList.add('hidden'); }
-        function guardarPerfil() { const p = { n: document.getElementById('c-nombre').value, t: document.getElementById('c-tel').value, d: document.getElementById('c-dir').value }; localStorage.setItem('ae_perfil', JSON.stringify(p)); }
-        function cargarPerfil() { const p = JSON.parse(localStorage.getItem('ae_perfil')); if (p) { document.getElementById('c-nombre').value = p.n || ""; document.getElementById('c-tel').value = p.t || ""; document.getElementById('c-dir').value = p.d || ""; } }
-
-        iniciar();
     </script>
+
+    <header class="premium-header sticky top-0 z-50 p-6 flex items-center gap-4">
+        <button id="btn-back" onclick="location.reload()" class="hidden w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center"><i class="fas fa-chevron-left text-xs"></i></button>
+        <h1 id="header-titulo" class="font-extrabold text-lg text-[#1E293B] uppercase italic tracking-tighter">AGUADULCE <span class="text-[#00BCD4]">EXPRESS</span></h1>
+    </header>
+
+    <main id="main-container" class="p-6 max-w-xl mx-auto">
+        <div id="loader" class="flex flex-col items-center justify-center py-20">
+            <div class="w-10 h-10 border-4 border-[#00BCD4] border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 font-bold text-[10px] uppercase text-gray-400 tracking-widest italic">Conectando...</p>
+        </div>
+    </main>
+
+    <div id="basket-bar" onclick="finalizarPedido()" class="fixed bottom-6 left-6 right-6 h-16 bg-[#00BCD4] rounded-2xl flex justify-between items-center px-6 shadow-2xl hidden z-[100] active:scale-95 transition cursor-pointer">
+        <div class="flex items-center gap-3 text-white font-black"><i class="fas fa-shopping-bag"></i><span id="basket-count" class="text-sm">0</span></div>
+        <span class="text-white font-black uppercase italic text-[10px] tracking-widest">Confirmar Pedido</span>
+        <span id="basket-total" class="text-white font-black text-lg italic"></span>
+    </div>
+
+    <script>iniciar();</script>
 </body>
 </html>
