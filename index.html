@@ -4,22 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aguadulce Express</title>
-    <meta name="theme-color" content="#020617">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         
-        /* Iconos Redondeados de Categorías */
-        .cat-bubble { flex: 0 0 80px; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.3s; }
-        .cat-icon { width: 60px; height: 60px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); display: flex; items-center; justify-content: center; font-size: 24px; transition: 0.3s; }
-        .cat-bubble.active .cat-icon { background: #06b6d4; border-color: #06b6d4; transform: scale(1.1); box-shadow: 0 10px 20px -5px rgba(6, 182, 212, 0.5); }
-        .cat-bubble.active span { color: #06b6d4; font-weight: 900; }
+        /* Burbujas Home */
+        .cat-bubble { flex: 0 0 85px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .cat-img-wrapper { 
+            width: 70px; height: 70px; border-radius: 50%; background: #fff; border: 2px solid transparent;
+            display: flex; items-center; justify-content: center; padding: 12px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .cat-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
+        .cat-bubble.active .cat-img-wrapper { border-color: #06b6d4; transform: scale(1.1); box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); }
+        .cat-bubble span { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
+        .cat-bubble.active span { color: #fff; }
 
-        /* Subcategorías dentro del Restaurante */
-        .subcat-pill { padding: 8px 16px; border-radius: 12px; background: rgba(255,255,255,0.05); font-size: 10px; font-weight: 900; text-transform: uppercase; white-space: nowrap; border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
-        .subcat-pill.active { background: white; color: black; border-color: white; }
+        /* Subcategorías Internas */
+        .subcat-pill { padding: 10px 18px; border-radius: 20px; background: rgba(255,255,255,0.05); font-size: 11px; font-weight: 800; text-transform: uppercase; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; transition: 0.2s; }
+        .subcat-pill.active { background: #06b6d4; color: white; border-color: #06b6d4; }
+
+        .extra-btn { transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); }
+        .extra-btn.selected { background: rgba(6, 182, 212, 0.2); border-color: #06b6d4; color: #22d3ee; }
+        .extra-btn.disabled { opacity: 0.3; pointer-events: none; }
 
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .animate-up { animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -34,94 +42,87 @@
             </button>
             <h1 id="header-txt" class="font-black italic text-xl uppercase tracking-tighter text-cyan-400">AGUADULCE <span class="text-white">EXPRESS</span></h1>
         </div>
-        <img src="https://i.postimg.cc/C1tDpH9b/LOGO-fondo-blanco.png" class="w-10 h-10 rounded-full border border-white/10">
+        <img src="https://i.postimg.cc/C1tDpH9b/LOGO-fondo-blanco.png" class="w-10 h-10 rounded-full">
     </header>
 
-    <div id="cat-nav" class="sticky top-[72px] z-40 bg-[#020617]/90 backdrop-blur-md py-6 overflow-x-auto hide-scroll flex gap-2 px-6 border-b border-white/5"></div>
+    <div id="cat-nav" class="sticky top-[72px] z-40 bg-[#020617]/95 py-6 overflow-x-auto hide-scroll flex gap-4 px-6 border-b border-white/5"></div>
+    <div id="subcat-nav" class="sticky top-[72px] z-40 bg-[#020617]/95 py-4 overflow-x-auto hide-scroll flex gap-3 px-6 border-b border-white/5 hidden"></div>
 
-    <div id="subcat-nav" class="sticky top-[72px] z-40 bg-[#020617]/90 backdrop-blur-md py-4 overflow-x-auto hide-scroll flex gap-2 px-6 border-b border-white/5 hidden"></div>
-
-    <main id="main-container" class="p-4 max-w-xl mx-auto min-h-screen">
-        <div id="promo-banner" class="mb-8 rounded-[2.5rem] overflow-hidden bg-gradient-to-r from-cyan-900 to-slate-900 p-6 border border-white/10">
-            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400 mb-1">Ofertas de hoy</p>
-            <h3 class="text-xl font-black italic text-white uppercase leading-tight">Envío rápido en<br>Aguadulce 🛵</h3>
+    <main id="main-container" class="p-4 max-w-xl mx-auto">
+        <div id="promo-banner" class="mb-8 rounded-[2.5rem] bg-gradient-to-br from-slate-800 to-slate-950 p-6 border border-white/10">
+            <h3 class="text-2xl font-black italic text-white uppercase leading-tight">Sabores de Aguadulce<br>en minutos 🛵</h3>
         </div>
         <div id="app-content" class="grid grid-cols-2 gap-5"></div>
     </main>
 
     <div id="modal-detalle" class="fixed inset-0 z-[60] bg-slate-950 hidden overflow-y-auto animate-up">
         <div class="max-w-xl mx-auto pb-40">
-            <div class="relative h-[40vh]">
-                <button onclick="cerrarDetalle()" class="absolute top-6 left-6 z-10 bg-black/40 p-3.5 rounded-full text-white">✕</button>
-                <div id="det-img-cont" class="w-full h-full"></div>
-            </div>
-            <div class="p-8 -mt-12 relative bg-slate-950 rounded-t-[3.5rem] space-y-8">
-                <div class="flex justify-between items-start gap-4">
+            <div id="det-img-cont" class="h-[40vh] w-full relative"></div>
+            <div class="p-8 -mt-16 relative bg-slate-950 rounded-t-[3.5rem] space-y-6">
+                <div class="flex justify-between items-start">
                     <h2 id="det-titulo" class="text-3xl font-black italic uppercase text-white"></h2>
                     <span id="det-precio-base" class="text-cyan-400 text-2xl font-black font-mono"></span>
                 </div>
-                <p id="det-desc" class="text-gray-400 text-sm leading-relaxed"></p>
-                <div id="extras-section" class="space-y-4 pt-4 border-t border-white/5">
-                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-1">Añade extras</p>
-                    <div id="extras-grid" class="flex flex-wrap gap-2.5"></div>
+                <div id="section-ingredientes" class="space-y-4 pt-4 border-t border-white/5 hidden">
+                    <p id="ing-aviso" class="text-[10px] font-black text-cyan-500 uppercase">Elige tus ingredientes:</p>
+                    <div id="ing-grid" class="flex flex-wrap gap-2"></div>
                 </div>
-                <button id="btn-add-det" class="w-full bg-cyan-600 p-6 rounded-[2.5rem] font-black uppercase text-sm flex justify-between items-center text-white shadow-2xl active:scale-95 transition">
+                <div id="section-extras" class="space-y-4 pt-4 border-t border-white/5 hidden">
+                    <p class="text-[10px] font-black text-gray-500 uppercase">Añadidos especiales:</p>
+                    <div id="extras-grid" class="flex flex-wrap gap-2"></div>
+                </div>
+                <button id="btn-add-det" class="w-full bg-cyan-600 p-6 rounded-[2.5rem] font-black uppercase text-white flex justify-between items-center shadow-2xl">
                     <span>Añadir pedido</span>
                     <span id="det-precio-final" class="bg-black/30 px-5 py-1.5 rounded-2xl font-mono text-lg">0.00€</span>
                 </button>
+                <button onclick="cerrarDetalle()" class="w-full py-4 text-gray-500 font-bold uppercase text-[10px]">Cerrar</button>
             </div>
         </div>
     </div>
 
     <div id="basket-bar" class="fixed bottom-8 left-6 right-6 z-40 hidden animate-up">
-        <div class="bg-cyan-600 rounded-[3rem] p-3.5 flex items-center justify-between shadow-2xl border border-white/20">
-            <button onclick="vaciarCarrito()" class="p-4 bg-black/20 rounded-full text-white/70">🗑️</button>
-            <div class="flex-1 px-4 text-center">
-                <p id="basket-total" class="text-2xl font-black text-white font-mono leading-none tracking-tighter">0.00 €</p>
-            </div>
-            <button onclick="abrirCheckout()" class="bg-slate-950 text-white pl-7 pr-6 py-4.5 rounded-full flex items-center gap-3 active:scale-95 transition border border-white/10 shadow-xl text-[11px] font-black uppercase">Pagar</button>
+        <div class="bg-cyan-600 rounded-[3rem] p-3.5 flex items-center justify-between shadow-2xl">
+            <button onclick="vaciarCarrito()" class="p-4 bg-black/20 rounded-full">🗑️</button>
+            <p id="basket-total" class="text-2xl font-black text-white font-mono">0.00 €</p>
+            <button onclick="abrirCheckout()" class="bg-slate-950 text-white px-8 py-4.5 rounded-full text-[11px] font-black uppercase">Pagar</button>
         </div>
     </div>
 
     <div id="modal-checkout" class="fixed inset-0 z-[70] bg-slate-950 hidden overflow-y-auto p-6 pb-32 animate-up">
-        <div class="max-w-md mx-auto space-y-8">
-            <div class="flex justify-between items-center pt-4">
-                <h2 class="text-4xl font-black italic uppercase text-white leading-none">CHECK<br><span class="text-cyan-500">OUT</span></h2>
-                <button onclick="cerrarCheckout()" class="p-3 bg-white/5 rounded-full text-white">✕</button>
-            </div>
+        <div class="max-w-md mx-auto space-y-6">
+            <h2 class="text-4xl font-black italic text-white pt-8">RESI<br><span class="text-cyan-500">MEN</span></h2>
             <div id="checkout-list" class="space-y-3"></div>
-            <div class="space-y-4 pt-4">
-                <input type="text" id="order-name" placeholder="Tu Nombre" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none">
-                <input type="text" id="order-phone" placeholder="WhatsApp (Ej: 34600...)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none">
-                <input type="text" id="order-addr" placeholder="Dirección de entrega" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none">
-                <textarea id="order-note-final" placeholder="Notas adicionales..." class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white h-24 outline-none"></textarea>
+            <div class="space-y-4">
+                <input type="text" id="order-name" placeholder="Nombre" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
+                <input type="text" id="order-phone" placeholder="WhatsApp" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
+                <input type="text" id="order-addr" placeholder="Dirección" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
             </div>
-            <button onclick="confirmarPedidoFinal()" class="w-full bg-cyan-600 p-8 rounded-[2.8rem] font-black uppercase text-sm text-white shadow-2xl active:scale-95 transition">Confirmar y Enviar</button>
+            <button onclick="confirmarPedidoFinal()" class="w-full bg-cyan-600 p-8 rounded-[2.8rem] font-black uppercase text-white shadow-2xl">Confirmar Pedido</button>
+            <button onclick="cerrarCheckout()" class="w-full py-2 text-gray-500 font-bold uppercase text-[10px]">Volver</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbz6EiVvp4QIuX53meLPYi4I6OIDDj-AGZXqFsNY2fSuH0wutMB3ZA3x0vJcCdhNa1L5/exec";
+        // PEGA AQUÍ TU URL DE GOOGLE SCRIPT
+        const API_URL = "https://script.google.com/macros/s/AKfycbyYHLZTsXxjBMjCI5wuaHRhAVM5ks0fIROvxnVDNVgJOUxMHXjbPXmncHVDbvL0GY1X/exec";
 
-        let dataCache = null, carrito = [], restActivo = null, platoActual = null, extrasSeleccionados = [];
+        let dataCache = null, carrito = [], restActivo = null, platoActual = null, extrasSeleccionados = [], maxIng = 99;
 
-        // Diccionario de Emojis para categorías principales
-        const catIcons = {
-            "HAMBURGUESA": "🍔", "PIZZA": "🍕", "POLLO": "🍗", "SUSHI": "🍣", 
-            "POSTRES": "🍰", "BEBIDAS": "🥤", "MEXICANA": "🌮", "SALUDABLE": "🥗",
-            "TODOS": "🔥"
+        const catImages = {
+            "TODOS": "https://cdn-icons-png.flaticon.com/512/741/741548.png",
+            "HAMBURGUESA": "https://cdn-icons-png.flaticon.com/512/1046/1046784.png",
+            "PIZZA": "https://cdn-icons-png.flaticon.com/512/3595/3595455.png",
+            "POLLO": "https://cdn-icons-png.flaticon.com/512/1046/1046786.png",
+            "SUSHI": "https://cdn-icons-png.flaticon.com/512/2252/2252431.png"
         };
 
         async function init() {
             try {
                 const res = await fetch(API_URL);
                 dataCache = await res.json();
-                renderHome();
-                renderCategorias();
-                ['order-name', 'order-phone', 'order-addr'].forEach(id => {
-                    document.getElementById(id).value = localStorage.getItem('user_' + id.split('-')[1]) || '';
-                });
-            } catch (e) { console.error(e); }
+                renderHome(); renderCategorias();
+                ['name', 'phone', 'addr'].forEach(k => document.getElementById('order-'+k).value = localStorage.getItem('ae_'+k) || '');
+            } catch (e) { alert("Error de conexión"); }
         }
 
         function renderCategorias() {
@@ -132,12 +133,9 @@
         }
 
         function createCatBubble(id, name) {
-            const icon = catIcons[id.toUpperCase()] || "🍽️";
-            return `
-                <div onclick="filtrarRest('${id}', this)" class="cat-bubble ${id === 'TODOS' ? 'active' : ''}">
-                    <div class="cat-icon">${icon}</div>
-                    <span class="text-[9px] uppercase font-black text-gray-500 tracking-tighter">${name}</span>
-                </div>`;
+            const img = catImages[id.toUpperCase()] || "https://cdn-icons-png.flaticon.com/512/706/706164.png";
+            return `<div onclick="filtrarRest('${id}', this)" class="cat-bubble ${id==='TODOS'?'active':''}">
+                <div class="cat-img-wrapper"><img src="${img}"></div><span>${name}</span></div>`;
         }
 
         function renderHome(f = null) {
@@ -146,95 +144,101 @@
             document.getElementById('btn-back').classList.add('hidden');
             document.getElementById('promo-banner').classList.remove('hidden');
             document.getElementById('header-txt').innerHTML = 'AGUADULCE <span class="text-white">EXPRESS</span>';
-            
             const content = document.getElementById('app-content');
-            content.className = "grid grid-cols-2 gap-5";
-            content.innerHTML = "";
-            
-            const filtrados = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
-            
-            filtrados.forEach(r => {
-                content.innerHTML += `
-                    <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white/5 rounded-[2.5rem] overflow-hidden border border-white/5 shadow-xl active:scale-95 transition">
-                        <img src="${r.FOTO}" class="w-full h-32 object-cover" onerror="this.src='https://placehold.co/400x300?text=Restaurante'">
-                        <div class="p-5 text-center">
-                            <p class="text-[11px] font-black uppercase italic text-white truncate">${r.NOMBRE}</p>
-                        </div>
-                    </div>`;
+            content.className = "grid grid-cols-2 gap-5"; content.innerHTML = "";
+            const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
+            filt.forEach(r => {
+                content.innerHTML += `<div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white/5 rounded-[2.5rem] overflow-hidden border border-white/5 active:scale-95 transition">
+                    <img src="${r.FOTO}" class="w-full h-36 object-cover"><div class="p-5 text-center font-black uppercase italic text-xs text-white">${r.NOMBRE}</div></div>`;
             });
             window.scrollTo(0,0);
         }
 
-        function verMenu(id, subFiltro = null) {
+        function verMenu(id, subF = null) {
             restActivo = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
-            const platosRest = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id));
-            
+            const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id));
             document.getElementById('cat-nav').classList.add('hidden');
             document.getElementById('promo-banner').classList.add('hidden');
             document.getElementById('btn-back').classList.remove('hidden');
             document.getElementById('header-txt').innerText = restActivo.NOMBRE;
 
-            // Renderizar Subcategorías del Restaurante
             const subNav = document.getElementById('subcat-nav');
-            subNav.classList.remove('hidden');
-            const subCats = [...new Set(platosRest.map(p => p.CATEGORIA))].filter(Boolean);
-            
+            const subCats = [...new Set(platos.map(p => p.CATEGORIA))].filter(Boolean);
             if(subCats.length > 0) {
-                subNav.innerHTML = `<button onclick="verMenu('${id}')" class="subcat-pill ${!subFiltro ? 'active' : ''}">Todo</button>`;
-                subCats.forEach(sc => {
-                    subNav.innerHTML += `<button onclick="verMenu('${id}', '${sc}')" class="subcat-pill ${subFiltro === sc ? 'active' : ''}">${sc}</button>`;
-                });
+                subNav.classList.remove('hidden');
+                subNav.innerHTML = `<button onclick="verMenu('${id}')" class="subcat-pill ${!subF?'active':''}">Todo</button>`;
+                subCats.forEach(sc => subNav.innerHTML += `<button onclick="verMenu('${id}', '${sc}')" class="subcat-pill ${subF===sc?'active':''}">${sc}</button>`);
             } else { subNav.classList.add('hidden'); }
 
             const content = document.getElementById('app-content');
-            content.className = "grid grid-cols-1 gap-4";
-            content.innerHTML = "";
-
-            const filtrados = subFiltro ? platosRest.filter(p => p.CATEGORIA === subFiltro) : platosRest;
-
-            filtrados.forEach(p => {
-                content.innerHTML += `
-                    <div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-5 rounded-[2rem] flex items-center gap-5 border border-white/5 active:scale-95 transition">
-                        <img src="${p.FOTO}" class="w-20 h-20 rounded-[1.5rem] object-cover shadow-lg" onerror="this.src='https://placehold.co/100x100?text=Plato'">
-                        <div class="flex-1">
-                            <p class="font-black text-sm uppercase text-white">${p.PLATO}</p>
-                            <p class="text-cyan-400 font-black text-base mt-1 font-mono">${parseFloat(p.PRECIO).toFixed(2)}€</p>
-                        </div>
-                    </div>`;
+            content.className = "grid grid-cols-1 gap-4"; content.innerHTML = "";
+            const filt = subF ? platos.filter(p => p.CATEGORIA === subF) : platos;
+            filt.forEach(p => {
+                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[2.5rem] flex items-center gap-5 border border-white/5 active:scale-95 transition">
+                    <img src="${p.FOTO}" class="w-24 h-24 rounded-[2rem] object-cover shadow-lg">
+                    <div class="flex-1 font-black uppercase"><p class="text-sm text-white">${p.PLATO}</p><p class="text-cyan-400 text-lg font-mono">${parseFloat(p.PRECIO).toFixed(2)}€</p></div></div>`;
             });
             window.scrollTo(0,0);
         }
 
         function abrirDetalle(p) {
             platoActual = p; extrasSeleccionados = [];
+            // Lógica invisible de ingredientes: Detectar número en el nombre
+            const match = p.PLATO.match(/(\d+)\s*ing/i);
+            maxIng = match ? parseInt(match[1]) : 99;
+            
             document.getElementById('det-titulo').innerText = p.PLATO;
             document.getElementById('det-precio-base').innerText = parseFloat(p.PRECIO).toFixed(2) + "€";
-            document.getElementById('det-img-cont').innerHTML = `<img src="${p.FOTO}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300?text=Plato'">`;
+            document.getElementById('det-img-cont').innerHTML = `<img src="${p.FOTO}" class="w-full h-full object-cover">`;
             document.getElementById('det-desc').innerText = p.DESCRIPCION || "";
-            
-            const grid = document.getElementById('extras-grid'); grid.innerHTML = "";
+            document.getElementById('ing-aviso').innerText = maxIng < 99 ? `Elige máximo ${maxIng} ingredientes:` : "Añade a tu gusto:";
+
+            const ingGrid = document.getElementById('ing-grid');
+            const extGrid = document.getElementById('extras-grid');
+            ingGrid.innerHTML = ""; extGrid.innerHTML = "";
+            document.getElementById('section-ingredientes').classList.add('hidden');
+            document.getElementById('section-extras').classList.add('hidden');
+
             if(p.EXTRAS) {
-                document.getElementById('extras-section').classList.remove('hidden');
                 p.EXTRAS.split(',').forEach(ex => {
                     const [n, pr] = ex.split(':');
-                    const chip = document.createElement('button');
-                    chip.className = "extra-chip px-5 py-2.5 rounded-full text-[10px] font-black uppercase";
-                    chip.innerText = `+ ${n.trim()} (${parseFloat(pr || 0).toFixed(2)}€)`;
-                    chip.onclick = () => { 
-                        chip.classList.toggle('selected');
+                    const cost = parseFloat(pr || 0);
+                    const btn = document.createElement('button');
+                    btn.className = "extra-btn px-5 py-3 rounded-2xl text-[10px] font-black uppercase";
+                    btn.innerText = `${n.trim()} ${cost > 0 ? '('+cost.toFixed(2)+'€)' : ''}`;
+                    
+                    btn.onclick = () => {
                         const idx = extrasSeleccionados.findIndex(e => e.n === n.trim());
-                        if(idx > -1) extrasSeleccionados.splice(idx,1); else extrasSeleccionados.push({n: n.trim(), p: parseFloat(pr || 0)});
-                        actualizarPrecioDetalle();
+                        if(idx > -1) {
+                            extrasSeleccionados.splice(idx,1);
+                            btn.classList.remove('selected');
+                        } else {
+                            if(cost === 0 && extrasSeleccionados.filter(e => e.p === 0).length >= maxIng) return;
+                            extrasSeleccionados.push({n: n.trim(), p: cost});
+                            btn.classList.add('selected');
+                        }
+                        actualizarUIExtras();
                     };
-                    grid.appendChild(chip);
+
+                    if(cost === 0) {
+                        ingGrid.appendChild(btn);
+                        document.getElementById('section-ingredientes').classList.remove('hidden');
+                    } else {
+                        extGrid.appendChild(btn);
+                        document.getElementById('section-extras').classList.remove('hidden');
+                    }
                 });
-            } else { document.getElementById('extras-section').classList.add('hidden'); }
-            
-            actualizarPrecioDetalle();
+            }
+            actualizarUIExtras();
             document.getElementById('modal-detalle').classList.remove('hidden');
         }
 
-        function actualizarPrecioDetalle() {
+        function actualizarUIExtras() {
+            const ingCount = extrasSeleccionados.filter(e => e.p === 0).length;
+            document.querySelectorAll('#ing-grid .extra-btn').forEach(btn => {
+                const isSel = btn.classList.contains('selected');
+                btn.classList.toggle('disabled', !isSel && ingCount >= maxIng);
+            });
             const total = parseFloat(platoActual.PRECIO) + extrasSeleccionados.reduce((s, e) => s + e.p, 0);
             document.getElementById('det-precio-final').innerText = total.toFixed(2) + "€";
         }
@@ -250,47 +254,28 @@
             const n = document.getElementById('order-name').value;
             const ph = document.getElementById('order-phone').value;
             const ad = document.getElementById('order-addr').value;
-            if(!n || !ph || !ad) return alert("Faltan datos.");
-
+            if(!n || !ph || !ad) return alert("Faltan datos");
             const total = carrito.reduce((s, i) => s + i.p, 0).toFixed(2);
             const detalle = carrito.map(i => i.n).join(', ');
-
-            fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({
-                    restaurante: restActivo.NOMBRE,
-                    nombre: n, direccion: ad, telefono: ph,
-                    pedido: detalle, total: total, notes: document.getElementById('order-note-final').value
-                })
-            });
-
-            localStorage.setItem('user_name', n);
-            localStorage.setItem('user_phone', ph);
-            localStorage.setItem('user_addr', ad);
-
-            let tel = restActivo.TELEFONO ? restActivo.TELEFONO.toString().replace(/\s/g, '') : "";
-            if(tel && !tel.startsWith('34')) tel = '34' + tel;
             
+            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ restaurante: restActivo.NOMBRE, nombre: n, direccion: ad, telefono: ph, pedido: detalle, total: total }) });
+            
+            ['name', 'phone', 'addr'].forEach(k => localStorage.setItem('ae_'+k, document.getElementById('order-'+k).value));
+            let tel = restActivo.TELEFONO ? restActivo.TELEFONO.toString().replace(/\s/g, '') : "34600000000";
+            if(!tel.startsWith('34')) tel = '34' + tel;
             let msg = `*🛍️ PEDIDO AGUADULCE EXPRESS*\n*🏪 Local:* ${restActivo.NOMBRE}\n\n`;
             carrito.forEach(i => msg += `• *${i.n}* - ${i.p.toFixed(2)}€\n`);
             msg += `\n*💰 TOTAL:* ${total}€\n*👤 CLIENTE:* ${n}\n*📍 DIR:* ${ad}`;
-
             window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`);
         }
 
-        function filtrarRest(c, el) { 
-            document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active'));
-            el.classList.add('active');
-            renderHome(c); 
-        }
-
+        function filtrarRest(c, el) { document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderHome(c); }
         function irAHome() { renderHome(); }
         function cerrarDetalle() { document.getElementById('modal-detalle').classList.add('hidden'); }
         function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
         function abrirCheckout() {
             const l = document.getElementById('checkout-list'); l.innerHTML = "";
-            carrito.forEach(i => l.innerHTML += `<div class="flex justify-between bg-white/5 p-4 rounded-xl border border-white/5 text-xs"><span>${i.n}</span><span class="font-bold text-cyan-400">${i.p.toFixed(2)}€</span></div>`);
+            carrito.forEach(i => l.innerHTML += `<div class="flex justify-between bg-white/5 p-4 rounded-xl border border-white/5 text-xs text-white"><span>${i.n}</span><span class="font-bold text-cyan-400">${i.p.toFixed(2)}€</span></div>`);
             document.getElementById('modal-checkout').classList.remove('hidden');
         }
         function vaciarCarrito() { carrito = []; actualizarBarra(); }
@@ -299,7 +284,6 @@
             document.getElementById('basket-total').innerText = t.toFixed(2) + " €";
             document.getElementById('basket-bar').classList.toggle('hidden', carrito.length === 0);
         }
-
         document.getElementById('btn-add-det').onclick = addAlCarrito;
         init();
     </script>
