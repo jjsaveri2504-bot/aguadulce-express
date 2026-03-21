@@ -38,7 +38,7 @@
             <h3 class="text-xl font-black italic text-white uppercase leading-tight">Pide lo mejor de<br>Aguadulce 🚀</h3>
         </div>
         <div id="app-content" class="grid grid-cols-2 gap-5">
-            <div class="col-span-2 py-20 text-center opacity-30 italic">Cargando restaurantes...</div>
+            <div class="col-span-2 py-20 text-center opacity-30 italic">Cargando la cocina...</div>
         </div>
     </main>
 
@@ -58,11 +58,6 @@
                 <div id="extras-section" class="space-y-4 pt-4 border-t border-white/5">
                     <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-1 italic">Personaliza tu pedido</p>
                     <div id="extras-grid" class="flex flex-wrap gap-2.5"></div>
-                </div>
-
-                <div id="sugeridos-section" class="pt-4 border-t border-white/5">
-                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest pl-1 mb-5">¿Deseas acompañarlo con algo?</p>
-                    <div id="sugeridos-scroll" class="flex gap-4 overflow-x-auto hide-scroll pb-2"></div>
                 </div>
 
                 <button id="btn-add-det" class="w-full bg-cyan-600 p-6 rounded-[2.5rem] font-black uppercase text-sm flex justify-between items-center text-white shadow-2xl active:scale-95 transition">
@@ -103,21 +98,18 @@
             <div class="bg-cyan-500/5 p-6 rounded-[2rem] border border-cyan-500/20">
                 <label class="flex items-start gap-4 cursor-pointer">
                     <input type="checkbox" id="order-terms" class="mt-1 w-6 h-6 accent-cyan-500">
-                    <span class="text-[10px] text-gray-400 uppercase font-black leading-tight">Acepto los términos y condiciones de servicio.</span>
+                    <span class="text-[10px] text-gray-400 uppercase font-black leading-tight">Acepto los términos y condiciones.</span>
                 </label>
             </div>
-            <button onclick="enviarWhatsApp()" class="w-full bg-cyan-600 p-8 rounded-[2.8rem] font-black uppercase text-sm text-white shadow-2xl active:scale-95 transition">Confirmar por WhatsApp</button>
+            <button onclick="enviarPedidoFinal()" class="w-full bg-cyan-600 p-8 rounded-[2.8rem] font-black uppercase text-sm text-white shadow-2xl active:scale-95 transition">Confirmar por WhatsApp</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwkZiqOBKH-mbzpm52y28gaRTOQbOiS7sBnxm2vFVovogpIxU3uY2-HwTubmc1yvJ3x/exec"; // <--- PEGA AQUÍ TU URL /exec
+        // URL INTEGRADA
+        const API_URL = "https://script.google.com/macros/s/AKfycbyAcBCVY94L3fPfQz5GVoBByDe3zbfKA5Ke2m3atFfq3wNNk6P-cQGQuojxOtMU18b8/exec";
 
-        let dataCache = null;
-        let carrito = [];
-        let restActivo = null;
-        let platoActual = null;
-        let extrasSeleccionados = [];
+        let dataCache = null, carrito = [], restActivo = null, platoActual = null, extrasSeleccionados = [];
 
         async function init() {
             try {
@@ -128,16 +120,15 @@
                 document.getElementById('order-name').value = localStorage.getItem('user_name') || '';
                 document.getElementById('order-phone').value = localStorage.getItem('user_phone') || '';
                 document.getElementById('order-addr').value = localStorage.getItem('user_addr') || '';
-            } catch (e) { alert("Error al cargar datos. Verifica tu URL de Google Script."); }
+            } catch (e) { console.error("Error cargando datos:", e); }
         }
 
         function renderCategorias() {
             const cats = [...new Set(dataCache.restaurantes.map(r => r.CATEGORIA))].filter(Boolean);
             const nav = document.getElementById('cat-nav');
-            const icons = { "Hamburguesas":"🍔", "Pizzas":"🍕", "Sushi":"🍣", "Postres":"🍦", "Bebidas":"🥤", "Tacos":"🌮" };
             nav.innerHTML = `<button onclick="renderHome()" class="category-pill active px-6 py-3 rounded-full text-[11px] font-black uppercase whitespace-nowrap">🔥 Todos</button>`;
             cats.forEach(c => {
-                nav.innerHTML += `<button onclick="filtrarRest('${c}')" class="category-pill px-6 py-3 rounded-full text-[11px] font-black uppercase text-gray-500 whitespace-nowrap">${icons[c] || '🍽️'} ${c}</button>`;
+                nav.innerHTML += `<button onclick="filtrarRest('${c}')" class="category-pill px-6 py-3 rounded-full text-[11px] font-black uppercase text-gray-500 whitespace-nowrap">${c}</button>`;
             });
         }
 
@@ -153,7 +144,7 @@
             filtrados.forEach(r => {
                 content.innerHTML += `
                     <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white/5 rounded-[2.5rem] overflow-hidden border border-white/5 shadow-xl active:scale-95 transition">
-                        <img src="${r.FOTO}" class="w-full h-32 object-cover">
+                        <img src="${r.FOTO}" class="w-full h-32 object-cover" onerror="this.src='https://placehold.co/400x300?text=Sin+Foto'">
                         <div class="p-5 text-center">
                             <p class="text-[11px] font-black uppercase italic text-white truncate">${r.NOMBRE}</p>
                             <p class="text-[8px] text-cyan-500 font-bold uppercase mt-1 tracking-widest">${r.CATEGORIA}</p>
@@ -163,14 +154,8 @@
             window.scrollTo(0,0);
         }
 
-        function filtrarRest(cat) {
-            document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            renderHome(cat);
-        }
-
         function verMenu(id) {
-            restActivo = dataCache.restaurantes.find(r => r.ID_RESTAURANTE == id);
+            restActivo = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
             document.getElementById('cat-nav').classList.add('hidden');
             document.getElementById('promo-banner').classList.add('hidden');
             document.getElementById('btn-back').classList.remove('hidden');
@@ -178,68 +163,47 @@
             const content = document.getElementById('app-content');
             content.className = "grid grid-cols-1 gap-4";
             content.innerHTML = "";
-            dataCache.menus.filter(m => m.ID_RESTAURANTE == id).forEach(p => {
+            dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id)).forEach(p => {
                 content.innerHTML += `
                     <div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-5 rounded-[2rem] flex items-center gap-5 border border-white/5 active:scale-95 transition">
-                        <img src="${p.FOTO}" class="w-20 h-20 rounded-[1.5rem] object-cover shadow-lg">
+                        <img src="${p.FOTO}" class="w-20 h-20 rounded-[1.5rem] object-cover shadow-lg" onerror="this.src='https://placehold.co/100x100?text=Plato'">
                         <div class="flex-1">
                             <p class="font-black text-sm uppercase text-white">${p.PLATO}</p>
                             <p class="text-cyan-400 font-black text-base mt-1 font-mono">${parseFloat(p.PRECIO).toFixed(2)}€</p>
                         </div>
-                        <div class="bg-cyan-500/10 text-cyan-500 p-2 rounded-xl">⊕</div>
                     </div>`;
             });
             window.scrollTo(0,0);
         }
 
         function abrirDetalle(p) {
-            platoActual = p;
-            extrasSeleccionados = [];
+            platoActual = p; extrasSeleccionados = [];
             document.getElementById('det-titulo').innerText = p.PLATO;
             document.getElementById('det-precio-base').innerText = parseFloat(p.PRECIO).toFixed(2) + "€";
-            document.getElementById('det-img-cont').innerHTML = `<img src="${p.FOTO}" class="w-full h-full object-cover">`;
-            document.getElementById('det-desc').innerText = p.DESCRIPCION || "Delicioso y recién hecho.";
-            renderExtras(p.EXTRAS);
-            renderSugeridos();
+            document.getElementById('det-img-cont').innerHTML = `<img src="${p.FOTO}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300?text=Plato'">`;
+            document.getElementById('det-desc').innerText = p.DESCRIPCION || "Fresco y listo para servir.";
+            
+            const grid = document.getElementById('extras-grid'); grid.innerHTML = "";
+            if (p.EXTRAS) {
+                document.getElementById('extras-section').classList.remove('hidden');
+                p.EXTRAS.split(',').forEach(ex => {
+                    const [nom, pre] = ex.split(':');
+                    const chip = document.createElement('button');
+                    chip.className = "extra-chip px-5 py-2.5 rounded-full text-[10px] font-black uppercase";
+                    chip.innerText = `+ ${nom.trim()} (${parseFloat(pre || 0).toFixed(2)}€)`;
+                    chip.onclick = () => {
+                        chip.classList.toggle('selected');
+                        const idx = extrasSeleccionados.findIndex(e => e.n === nom.trim());
+                        if (idx > -1) extrasSeleccionados.splice(idx, 1);
+                        else extrasSeleccionados.push({n: nom.trim(), p: parseFloat(pre || 0)});
+                        actualizarPrecioDetalle();
+                    };
+                    grid.appendChild(chip);
+                });
+            } else { document.getElementById('extras-section').classList.add('hidden'); }
+            
             actualizarPrecioDetalle();
             document.getElementById('modal-detalle').classList.remove('hidden');
-        }
-
-        function renderExtras(extraStr) {
-            const grid = document.getElementById('extras-grid');
-            grid.innerHTML = "";
-            if (!extraStr) { document.getElementById('extras-section').classList.add('hidden'); return; }
-            document.getElementById('extras-section').classList.remove('hidden');
-            extraStr.split(',').forEach(ex => {
-                const [nom, pre] = ex.split(':');
-                if(!nom) return;
-                const precio = parseFloat(pre?.replace(',', '.') || 0);
-                const chip = document.createElement('button');
-                chip.className = "extra-chip px-5 py-2.5 rounded-full text-[10px] font-black uppercase";
-                chip.innerHTML = `+ ${nom.trim()} (${precio.toFixed(2)}€)`;
-                chip.onclick = () => {
-                    const idx = extrasSeleccionados.findIndex(e => e.n === nom.trim());
-                    if (idx > -1) extrasSeleccionados.splice(idx, 1);
-                    else extrasSeleccionados.push({n: nom.trim(), p: precio});
-                    chip.classList.toggle('selected');
-                    actualizarPrecioDetalle();
-                };
-                grid.appendChild(chip);
-            });
-        }
-
-        function renderSugeridos() {
-            const scroll = document.getElementById('sugeridos-scroll');
-            scroll.innerHTML = "";
-            const sugs = dataCache.menus.filter(m => m.ID_RESTAURANTE == restActivo.ID_RESTAURANTE && m.PLATO != platoActual.PLATO).slice(0, 5);
-            sugs.forEach(s => {
-                scroll.innerHTML += `
-                    <div onclick='abrirDetalle(${JSON.stringify(s)})' class="min-w-[130px] bg-white/5 p-4 rounded-[1.8rem] text-center border border-white/5">
-                        <img src="${s.FOTO}" class="w-16 h-16 object-cover rounded-2xl mx-auto mb-3">
-                        <p class="text-[9px] font-black uppercase text-white truncate">${s.PLATO}</p>
-                        <p class="text-cyan-500 text-[11px] font-black font-mono">${parseFloat(s.PRECIO).toFixed(2)}€</p>
-                    </div>`;
-            });
         }
 
         function actualizarPrecioDetalle() {
@@ -251,45 +215,64 @@
             const exTxt = extrasSeleccionados.map(e => e.n).join(', ');
             const finalP = parseFloat(platoActual.PRECIO) + extrasSeleccionados.reduce((s, i) => s + i.p, 0);
             carrito.push({ n: exTxt ? `${platoActual.PLATO} (${exTxt})` : platoActual.PLATO, p: finalP });
-            cerrarDetalle();
-            actualizarBarra();
+            cerrarDetalle(); actualizarBarra();
         }
 
         document.getElementById('btn-add-det').onclick = addAlCarrito;
 
-        function actualizarBarra() {
-            const total = carrito.reduce((s, i) => s + i.p, 0);
-            document.getElementById('basket-total').innerText = total.toFixed(2) + " €";
-            document.getElementById('basket-bar').classList.toggle('hidden', carrito.length === 0);
-        }
-
-        function enviarWhatsApp() {
-            const name = document.getElementById('order-name').value;
-            const phone = document.getElementById('order-phone').value;
-            const addr = document.getElementById('order-addr').value;
-            const terms = document.getElementById('order-terms').checked;
+        async function enviarPedidoFinal() {
+            const n = document.getElementById('order-name').value;
+            const ph = document.getElementById('order-phone').value;
+            const ad = document.getElementById('order-addr').value;
+            const t = document.getElementById('order-terms').checked;
             const note = document.getElementById('order-note-final').value;
+
+            if(!n || !ph || !ad || !t) return alert("Completa los datos y acepta términos.");
+
+            const total = carrito.reduce((s, i) => s + i.p, 0).toFixed(2);
+            const pedidoTxt = carrito.map(i => i.n).join(', ');
+
+            // 1. Guardar en Excel (Silencioso)
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({
+                    restaurante: restActivo.NOMBRE,
+                    nombre: n,
+                    direccion: ad,
+                    telefono: ph,
+                    pedido: pedidoTxt,
+                    total: total,
+                    notas: note
+                })
+            });
+
+            // 2. Enviar WhatsApp
+            let telRaw = restActivo.TELEFONO ? restActivo.TELEFONO.toString().replace(/\s/g, '') : "";
+            if(telRaw && !telRaw.startsWith('34')) telRaw = '34' + telRaw;
             
-            // Lógica Multi-Restaurante con corrección de número
-            let numRaw = restActivo.TELEFONO || "";
-            if(!numRaw) return alert("Este restaurante no tiene teléfono registrado.");
-            
-            let telFinal = numRaw.toString().replace(/\s+/g, ''); 
-            if(!telFinal.startsWith('34')) telFinal = '34' + telFinal;
+            localStorage.setItem('user_name', n);
+            localStorage.setItem('user_phone', ph);
+            localStorage.setItem('user_addr', ad);
 
-            if(!name || !phone || !addr || !terms) return alert("Por favor completa los campos y acepta los términos.");
-
-            localStorage.setItem('user_name', name);
-            localStorage.setItem('user_phone', phone);
-            localStorage.setItem('user_addr', addr);
-
-            let msg = `*🛍️ NUEVO PEDIDO AGUADULCE EXPRESS*\n--------------------------------\n*🏪 Local:* ${restActivo.NOMBRE}\n\n`;
+            let msg = `*🛍️ PEDIDO AGUADULCE EXPRESS*\n--------------------------------\n*🏪 Local:* ${restActivo.NOMBRE}\n\n`;
             carrito.forEach(i => msg += `• *${i.n}* - ${i.p.toFixed(2)}€\n`);
-            const total = carrito.reduce((s, i) => s + i.p, 0);
-            msg += `\n*💰 TOTAL:* ${total.toFixed(2)}€\n--------------------------------\n*👤 CLIENTE:* ${name}\n*📍 DIR:* ${addr}\n*📞 TEL:* ${phone}`;
+            msg += `\n*💰 TOTAL:* ${total}€\n--------------------------------\n*👤 CLIENTE:* ${n}\n*📍 DIR:* ${ad}\n*📞 TEL:* ${ph}`;
             if(note) msg += `\n*📝 NOTA:* ${note}`;
 
-            window.open(`https://wa.me/${telFinal}?text=${encodeURIComponent(msg)}`);
+            window.open(`https://wa.me/${telRaw}?text=${encodeURIComponent(msg)}`);
+        }
+
+        function filtrarRest(cat) {
+            document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            renderHome(cat);
+        }
+
+        function actualizarBarra() {
+            const t = carrito.reduce((s, i) => s + i.p, 0);
+            document.getElementById('basket-total').innerText = t.toFixed(2) + " €";
+            document.getElementById('basket-bar').classList.toggle('hidden', carrito.length === 0);
         }
 
         function irAHome() { renderHome(); }
