@@ -8,7 +8,10 @@
     <meta name="theme-color" content="#020617">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJpZCI6ICIvIiwKICAic2hvcnRfbmFtZSI6ICJBZ3VhZHVsY2VFeHByZXNzIiwKICAibmFtZSI6ICJBZ3VhZHVsY2UgRXhwcmVzcyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vaS5wb3N0aW1nLmNjLzZwayh2MGtDL0xPR08tZm9uZG8tYmxhbmNvLmpwZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAic2hhcGVkIjogdHJ1ZSwKICAgICAgInR5cGUiOiAiaW1hZ2UvanBlZyIKICAgIH0KICBdLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmGalvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIzAyMDYxNyIsCiAgInRoZW1lX2NvbG9yIjogIzAyMDYxNyIKfQ==">
+    
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJpZCI6ICIvIiwKICAic2hvcnRfbmFtZSI6ICJBZ3VhZHVsY2VFeHByZXNzIiwKICAibmFtZSI6ICJBZ3VhZHVsY2UgRXhwcmVzcyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vaS5wb3N0aW1nLmNjL0MxdERwSDliL0xPR08tZm9uZG8tYmxhbmNvLnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAicHVycG9zYWJsZSI6ICdhbnknLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9LAogICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9pLnBvc3RpbWcuY2MvQzF0RHBIOWIvTE9HTy1mb25kby1ibGFuY28ucG5nIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9CiAgWSwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIzAyMDYxNyIsCiAgInRoZW1lX2NvbG9yIjogIzAyMDYxNyIKfQ==">
+    
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/C1tDpH9b/LOGO-fondo-blanco.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -25,7 +28,7 @@
 
     <header class="glass sticky top-0 z-40 px-6 py-5 flex items-center justify-between">
         <div class="flex items-center gap-4">
-            <button id="btn-back" onclick="irAHome()" class="hidden p-2 rounded-2xl bg-white/5 text-white">
+            <button id="btn-back" onclick="irAHome()" class="hidden p-2 rounded-2xl bg-white/5 text-white active:scale-90 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
             <h1 id="header-txt" class="font-black italic text-xl uppercase tracking-tighter text-cyan-400">AGUADULCE <span class="text-white">EXPRESS</span></h1>
@@ -37,6 +40,17 @@
             <div class="inline-block w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
     </main>
+
+    <div id="install-instruction" class="fixed bottom-28 left-6 right-6 z-30 hidden animate-up">
+        <div class="bg-slate-900 border border-white/10 p-5 rounded-3xl flex items-center gap-4 shadow-2xl">
+            <img src="https://i.postimg.cc/C1tDpH9b/LOGO-fondo-blanco.png" class="w-12 h-12 rounded-xl">
+            <div class="flex-1">
+                <p class="text-xs font-bold text-white uppercase tracking-tight">Instala la App Oficial</p>
+                <p class="text-[10px] text-gray-400 mt-1">Pulsa en 'Añadir a pantalla de inicio' en tu navegador para usarla siempre.</p>
+            </div>
+            <button onclick="document.getElementById('install-instruction').remove()" class="text-gray-600 p-2">✕</button>
+        </div>
+    </div>
 
     <div id="modal-detalle" class="fixed inset-0 z-[60] bg-slate-950 hidden overflow-y-auto animate-up">
         <div class="max-w-xl mx-auto pb-32">
@@ -89,7 +103,7 @@
     <div id="modal-checkout" class="fixed inset-0 z-[70] bg-slate-950 hidden overflow-y-auto p-6 pb-24 animate-up">
         <div class="max-w-md mx-auto space-y-10">
             <div class="flex justify-between items-center pt-4">
-                <h2 class="text-4xl font-black italic uppercase tracking-tighter text-white">RESU<span class="text-cyan-500">MEN</span></h2>
+                <h2 class="text-4xl font-black italic uppercase tracking-tighter text-white leading-none">CHECK<br><span class="text-cyan-500">OUT</span></h2>
                 <button onclick="cerrarCheckout()" class="p-3 bg-white/5 rounded-full text-white active:scale-90 transition">✕</button>
             </div>
             
@@ -115,8 +129,16 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxEBihvxk1icSDalXL2WdIroijpP4r7Oa7UC0fAQhGnNZkL3jMMZNEPlXWPaFc3-iFe/exec"; // <--- PEGA TU URL /exec AQUÍ
-        const WHATSAPP_NUM = "34600000000"; // <--- TU TELÉFONO (Ej: 34600123456)
+        // PEGA AQUÍ TU URL NUEVA QUE TERMINA EN /exec
+        const API_URL = "https://script.google.com/macros/s/AKfycbxEBihvxk1icSDalXL2WdIroijpP4r7Oa7UC0fAQhGnNZkL3jMMZNEPlXWPaFc3-iFe/exec"; 
+        const WHATSAPP_NUM = "34600000000"; 
+
+        // --- PWA SERVICE WORKER MOCK (Para forzar detección) ---
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGV2ID0+IHsgfSk7');
+          });
+        }
 
         let dataCache = JSON.parse(localStorage.getItem('aguadulce_data')) || null;
         let carrito = JSON.parse(localStorage.getItem('aguadulce_carrito')) || [];
@@ -124,6 +146,12 @@
 
         async function init() {
             if(dataCache) renderHome();
+            
+            // Mostramos la instrucción de instalación si no es PWA y es Android
+            if (!window.matchMedia('(display-mode: standalone)').matches && /Android/i.test(navigator.userAgent)) {
+                setTimeout(() => document.getElementById('install-instruction').classList.remove('hidden'), 3000);
+            }
+
             try {
                 const res = await fetch(API_URL);
                 dataCache = await res.json();
@@ -261,7 +289,7 @@
             localStorage.setItem('user_phone', document.getElementById('order-phone').value);
             localStorage.setItem('user_addr', addr);
 
-            let msg = `*🛍️ PEDIDO AGUADULCE EXPRESS*\n--------------------------------\n*🏪 Restaurante:* ${restActivo.NOMBRE}\n\n`;
+            let msg = `*🛍️ PEDIDO AGUADULCE EXPRESS*\n--------------------------------\n*Restaurante:* ${restActivo.NOMBRE}\n\n`;
             const resumen = carrito.reduce((acc, i) => { acc[i.n] = (acc[i.n] || 0) + 1; return acc; }, {});
             let total = 0;
             for (const [nom, cant] of Object.entries(resumen)) {
@@ -269,7 +297,7 @@
                 msg += `*${cant}x* ${nom} _(${(p*cant).toFixed(2)}€)_\n`;
                 total += p*cant;
             }
-            msg += `\n*💰 TOTAL DEL PEDIDO:* ${total.toFixed(2)}€\n--------------------------------\n*👤 CLIENTE:* ${name}\n*📍 DIRECCIÓN:* ${addr}\n*📝 NOTA:* ${document.getElementById('order-note-final').value}`;
+            msg += `\n*TOTAL:* ${total.toFixed(2)}€\n--------------------------------\n*CLIENTE:* ${name}\n*DIR:* ${addr}\n*NOTA:* ${document.getElementById('order-note-final').value}`;
             window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`);
         }
 
