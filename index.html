@@ -270,13 +270,23 @@
         }
 
         function enviarWhatsApp() {
-            const name = document.getElementById('order-name').value;
-            const phone = document.getElementById('order-phone').value;
-            const addr = document.getElementById('order-addr').value;
-            const terms = document.getElementById('order-terms').checked;
-            const note = document.getElementById('order-note-final').value;
-            const telRestaurante = restActivo.TELEFONO; // DINÁMICO DESDE EXCEL
+    // ... (tus otras variables) ...
 
+    // Buscamos el teléfono en el objeto del restaurante
+    // Probamos con 'TELEFONO' o la posición C (índice 2) si falla el nombre
+    let numRaw = restActivo.TELEFONO || restActivo['TELEFONO'] || "";
+    
+    if(!numRaw) {
+        return alert("Error: No se encuentra el teléfono de " + restActivo.NOMBRE);
+    }
+
+    // Limpiamos el número y le ponemos el 34 de España si no lo tiene
+    let telFinal = numRaw.toString().replace(/\s+/g, ''); 
+    if(!telFinal.startsWith('34')) telFinal = '34' + telFinal;
+
+    // ... (resto del mensaje) ...
+    window.open(`https://wa.me/${telFinal}?text=${encodeURIComponent(msg)}`);
+}
             if(!name || !phone || !addr || !terms) return alert("Por favor completa los campos y acepta los términos.");
             if(!telRestaurante) return alert("El restaurante no tiene teléfono configurado.");
 
