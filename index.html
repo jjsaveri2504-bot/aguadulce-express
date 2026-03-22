@@ -98,7 +98,7 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbx_CZ5SZHGYeBNUT7cx2vPXO8RWa6Qstua3elTg7f-vlxOdDH0Z8wRKir_bVu1jyrlf/exec"; // REEMPLAZA ESTO
+        const API_URL = "https://script.google.com/macros/s/AKfycbz6v3d0YYIDAg5H3OY0ey6lWIGINVcR2iR26nGrut6xy68TY4fZmUxinUFu9R3jS4sK/exec"; 
         const COSTO_ENVIO = 3.50;
         let dataCache = null, carrito = [], restActivo = null, pAct = null, sUnica = null, sMulti = [];
         let idRestCarrito = null;
@@ -128,6 +128,7 @@
 
         function renderHome(f = null) {
             document.getElementById('btn-back').classList.add('hidden');
+            document.getElementById('header-txt').innerHTML = 'AGUADULCE <span class="text-white">EXPRESS</span>';
             const content = document.getElementById('app-content');
             content.className = "p-4 grid grid-cols-2 gap-5"; content.innerHTML = "";
             const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
@@ -229,15 +230,15 @@
             const totalFinal = (carrito.reduce((a, b) => a + b.p, 0) + COSTO_ENVIO).toFixed(2);
             const detalleStr = carrito.map(i => i.n).join(', ');
 
-            // ENVÍO AL EXCEL (Orden Corregido: ID, Fecha, Rest, Cliente, Dir, Detalle, Total, WA, Estado)
+            // ENVÍO AL EXCEL (ID_RESTAURANTE para AppSheet)
             try {
                 fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify({
+                        id_restaurante: restActivo.ID_RESTAURANTE, 
                         cliente: n, 
                         direccion: a,
-                        restaurante: restActivo.NOMBRE, 
                         detalle: detalleStr, 
                         total: totalFinal,
                         whatsapp_rest: restActivo.TELEFONO 
@@ -245,7 +246,7 @@
                 });
             } catch (e) { console.error("Error Guardado:", e); }
 
-            // WHATSAPP
+            // WHATSAPP (Nombre legible para el restaurante)
             let msg = `*🛍️ NUEVO PEDIDO: ${restActivo.NOMBRE}*\n*Cliente:* ${n}\n*Dir:* ${a}\n\n*Productos:*\n`;
             carrito.forEach(i => msg += `• ${i.n} - ${i.p.toFixed(2)}€\n`);
             msg += `\n*Envío:* ${COSTO_ENVIO.toFixed(2)}€\n*TOTAL:* ${totalFinal}€\n\n*Pago:* Efectivo/Tarjeta TPV`;
