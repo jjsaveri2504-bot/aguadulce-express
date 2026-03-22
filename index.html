@@ -9,8 +9,6 @@
         body { background: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui; overflow-x: hidden; }
         .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.1); }
         .hide-scroll::-webkit-scrollbar { display: none; }
-        
-        /* Burbujas superiores con fotos reales */
         .cat-bubble { flex: 0 0 85px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
         .cat-img-wrapper { 
             width: 65px; height: 65px; border-radius: 50%; background: #fff; padding: 2px; 
@@ -18,13 +16,10 @@
         }
         .cat-img-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .cat-bubble.active .cat-img-wrapper { border-color: #06b6d4; transform: scale(1.1); box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
-        .cat-bubble span { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
-
-        /* Botones de Opciones */
-        .opt-btn { padding: 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); font-size: 11px; font-weight: 700; text-transform: uppercase; color: #cbd5e1; transition: 0.2s; cursor: pointer; text-align: center; }
+        .cat-bubble span { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; text-align: center; }
+        .opt-btn { padding: 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); font-size: 11px; font-weight: 700; text-transform: uppercase; color: #cbd5e1; cursor: pointer; text-align: center; }
         .opt-btn.selected { background: rgba(6, 182, 212, 0.2); border-color: #06b6d4; color: #22d3ee; }
-
-        .modal-up { animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .modal-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
@@ -39,7 +34,6 @@
     </header>
 
     <div id="cat-nav" class="flex gap-4 p-6 overflow-x-auto hide-scroll bg-[#020617]"></div>
-
     <main id="app-content" class="p-4 max-w-xl mx-auto grid grid-cols-2 gap-5"></main>
 
     <div id="modal-detalle" class="fixed inset-0 z-[60] bg-slate-950 hidden overflow-y-auto modal-up">
@@ -53,16 +47,16 @@
                 <p id="det-desc" class="text-gray-400 text-sm"></p>
 
                 <div id="cont-unica" class="space-y-3 hidden">
-                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">Selecciona una opción (obligatorio):</p>
+                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">Elige una opción (Obligatorio):</p>
                     <div id="grid-unica" class="grid grid-cols-2 gap-2"></div>
                 </div>
 
                 <div id="cont-multi" class="space-y-3 hidden">
-                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Añade extras (opcional):</p>
+                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Añade extras (Opcional):</p>
                     <div id="grid-multi" class="grid grid-cols-2 gap-2"></div>
                 </div>
 
-                <button id="btn-confirmar-plato" class="w-full bg-cyan-600 p-6 rounded-3xl font-black uppercase text-white flex justify-between items-center shadow-lg">
+                <button id="btn-add-carrito" class="w-full bg-cyan-600 p-6 rounded-3xl font-black uppercase text-white flex justify-between items-center shadow-lg">
                     <span>Añadir pedido</span>
                     <span id="det-precio-final" class="bg-black/20 px-4 py-1 rounded-xl">0.00€</span>
                 </button>
@@ -81,47 +75,43 @@
 
     <div id="modal-checkout" class="fixed inset-0 z-[70] bg-slate-950 hidden overflow-y-auto p-6 modal-up">
         <div class="max-w-md mx-auto space-y-8 pb-20">
-            <h2 class="text-3xl font-black italic text-white uppercase pt-10">Tu <span class="text-cyan-400">Pedido</span></h2>
+            <h2 class="text-3xl font-black italic text-white uppercase pt-10">Resumen</h2>
             <div id="checkout-list" class="space-y-2"></div>
-            
             <div class="space-y-4 pt-4 border-t border-white/10">
-                <input type="text" id="o-name" placeholder="Nombre" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white">
-                <input type="text" id="o-addr" placeholder="Dirección" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white">
-                
+                <input type="text" id="o-name" placeholder="Tu Nombre" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white">
+                <input type="text" id="o-addr" placeholder="Dirección de entrega" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white">
                 <div class="flex items-start gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
                     <input type="checkbox" id="o-terms" class="mt-1 w-5 h-5 accent-cyan-500">
-                    <label for="o-terms" class="text-[10px] text-gray-400 uppercase font-bold leading-tight">
-                        Acepto las condiciones de uso y el manejo de mis datos para la gestión de este pedido.
-                    </label>
+                    <label for="o-terms" class="text-[10px] text-gray-400 uppercase font-bold">Acepto las condiciones de uso y manejo de datos para este pedido.</label>
                 </div>
             </div>
-
             <button onclick="enviarWhatsApp()" class="w-full bg-cyan-600 p-7 rounded-3xl font-black uppercase text-white shadow-xl">Confirmar WhatsApp</button>
             <button onclick="cerrarCheckout()" class="w-full py-2 text-gray-500 font-bold uppercase text-[10px]">Volver</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwn3g8hrZjRe8EjgP9oXGBPP3gjIuM76lHwZCcm_t0vOt54B9gmez6ABUXJralRAZdV/exec"; 
-        let dataCache = null, carrito = [], restActivo = null, pActual = null, selUnica = null, selMulti = [];
+        const API_URL = "https://script.google.com/macros/s/AKfycbzFhwOEQmDzbKopT28TxyyuC19XWoFOqZ6ApSQYxHaFBJJipxEtglIszaKJj_mpgUjM/exec"; 
+        let dataCache = null, carrito = [], restActivo = null, pAct = null, sUnica = null, sMulti = [];
 
-        // Imágenes reales para las categorías superiores
-        const catImg = {
+        // ICONOS REALES PARA ESFERAS
+        const catIcons = {
+            "TODOS": "https://i.postimg.cc/mD44w655/all-food.jpg",
             "PIZZA": "https://i.postimg.cc/hj4Xf6b5/pizza-real.jpg",
             "HAMBURGUESA": "https://i.postimg.cc/85zXw6m4/burger-real.jpg",
-            "TODOS": "https://i.postimg.cc/mD44w655/all-food.jpg"
+            "MARKET": "https://cdn-icons-png.flaticon.com/512/3081/3081840.png"
         };
 
         async function init() {
             try {
                 const res = await fetch(API_URL);
                 dataCache = await res.json();
-                renderCategorias();
+                renderCats();
                 renderHome();
-            } catch (e) { alert("Error al cargar datos."); }
+            } catch (e) { console.error(e); }
         }
 
-        function renderCategorias() {
+        function renderCats() {
             const cats = [...new Set(dataCache.restaurantes.map(r => r.CATEGORIA))].filter(Boolean);
             const nav = document.getElementById('cat-nav');
             nav.innerHTML = createBubble("TODOS", "Todos");
@@ -129,20 +119,21 @@
         }
 
         function createBubble(id, name) {
-            const img = catImg[id.toUpperCase()] || "https://i.postimg.cc/Hk654321/generic.jpg";
+            const img = catIcons[id.toUpperCase()] || "https://i.postimg.cc/Hk654321/generic.jpg";
             return `<div onclick="filtrarRest('${id}', this)" class="cat-bubble ${id==='TODOS'?'active':''}">
                 <div class="cat-img-wrapper"><img src="${img}"></div><span>${name}</span></div>`;
         }
 
         function renderHome(f = null) {
             document.getElementById('btn-back').classList.add('hidden');
+            document.getElementById('header-txt').innerHTML = 'AGUADULCE <span class="text-white">EXPRESS</span>';
             const content = document.getElementById('app-content');
             content.className = "p-4 grid grid-cols-2 gap-5"; content.innerHTML = "";
             const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
             filt.forEach(r => {
                 content.innerHTML += `<div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white/5 rounded-[2rem] overflow-hidden border border-white/5 shadow-lg">
                     <img src="${r.FOTO}" class="w-full h-32 object-cover">
-                    <div class="p-4 text-center text-[10px] font-black uppercase italic">${r.NOMBRE}</div></div>`;
+                    <div class="p-4 text-center text-[10px] font-black uppercase italic text-white">${r.NOMBRE}</div></div>`;
             });
         }
 
@@ -153,122 +144,107 @@
             document.getElementById('header-txt').innerText = restActivo.NOMBRE;
             const content = document.getElementById('app-content');
             content.className = "p-4 flex flex-col gap-4"; content.innerHTML = "";
-            
             platos.forEach(p => {
                 content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[2rem] flex items-center gap-5 border border-white/10 active:scale-95 transition">
-                    <img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-lg">
+                    <img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover">
                     <div class="flex-1 font-black uppercase">
-                        <p class="text-[11px] text-white leading-tight mb-1">${p.NOMBRE}</p>
+                        <p class="text-[11px] text-white leading-tight mb-1">${p.PLATO}</p>
                         <p class="text-cyan-400 text-lg font-mono">${parseFloat(p.PRECIO).toFixed(2)}€</p>
                     </div></div>`;
             });
         }
 
         function abrirDetalle(p) {
-            pActual = p; selUnica = null; selMulti = [];
-            document.getElementById('det-titulo').innerText = p.NOMBRE;
+            pAct = p; sUnica = null; sMulti = [];
+            document.getElementById('det-titulo').innerText = p.PLATO;
             document.getElementById('det-desc').innerText = p.DESCRIPCION || "";
             document.getElementById('det-precio-base').innerText = parseFloat(p.PRECIO).toFixed(2) + "€";
             document.getElementById('det-img-cont').innerHTML = `<img src="${p.FOTO}" class="w-full h-full object-cover">`;
 
-            // Lógica SELECCION UNICA (Columna J)
-            const gridUnica = document.getElementById('grid-unica'); gridUnica.innerHTML = "";
-            const contUnica = document.getElementById('cont-unica');
-            if(p.SELECCION_UNICA) {
-                contUnica.classList.remove('hidden');
-                p.SELECCION_UNICA.split(',').forEach(opt => {
-                    const [n, pr] = opt.split(':');
+            // SECCION UNICA (TAMAÑOS)
+            const gU = document.getElementById('grid-unica'); gU.innerHTML = "";
+            const cU = document.getElementById('cont-unica');
+            if(p.SELECCION_UNICA && p.SELECCION_UNICA.trim() !== "") {
+                cU.classList.remove('hidden');
+                p.SELECCION_UNICA.split(',').forEach(o => {
+                    const [n, pr] = o.split(':');
                     const btn = document.createElement('div');
                     btn.className = "opt-btn";
-                    btn.innerText = n + (pr > 0 ? ` (+${pr}€)` : "");
+                    btn.innerText = n.trim() + (parseFloat(pr)>0 ? ` (+${pr}€)` : "");
                     btn.onclick = () => {
-                        document.querySelectorAll('#grid-unica .opt-btn').forEach(b => b.classList.remove('selected'));
+                        gU.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
                         btn.classList.add('selected');
-                        selUnica = { n: n.trim(), p: parseFloat(pr || 0) };
-                        calcPrecio();
+                        sUnica = { n: n.trim(), p: parseFloat(pr || 0) };
+                        updatePrecio();
                     };
-                    gridUnica.appendChild(btn);
+                    gU.appendChild(btn);
                 });
-            } else { contUnica.classList.add('hidden'); }
+            } else { cU.classList.add('hidden'); }
 
-            // Lógica EXTRAS MULTIPLES (Columna H)
-            const gridMulti = document.getElementById('grid-multi'); gridMulti.innerHTML = "";
-            const contMulti = document.getElementById('cont-multi');
-            if(p.EXTRAS) {
-                contMulti.classList.remove('hidden');
-                p.EXTRAS.split(',').forEach(opt => {
-                    const [n, pr] = opt.split(':');
+            // SECCION MULTIPLE (EXTRAS)
+            const gM = document.getElementById('grid-multi'); gM.innerHTML = "";
+            const cM = document.getElementById('cont-multi');
+            if(p.EXTRAS && p.EXTRAS.trim() !== "") {
+                cM.classList.remove('hidden');
+                p.EXTRAS.split(',').forEach(o => {
+                    const [n, pr] = o.split(':');
                     const btn = document.createElement('div');
                     btn.className = "opt-btn";
-                    btn.innerText = n + (pr > 0 ? ` (+${pr}€)` : "");
+                    btn.innerText = n.trim() + (parseFloat(pr)>0 ? ` (+${pr}€)` : "");
                     btn.onclick = () => {
                         btn.classList.toggle('selected');
-                        const idx = selMulti.findIndex(x => x.n === n.trim());
-                        if(idx > -1) selMulti.splice(idx, 1);
-                        else selMulti.push({ n: n.trim(), p: parseFloat(pr || 0) });
-                        calcPrecio();
+                        const idx = sMulti.findIndex(x => x.n === n.trim());
+                        if(idx > -1) sMulti.splice(idx, 1);
+                        else sMulti.push({ n: n.trim(), p: parseFloat(pr || 0) });
+                        updatePrecio();
                     };
-                    gridMulti.appendChild(btn);
+                    gM.appendChild(btn);
                 });
-            } else { contMulti.classList.add('hidden'); }
+            } else { cM.classList.add('hidden'); }
 
-            calcPrecio();
+            updatePrecio();
             document.getElementById('modal-detalle').classList.remove('hidden');
         }
 
-        function calcPrecio() {
-            let total = parseFloat(pActual.PRECIO);
-            if(selUnica) total += selUnica.p;
-            selMulti.forEach(x => total += x.p);
+        function updatePrecio() {
+            let total = parseFloat(pAct.PRECIO) + (sUnica ? sUnica.p : 0) + sMulti.reduce((a, b) => a + b.p, 0);
             document.getElementById('det-precio-final').innerText = total.toFixed(2) + "€";
         }
 
-        document.getElementById('btn-confirmar-plato').onclick = () => {
-            if(document.getElementById('cont-unica').offsetParent !== null && !selUnica) {
-                alert("Por favor, selecciona una opción obligatoria."); return;
-            }
-            const extrasTxt = selMulti.map(x => x.n).join(', ');
-            let nombreFinal = pActual.NOMBRE;
-            if(selUnica) nombreFinal += ` [${selUnica.n}]`;
-            if(extrasTxt) nombreFinal += ` (Extras: ${extrasTxt})`;
-            
-            let precioFinal = parseFloat(pActual.PRECIO) + (selUnica ? selUnica.p : 0) + selMulti.reduce((a,b) => a+b.p, 0);
-            carrito.push({ n: nombreFinal, p: precioFinal });
-            cerrarDetalle(); actualizarBarra();
+        document.getElementById('btn-add-carrito').onclick = () => {
+            if(document.getElementById('cont-unica').offsetParent !== null && !sUnica) return alert("Selecciona una opción obligatoria");
+            let nombre = pAct.PLATO + (sUnica ? ` [${sUnica.n}]` : "");
+            if(sMulti.length) nombre += ` (Extras: ${sMulti.map(x=>x.n).join(', ')})`;
+            let precio = parseFloat(pAct.PRECIO) + (sUnica ? sUnica.p : 0) + sMulti.reduce((a, b) => a + b.p, 0);
+            carrito.push({ n: nombre, p: precio });
+            cerrarDetalle(); updateBarra();
         };
 
         function enviarWhatsApp() {
             const n = document.getElementById('o-name').value;
             const a = document.getElementById('o-addr').value;
-            const terms = document.getElementById('o-terms').checked;
-            if(!n || !a) return alert("Faltan datos de entrega.");
-            if(!terms) return alert("Debes aceptar las condiciones.");
-
+            if(!n || !a || !document.getElementById('o-terms').checked) return alert("Completa todos los datos y acepta las condiciones");
             let msg = `*NUEVO PEDIDO: ${restActivo.NOMBRE}*\n*Cliente:* ${n}\n*Dir:* ${a}\n\n`;
             carrito.forEach(i => msg += `• ${i.n} - ${i.p.toFixed(2)}€\n`);
             msg += `\n*TOTAL: ${carrito.reduce((a,b)=>a+b.p, 0).toFixed(2)}€*`;
             window.open(`https://wa.me/${restActivo.TELEFONO}?text=${encodeURIComponent(msg)}`);
         }
 
-        function filtrarRest(c, el) { 
-            document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active'));
-            el.classList.add('active'); renderHome(c); 
-        }
+        function filtrarRest(c, el) { document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderHome(c); }
         function irAHome() { renderHome(); }
         function cerrarDetalle() { document.getElementById('modal-detalle').classList.add('hidden'); }
         function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
-        function vaciarCarrito() { carrito = []; actualizarBarra(); }
-        function actualizarBarra() {
+        function updateBarra() {
             const t = carrito.reduce((a, b) => a + b.p, 0);
             document.getElementById('basket-total').innerText = t.toFixed(2) + " €";
             document.getElementById('basket-bar').classList.toggle('hidden', carrito.length === 0);
         }
+        function vaciarCarrito() { carrito = []; updateBarra(); }
         function abrirCheckout() {
-            const l = document.getElementById('checkout-list'); l.innerHTML = "";
-            carrito.forEach(i => l.innerHTML += `<div class="flex justify-between text-[11px] uppercase font-bold text-white bg-white/5 p-3 rounded-xl border border-white/5"><span>${i.n}</span><span>${i.p.toFixed(2)}€</span></div>`);
+            const list = document.getElementById('checkout-list'); list.innerHTML = "";
+            carrito.forEach(i => list.innerHTML += `<div class="flex justify-between bg-white/5 p-3 rounded-xl border border-white/5 text-[11px] uppercase font-bold text-white"><span>${i.n}</span><span>${i.p.toFixed(2)}€</span></div>`);
             document.getElementById('modal-checkout').classList.remove('hidden');
         }
-
         init();
     </script>
 </body>
