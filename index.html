@@ -42,7 +42,7 @@
                     <span id="det-precio-base" class="text-cyan-400 text-xl font-bold font-mono"></span>
                 </div>
                 <p id="det-desc" class="text-gray-400 text-sm italic"></p>
-
+                
                 <div id="cont-unica" class="space-y-3 hidden">
                     <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">Selección Obligatoria:</p>
                     <div id="grid-unica" class="grid grid-cols-2 gap-2"></div>
@@ -53,11 +53,11 @@
                     <div id="grid-multi" class="grid grid-cols-2 gap-2"></div>
                 </div>
 
-                <button id="btn-add-carrito" class="w-full bg-cyan-600 p-6 rounded-3xl font-black uppercase text-white flex justify-between items-center shadow-lg">
+                <button id="btn-add-carrito" class="w-full bg-cyan-600 p-6 rounded-3xl font-black uppercase text-white flex justify-between items-center shadow-lg active:scale-95 transition">
                     <span>Añadir pedido</span>
                     <span id="det-precio-final" class="bg-black/20 px-4 py-1 rounded-xl">0.00€</span>
                 </button>
-                <button onclick="cerrarDetalle()" class="w-full py-4 text-gray-500 font-bold uppercase text-[10px]">Cerrar</button>
+                <button onclick="cerrarDetalle()" class="w-full py-4 text-gray-500 font-bold uppercase text-[10px]">Cancelar</button>
             </div>
         </div>
     </div>
@@ -75,7 +75,7 @@
 
     <div id="modal-checkout" class="fixed inset-0 z-[70] bg-slate-950 hidden overflow-y-auto p-6 modal-up">
         <div class="max-w-md mx-auto space-y-6 pb-20">
-            <h2 class="text-3xl font-black italic text-white uppercase pt-10">Resumen del <span class="text-cyan-400">Envío</span></h2>
+            <h2 class="text-3xl font-black italic text-white uppercase pt-10">Tu <span class="text-cyan-400">Pedido</span></h2>
             <div id="checkout-list" class="space-y-2"></div>
             <div class="p-3 bg-cyan-900/30 rounded-xl border border-cyan-500/30 flex justify-between text-cyan-400 font-bold text-xs uppercase">
                 <span>Gastos de Envío</span><span>3.50 €</span>
@@ -83,24 +83,25 @@
             
             <div class="space-y-4 pt-4">
                 <input type="text" id="o-name" placeholder="Nombre completo" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white">
-                <input type="tel" id="o-phone" placeholder="Teléfono de contacto" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white">
+                <input type="tel" id="o-phone" placeholder="Teléfono" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white">
                 <input type="text" id="o-addr" placeholder="Dirección exacta" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white">
                 
                 <div class="flex items-start gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
                     <input type="checkbox" id="o-terms" class="mt-1 w-5 h-5 accent-cyan-500">
-                    <label for="o-terms" class="text-[10px] text-gray-400 uppercase font-bold leading-tight">Acepto las condiciones de uso y el manejo de mis datos para este pedido.</label>
+                    <label for="o-terms" class="text-[10px] text-gray-400 uppercase font-bold leading-tight">Acepto las condiciones de uso y el manejo de mis datos.</label>
                 </div>
             </div>
 
-            <button onclick="enviarWhatsApp()" class="w-full bg-cyan-600 p-7 rounded-3xl font-black uppercase text-white shadow-xl">Enviar a WhatsApp</button>
+            <button onclick="enviarWhatsApp()" class="w-full bg-cyan-600 p-7 rounded-3xl font-black uppercase text-white shadow-xl">Confirmar WhatsApp</button>
             <button onclick="cerrarCheckout()" class="w-full py-2 text-gray-500 font-bold uppercase text-[10px]">Volver</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycby_hw49RSZES8rf64s6cwitScownPAZMn-8fvoNAVNL6845yv6gXJ7fF7hjr4jq9sXX/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbymxMtZ_kqXmzLF2VbcGn0WvQl40HyRqoCFHFp_BC3qqxXlVttsfvvgha6uHklj0umM/exec"; 
         const COSTO_ENVIO = 3.50;
         let dataCache = null, carrito = [], restActivo = null, pAct = null, sUnica = null, sMulti = [];
+        let idRestCarrito = null; // Para control de cruce de restaurantes
 
         async function init() {
             try {
@@ -127,6 +128,7 @@
 
         function renderHome(f = null) {
             document.getElementById('btn-back').classList.add('hidden');
+            document.getElementById('header-txt').innerHTML = 'AGUADULCE <span class="text-white">EXPRESS</span>';
             const content = document.getElementById('app-content');
             content.className = "p-4 grid grid-cols-2 gap-5"; content.innerHTML = "";
             const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
@@ -155,6 +157,15 @@
         }
 
         function abrirDetalle(p) {
+            // LOGICA ANTI-CRUCE: Verificar si el plato es de otro restaurante
+            if (idRestCarrito && String(idRestCarrito) !== String(p.ID_RESTAURANTE)) {
+                if (confirm("¡Atención! Ya tienes productos de otro restaurante en la cesta. ¿Quieres vaciar la cesta para pedir aquí?")) {
+                    vaciarCarrito();
+                } else {
+                    return; // No abre el detalle si el usuario no quiere vaciar
+                }
+            }
+
             pAct = p; sUnica = null; sMulti = [];
             document.getElementById('det-titulo').innerText = p.PLATO;
             document.getElementById('det-desc').innerText = p.DESCRIPCION || "";
@@ -167,8 +178,7 @@
                 cU.classList.remove('hidden');
                 p.SELECCION_UNICA.split(',').forEach(o => {
                     const [n, pr] = o.split(':');
-                    const btn = document.createElement('div');
-                    btn.className = "opt-btn";
+                    const btn = document.createElement('div'); btn.className = "opt-btn";
                     btn.innerText = n.trim() + (parseFloat(pr)>0 ? ` (+${pr}€)` : "");
                     btn.onclick = () => {
                         gU.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
@@ -186,8 +196,7 @@
                 cM.classList.remove('hidden');
                 p.EXTRAS.split(',').forEach(o => {
                     const [n, pr] = o.split(':');
-                    const btn = document.createElement('div');
-                    btn.className = "opt-btn";
+                    const btn = document.createElement('div'); btn.className = "opt-btn";
                     btn.innerText = n.trim() + (parseFloat(pr)>0 ? ` (+${pr}€)` : "");
                     btn.onclick = () => {
                         btn.classList.toggle('selected');
@@ -199,7 +208,6 @@
                     gM.appendChild(btn);
                 });
             } else { cM.classList.add('hidden'); }
-
             updatePrecio();
             document.getElementById('modal-detalle').classList.remove('hidden');
         }
@@ -211,10 +219,15 @@
 
         document.getElementById('btn-add-carrito').onclick = () => {
             if(document.getElementById('cont-unica').offsetParent !== null && !sUnica) return alert("Selecciona una opción obligatoria");
+            
+            // Si es el primer producto, guardamos el ID del restaurante
+            if (carrito.length === 0) {
+                idRestCarrito = pAct.ID_RESTAURANTE;
+            }
+
             let nombre = pAct.PLATO + (sUnica ? ` [${sUnica.n}]` : "");
             if(sMulti.length) nombre += ` (Extras: ${sMulti.map(x=>x.n).join(', ')})`;
-            let precio = parseFloat(pAct.PRECIO) + (sUnica ? sUnica.p : 0) + sMulti.reduce((a, b) => a + b.p, 0);
-            carrito.push({ n: nombre, p: precio });
+            carrito.push({ n: nombre, p: parseFloat(pAct.PRECIO) + (sUnica ? sUnica.p : 0) + sMulti.reduce((a, b) => a + b.p, 0) });
             cerrarDetalle(); updateBarra();
         };
 
@@ -224,18 +237,20 @@
             document.getElementById('basket-bar').classList.toggle('hidden', carrito.length === 0);
         }
 
+        function vaciarCarrito() { 
+            carrito = []; 
+            idRestCarrito = null; 
+            updateBarra(); 
+            cerrarCheckout(); 
+        }
+
         function enviarWhatsApp() {
-            const n = document.getElementById('o-name').value;
-            const t = document.getElementById('o-phone').value;
-            const a = document.getElementById('o-addr').value;
-            if(!n || !t || !a || !document.getElementById('o-terms').checked) return alert("Completa todos los campos correctamente.");
+            const n = document.getElementById('o-name').value, t = document.getElementById('o-phone').value, a = document.getElementById('o-addr').value;
+            if(!n || !t || !a || !document.getElementById('o-terms').checked) return alert("Completa los datos de envío");
             
-            let msg = `*🛍️ NUEVO PEDIDO: ${restActivo.NOMBRE}*\n`;
-            msg += `*Cliente:* ${n}\n*Tel:* ${t}\n*Dir:* ${a}\n\n*Productos:*\n`;
+            let msg = `*🛍️ NUEVO PEDIDO: ${restActivo.NOMBRE}*\n*Cliente:* ${n}\n*Tel:* ${t}\n*Dir:* ${a}\n\n*Productos:*\n`;
             carrito.forEach(i => msg += `• ${i.n} - ${i.p.toFixed(2)}€\n`);
-            msg += `\n*Envío:* ${COSTO_ENVIO.toFixed(2)}€`;
-            msg += `\n*TOTAL:* ${(carrito.reduce((a,b)=>a+b.p, 0) + COSTO_ENVIO).toFixed(2)}€`;
-            
+            msg += `\n*Envío:* ${COSTO_ENVIO.toFixed(2)}€\n*TOTAL:* ${(carrito.reduce((a,b)=>a+b.p, 0) + COSTO_ENVIO).toFixed(2)}€`;
             window.open(`https://wa.me/${restActivo.TELEFONO}?text=${encodeURIComponent(msg)}`);
         }
 
@@ -243,7 +258,6 @@
         function irAHome() { renderHome(); }
         function cerrarDetalle() { document.getElementById('modal-detalle').classList.add('hidden'); }
         function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
-        function vaciarCarrito() { carrito = []; updateBarra(); }
         function abrirCheckout() {
             const list = document.getElementById('checkout-list'); list.innerHTML = "";
             carrito.forEach(i => list.innerHTML += `<div class="flex justify-between bg-white/5 p-3 rounded-xl text-[10px] uppercase font-bold text-white"><span>${i.n}</span><span>${i.p.toFixed(2)}€</span></div>`);
