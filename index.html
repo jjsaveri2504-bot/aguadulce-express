@@ -89,7 +89,7 @@
 
                 <div class="flex items-start gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
                     <input type="checkbox" id="o-terms" class="mt-1 w-5 h-5 accent-cyan-500">
-                    <label for="o-terms" class="text-[10px] text-gray-400 uppercase font-bold leading-tight">Acepto las condiciones de uso y manejo de mis datos.</label>
+                    <label for="o-terms" class="text-[10px] text-gray-400 uppercase font-bold leading-tight">Acepto las condiciones de uso.</label>
                 </div>
             </div>
             <button onclick="confirmarYEnviar()" class="w-full bg-cyan-600 p-7 rounded-3xl font-black uppercase text-white shadow-xl">Confirmar WhatsApp</button>
@@ -98,7 +98,7 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwqpYxY8m2b_YqXzAT13f4A1laFFjArb99mVXSZybtS7rvEcOJ4VpCIaLhqfymRCdts/exec"; // REEMPLAZA ESTO
+        const API_URL = "https://script.google.com/macros/s/AKfycbx_CZ5SZHGYeBNUT7cx2vPXO8RWa6Qstua3elTg7f-vlxOdDH0Z8wRKir_bVu1jyrlf/exec"; // REEMPLAZA ESTO
         const COSTO_ENVIO = 3.50;
         let dataCache = null, carrito = [], restActivo = null, pAct = null, sUnica = null, sMulti = [];
         let idRestCarrito = null;
@@ -128,7 +128,6 @@
 
         function renderHome(f = null) {
             document.getElementById('btn-back').classList.add('hidden');
-            document.getElementById('header-txt').innerHTML = 'AGUADULCE <span class="text-white">EXPRESS</span>';
             const content = document.getElementById('app-content');
             content.className = "p-4 grid grid-cols-2 gap-5"; content.innerHTML = "";
             const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
@@ -158,7 +157,7 @@
 
         function abrirDetalle(p) {
             if (idRestCarrito && String(idRestCarrito) !== String(p.ID_RESTAURANTE)) {
-                if (confirm("Ya tienes productos de otro restaurante. ¿Vaciar cesta?")) { vaciarCarrito(); } else { return; }
+                if (confirm("¿Vaciar cesta para pedir en otro restaurante?")) { vaciarCarrito(); } else { return; }
             }
             pAct = p; sUnica = null; sMulti = [];
             document.getElementById('det-titulo').innerText = p.PLATO;
@@ -230,20 +229,24 @@
             const totalFinal = (carrito.reduce((a, b) => a + b.p, 0) + COSTO_ENVIO).toFixed(2);
             const detalleStr = carrito.map(i => i.n).join(', ');
 
-            // ENVÍO AL EXCEL (PARA APP-SHEET)
+            // ENVÍO AL EXCEL (Orden Corregido: ID, Fecha, Rest, Cliente, Dir, Detalle, Total, WA, Estado)
             try {
                 fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify({
-                        cliente: n, telefono: t, direccion: a,
-                        restaurante: restActivo.NOMBRE, detalle: detalleStr, total: totalFinal
+                        cliente: n, 
+                        direccion: a,
+                        restaurante: restActivo.NOMBRE, 
+                        detalle: detalleStr, 
+                        total: totalFinal,
+                        whatsapp_rest: restActivo.TELEFONO 
                     })
                 });
-            } catch (e) { console.error("Error AppSheet:", e); }
+            } catch (e) { console.error("Error Guardado:", e); }
 
-            // ENVÍO AL WHATSAPP
-            let msg = `*🛍️ NUEVO PEDIDO: ${restActivo.NOMBRE}*\n*Cliente:* ${n}\n*Tel:* ${t}\n*Dir:* ${a}\n\n*Productos:*\n`;
+            // WHATSAPP
+            let msg = `*🛍️ NUEVO PEDIDO: ${restActivo.NOMBRE}*\n*Cliente:* ${n}\n*Dir:* ${a}\n\n*Productos:*\n`;
             carrito.forEach(i => msg += `• ${i.n} - ${i.p.toFixed(2)}€\n`);
             msg += `\n*Envío:* ${COSTO_ENVIO.toFixed(2)}€\n*TOTAL:* ${totalFinal}€\n\n*Pago:* Efectivo/Tarjeta TPV`;
             window.open(`https://wa.me/${restActivo.TELEFONO}?text=${encodeURIComponent(msg)}`);
