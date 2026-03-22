@@ -17,7 +17,7 @@
             border: 2px solid transparent; transition: 0.3s;
         }
         .cat-bubble.active .cat-img-wrapper { border-color: #06b6d4; transform: scale(1.1); box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
-        .cat-bubble span { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
+        .cat-bubble span { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; text-align: center; }
 
         /* Estilo Botones Extras */
         .extra-btn { padding: 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); font-size: 11px; font-weight: 700; text-transform: uppercase; color: #cbd5e1; transition: 0.2s; }
@@ -39,7 +39,6 @@
     </header>
 
     <div id="cat-nav" class="flex gap-4 p-6 overflow-x-auto hide-scroll bg-[#020617]"></div>
-    <div id="subcat-nav" class="flex gap-3 px-6 py-2 overflow-x-auto hide-scroll hidden"></div>
 
     <main id="app-content" class="p-4 max-w-xl mx-auto grid grid-cols-2 gap-5"></main>
 
@@ -48,7 +47,7 @@
             <div id="det-img-cont" class="h-72 w-full relative"></div>
             <div class="p-8 -mt-10 relative bg-slate-950 rounded-t-[3rem] space-y-6">
                 <div class="flex justify-between items-start">
-                    <h2 id="det-titulo" class="text-2xl font-black italic uppercase text-white leading-tight"></h2>
+                    <h2 id="det-titulo" class="text-2xl font-black italic uppercase text-white leading-tight pr-4"></h2>
                     <span id="det-precio-base" class="text-cyan-400 text-xl font-bold font-mono"></span>
                 </div>
                 <p id="det-desc" class="text-gray-400 text-sm"></p>
@@ -69,7 +68,7 @@
         <div class="bg-cyan-600 rounded-[2.5rem] p-3 flex items-center justify-between shadow-2xl">
             <button onclick="vaciarCarrito()" class="p-4 bg-black/20 rounded-full text-white">🗑️</button>
             <p id="basket-total" class="text-2xl font-black text-white font-mono">0.00 €</p>
-            <button onclick="abrirCheckout()" class="bg-slate-950 text-white px-8 py-4 rounded-full text-xs font-black uppercase">Pagar</button>
+            <button onclick="abrirCheckout()" class="bg-slate-950 text-white px-8 py-4 rounded-full text-xs font-black uppercase">Tramitar</button>
         </div>
     </div>
 
@@ -77,19 +76,21 @@
         <div class="max-w-md mx-auto space-y-8 pb-20">
             <h2 class="text-3xl font-black italic text-white uppercase pt-10">Resumen del<br><span class="text-cyan-400">Pedido</span></h2>
             <div id="checkout-list" class="space-y-3"></div>
+            
             <div class="space-y-4">
                 <input type="text" id="order-name" placeholder="Tu Nombre" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
-                <input type="text" id="order-phone" placeholder="WhatsApp (Ej: 34600...)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
+                <input type="text" id="order-phone" placeholder="WhatsApp (Ej: 34600111222)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
                 <input type="text" id="order-addr" placeholder="Dirección de entrega" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
                 
-                <div class="flex items-start gap-3 p-2">
+                <div class="flex items-start gap-3 p-2 bg-white/5 rounded-2xl border border-white/5">
                     <input type="checkbox" id="order-terms" class="mt-1 w-5 h-5 accent-cyan-500">
                     <label for="order-terms" class="text-[10px] text-gray-400 leading-tight uppercase font-bold">
-                        Acepto las condiciones de uso y el manejo de mis datos para la gestión del pedido.
+                        Acepto las condiciones de uso y el manejo de mis datos exclusivamente para la gestión de este pedido.
                     </label>
                 </div>
             </div>
-            <button onclick="confirmarPedidoFinal()" class="w-full bg-cyan-600 p-7 rounded-3xl font-black uppercase text-white shadow-xl">Confirmar por WhatsApp</button>
+
+            <button onclick="confirmarPedidoFinal()" class="w-full bg-cyan-600 p-7 rounded-3xl font-black uppercase text-white shadow-xl shadow-cyan-900/20 active:scale-95 transition">Confirmar por WhatsApp</button>
             <button onclick="cerrarCheckout()" class="w-full py-2 text-gray-500 font-bold uppercase text-[10px]">Volver</button>
         </div>
     </div>
@@ -101,7 +102,8 @@
         const catIcons = { 
             "TODOS": "https://cdn-icons-png.flaticon.com/512/741/741548.png", 
             "HAMBURGUESA": "https://cdn-icons-png.flaticon.com/512/1046/1046784.png", 
-            "PIZZA": "https://cdn-icons-png.flaticon.com/512/3595/3595455.png"
+            "PIZZA": "https://cdn-icons-png.flaticon.com/512/3595/3595455.png",
+            "MARKET": "https://cdn-icons-png.flaticon.com/512/3081/3081840.png"
         };
 
         async function init() {
@@ -110,8 +112,11 @@
                 dataCache = await res.json();
                 renderCategorias();
                 renderHome();
-                ['name', 'phone', 'addr'].forEach(k => document.getElementById('order-'+k).value = localStorage.getItem('user_'+k) || '');
-            } catch (e) { alert("Error al conectar."); }
+                ['name', 'phone', 'addr'].forEach(k => {
+                    const val = localStorage.getItem('user_'+k);
+                    if(val) document.getElementById('order-'+k).value = val;
+                });
+            } catch (e) { console.error("Error cargando datos:", e); }
         }
 
         function renderCategorias() {
@@ -129,10 +134,11 @@
 
         function renderHome(f = null) {
             document.getElementById('btn-back').classList.add('hidden');
-            document.getElementById('subcat-nav').classList.add('hidden');
             document.getElementById('header-txt').innerHTML = 'AGUADULCE <span class="text-white">EXPRESS</span>';
             const content = document.getElementById('app-content');
-            content.className = "p-4 grid grid-cols-2 gap-5"; content.innerHTML = "";
+            content.className = "p-4 grid grid-cols-2 gap-5"; 
+            content.innerHTML = "";
+
             const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
             filt.forEach(r => {
                 content.innerHTML += `<div onclick="verMenu('${r.ID_RESTAURANTE}')" class="bg-white/5 rounded-[2rem] overflow-hidden border border-white/5 active:scale-95 transition">
@@ -141,50 +147,65 @@
             });
         }
 
-        function verMenu(id, subF = null) {
+        function verMenu(id) {
             restActivo = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
             const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id));
+            
             document.getElementById('btn-back').classList.remove('hidden');
             document.getElementById('header-txt').innerText = restActivo.NOMBRE;
             
             const content = document.getElementById('app-content');
-            content.className = "p-4 grid grid-cols-1 gap-4"; content.innerHTML = "";
+            content.className = "p-4 flex flex-col gap-4"; 
+            content.innerHTML = "";
             
             platos.forEach(p => {
-                // CORRECCIÓN: Usamos p.NOMBRE explícitamente para evitar la URL en el texto
-                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[2rem] flex items-center gap-5 border border-white/5 active:scale-95 transition">
-                    <img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-lg">
-                    <div class="flex-1 font-black uppercase">
-                        <p class="text-[11px] text-white leading-tight mb-1">${p.NOMBRE}</p>
-                        <p class="text-cyan-400 text-lg font-mono">${parseFloat(p.PRECIO).toFixed(2)}€</p>
-                    </div></div>`;
+                // CORRECCIÓN CLAVE: Usamos p.PLATO (o p.NOMBRE según tu sheet) explícitamente
+                const nombrePlato = p.PLATO || p.NOMBRE; 
+                content.innerHTML += `
+                    <div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[2rem] flex items-center gap-5 border border-white/10 active:scale-95 transition">
+                        <img src="${p.FOTO_PLATO || p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-lg">
+                        <div class="flex-1 font-black uppercase">
+                            <p class="text-[11px] text-white leading-tight mb-1">${nombrePlato}</p>
+                            <p class="text-cyan-400 text-lg font-mono">${parseFloat(p.PRECIO).toFixed(2)}€</p>
+                        </div>
+                    </div>`;
             });
         }
 
         function abrirDetalle(p) {
             platoActual = p; extrasSel = [];
-            maxIng = p.NOMBRE.match(/(\d+)\s*ing/i) ? parseInt(p.NOMBRE.match(/(\d+)\s*ing/i)[1]) : (p.CATEGORIA.toUpperCase().includes("PIZZA") ? 5 : 99);
+            const nombre = p.PLATO || p.NOMBRE;
             
-            document.getElementById('det-titulo').innerText = p.NOMBRE;
+            // Lógica de ingredientes gratuitos basada en el nombre (ej: "Pizza 5 ing")
+            maxIng = nombre.match(/(\d+)\s*ing/i) ? parseInt(nombre.match(/(\d+)\s*ing/i)[1]) : (p.CATEGORIA?.toUpperCase().includes("PIZZA") ? 5 : 99);
+            
+            document.getElementById('det-titulo').innerText = nombre;
             document.getElementById('det-precio-base').innerText = parseFloat(p.PRECIO).toFixed(2) + "€";
-            document.getElementById('det-img-cont').innerHTML = `<img src="${p.FOTO}" class="w-full h-full object-cover">`;
+            document.getElementById('det-img-cont').innerHTML = `<img src="${p.FOTO_PLATO || p.FOTO}" class="w-full h-full object-cover">`;
             document.getElementById('det-desc').innerText = p.DESCRIPCION || "";
             document.getElementById('ing-aviso').innerText = maxIng < 10 ? `Elige máximo ${maxIng} ingredientes:` : "Personaliza tu pedido:";
 
-            const grid = document.getElementById('extras-grid'); grid.innerHTML = "";
+            const grid = document.getElementById('extras-grid'); 
+            grid.innerHTML = "";
+            
             if(p.EXTRAS) {
                 p.EXTRAS.split(',').forEach(ex => {
-                    const [n, pr] = ex.split(':');
-                    const cost = parseFloat(pr || 0);
+                    const parts = ex.split(':');
+                    const n = parts[0].trim();
+                    const cost = parseFloat(parts[1] || 0);
+                    
                     const btn = document.createElement('button');
                     btn.className = "extra-btn";
-                    btn.innerText = cost > 0 ? `${n.trim()} (+${cost.toFixed(2)}€)` : n.trim();
+                    btn.innerText = cost > 0 ? `${n} (+${cost.toFixed(2)}€)` : n;
                     btn.onclick = () => {
-                        const idx = extrasSel.findIndex(e => e.n === n.trim());
-                        if(idx > -1) { extrasSel.splice(idx,1); btn.classList.remove('selected'); }
-                        else {
+                        const idx = extrasSel.findIndex(e => e.n === n);
+                        if(idx > -1) { 
+                            extrasSel.splice(idx,1); 
+                            btn.classList.remove('selected'); 
+                        } else {
                             if(cost === 0 && extrasSel.filter(e => e.p === 0).length >= maxIng) return;
-                            extrasSel.push({n: n.trim(), p: cost}); btn.classList.add('selected');
+                            extrasSel.push({n: n, p: cost}); 
+                            btn.classList.add('selected');
                         }
                         actualizarPrecioDetalle();
                     };
@@ -207,15 +228,24 @@
         }
 
         function addAlCarrito() {
+            const nombrePlato = platoActual.PLATO || platoActual.NOMBRE;
             const exTxt = extrasSel.map(e => e.n).join(', ');
             const total = parseFloat(platoActual.PRECIO) + extrasSel.reduce((s, e) => s + e.p, 0);
-            carrito.push({ n: exTxt ? `${platoActual.NOMBRE} (${exTxt})` : platoActual.NOMBRE, p: total });
-            cerrarDetalle(); actualizarBarra();
+            carrito.push({ n: exTxt ? `${nombrePlato} (${exTxt})` : nombrePlato, p: total });
+            cerrarDetalle(); 
+            actualizarBarra();
         }
 
         function abrirCheckout() {
-            const l = document.getElementById('checkout-list'); l.innerHTML = "";
-            carrito.forEach(i => l.innerHTML += `<div class="flex justify-between bg-white/5 p-4 rounded-xl border border-white/5 text-[10px] text-white uppercase font-bold"><span>${i.n}</span><span class="text-cyan-400 font-mono">${i.p.toFixed(2)}€</span></div>`);
+            const l = document.getElementById('checkout-list'); 
+            l.innerHTML = "";
+            carrito.forEach(i => {
+                l.innerHTML += `
+                    <div class="flex justify-between bg-white/5 p-4 rounded-xl border border-white/5 text-[10px] text-white uppercase font-bold">
+                        <span>${i.n}</span>
+                        <span class="text-cyan-400 font-mono">${i.p.toFixed(2)}€</span>
+                    </div>`;
+            });
             document.getElementById('modal-checkout').classList.remove('hidden');
         }
 
@@ -225,24 +255,28 @@
             const ad = document.getElementById('order-addr').value;
             const terms = document.getElementById('order-terms').checked;
 
-            if(!n || !ph || !ad) return alert("Por favor, rellena todos los datos de entrega.");
-            if(!terms) return alert("Debes aceptar las condiciones para continuar.");
+            if(!n || !ph || !ad) return alert("Por favor, completa tus datos de entrega.");
+            if(!terms) return alert("Debes aceptar las condiciones de uso para continuar.");
 
             const total = carrito.reduce((s, i) => s + i.p, 0).toFixed(2);
             const detalle = carrito.map(i => i.n).join(', ');
             
-            // Envío a Base de Datos
+            // Persistencia local para comodidad del usuario
+            localStorage.setItem('user_name', n);
+            localStorage.setItem('user_phone', ph);
+            localStorage.setItem('user_addr', ad);
+
+            // Registro en Base de Datos (opcional)
             fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ restaurante: restActivo.NOMBRE, nombre: n, direccion: ad, telefono: ph, pedido: detalle, total: total }) });
             
-            ['name', 'phone', 'addr'].forEach(k => localStorage.setItem('user_'+k, document.getElementById('order-'+k).value));
-            
-            const msg = `*🛍️ NUEVO PEDIDO AGUADULCE EXPRESS*\n*Local:* ${restActivo.NOMBRE}\n*Cliente:* ${n}\n*Dir:* ${ad}\n\n*Pedido:*\n${carrito.map(i => "• "+i.n).join("\n")}\n\n*TOTAL: ${total}€*`;
+            const msg = `*🛍️ NUEVO PEDIDO AGUADULCE EXPRESS*\n*Local:* ${restActivo.NOMBRE}\n*Cliente:* ${n}\n*WhatsApp:* ${ph}\n*Dir:* ${ad}\n\n*Pedido:*\n${carrito.map(i => "• "+i.n).join("\n")}\n\n*TOTAL: ${total}€*`;
             window.open(`https://wa.me/${restActivo.TELEFONO.toString().replace(/\s/g, '')}?text=${encodeURIComponent(msg)}`);
         }
 
         function filtrarRest(c, el) { 
             document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active'));
-            el.classList.add('active'); renderHome(c); 
+            el.classList.add('active'); 
+            renderHome(c); 
         }
         function irAHome() { renderHome(); }
         function cerrarDetalle() { document.getElementById('modal-detalle').classList.add('hidden'); }
