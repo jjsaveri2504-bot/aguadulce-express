@@ -59,7 +59,6 @@
             <div id="det-img-cont" class="h-64 w-full bg-cover bg-center relative">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent"></div>
             </div>
-            
             <div class="px-8 -mt-6 relative space-y-6">
                 <div class="flex justify-between items-start gap-4">
                     <div class="flex-1">
@@ -96,7 +95,7 @@
                             </div>
                         </div>
                         <button onclick="ejecutarAddCarrito()" class="w-full bg-cyan-600 h-14 rounded-2xl font-black uppercase text-white flex justify-between items-center px-8 shadow-xl active:scale-95 transition-all">
-                           <span class="text-[11px] tracking-widest uppercase">Confirmar pedido</span>
+                           <span class="text-[11px] tracking-widest uppercase">Añadir a la cesta</span>
                            <span id="det-precio-final" class="bg-black/20 px-4 py-1.5 rounded-xl text-sm font-mono">0.00€</span>
                         </button>
                     </div>
@@ -111,7 +110,10 @@
                 <span id="basket-count" class="bg-black/30 w-6 h-6 rounded-lg text-[10px] font-black text-white flex items-center justify-center">0</span>
                 <span class="text-[11px] font-black uppercase text-white tracking-widest">Ver Pedido</span>
             </div>
-            <span id="basket-total" class="font-mono font-bold text-white text-base">0.00 €</span>
+            <div class="text-right">
+                <span id="basket-total" class="font-mono font-bold text-white text-base block">0.00 €</span>
+                <span class="text-[8px] text-white/70 block -mt-1 uppercase">+ ENVÍO INCLUIDO</span>
+            </div>
         </div>
     </div>
 
@@ -120,29 +122,31 @@
             <h2 class="text-3xl font-black italic text-white uppercase tracking-tighter">DATOS DE <span class="text-cyan-400 underline decoration-cyan-400/30">ENTREGA</span></h2>
             <div id="checkout-list" class="space-y-2"></div>
             
-            <div class="space-y-4 pt-4">
+            <div class="space-y-4 pt-4 border-t border-white/5">
+                <div class="flex justify-between items-center text-xs font-bold uppercase text-slate-400 px-2">
+                    <span>Costo de envío</span>
+                    <span class="font-mono text-cyan-400">3.50€</span>
+                </div>
                 <input type="text" id="o-name" placeholder="Tu Nombre y Apellido" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-white focus:border-cyan-500 outline-none transition-all">
                 <input type="tel" id="o-phone" placeholder="Tu Teléfono de contacto" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-white focus:border-cyan-500 outline-none transition-all">
                 <input type="text" id="o-addr" placeholder="Dirección exacta de entrega" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-white focus:border-cyan-500 outline-none transition-all">
             </div>
 
             <div class="flex items-start gap-4 p-5 bg-white/5 rounded-2xl border border-white/10">
-                <input type="checkbox" id="o-terms" class="mt-1 w-6 h-6 accent-cyan-500 rounded cursor-pointer">
-                <div class="flex flex-col gap-1">
-                    <label for="o-terms" class="text-[10px] text-gray-400 uppercase font-bold leading-tight italic">He leído y acepto los Términos y Condiciones y la Política de Privacidad.</label>
-                    <p class="text-[8px] text-slate-500 uppercase tracking-tighter italic">Responsable: Aguadulce Express. Finalidad: Gestión de pedidos y entrega a domicilio. Destinatarios: Restaurante seleccionado y repartidor.</p>
-                </div>
+                <input type="checkbox" id="o-terms" class="mt-1 w-6 h-6 accent-cyan-500 rounded">
+                <label for="o-terms" class="text-[10px] text-gray-400 uppercase font-bold leading-tight italic">Confirmo mis datos y acepto la política de protección de datos (RGPD) para el servicio de entrega.</label>
             </div>
 
-            <div class="space-y-4">
-                <p id="txt-aviso" class="hidden text-[11px] text-yellow-500 text-center uppercase font-black px-4 leading-tight italic">
-                    ⚠️ PEDIDO NO REGISTRADO TODAVÍA. TRAS ENVIAR EL WHATSAPP, REGRESA AQUÍ Y PULSA "CONFIRMAR".
+            <div class="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-2xl text-center">
+                <p class="text-[11px] font-black text-yellow-500 uppercase italic leading-tight">
+                    ⚠️ ATENCIÓN: Al pulsar el botón se abrirá WhatsApp. 
+                    ¡DEBES VOLVER A ESTA PANTALLA después de enviar el mensaje para confirmar tu orden final!
                 </p>
-                <button id="btn-flow" onclick="manejarFlujoPedido()" class="w-full bg-cyan-600 p-6 rounded-2xl font-black uppercase text-white shadow-xl active:scale-95 transition-all text-sm tracking-widest flex flex-col items-center">
-                    <span id="flow-main">1. Enviar por WhatsApp</span>
-                    <span id="flow-sub" class="text-[9px] opacity-60">Abrir chat</span>
-                </button>
             </div>
+
+            <button id="btn-flow" onclick="manejarFlujoPedido()" class="w-full bg-cyan-600 p-6 rounded-2xl font-black uppercase text-white shadow-xl active:scale-95 transition-all text-sm tracking-widest flex flex-col items-center">
+                <span id="flow-main">1. Enviar por WhatsApp</span>
+            </button>
             <button onclick="cerrarCheckout()" class="w-full text-gray-500 font-bold uppercase text-[10px] text-center">Volver al menú</button>
         </div>
     </div>
@@ -176,6 +180,12 @@
         }
 
         function verMenu(id) {
+            // BLOQUEO VENTA CRUZADA
+            if (carrito.length > 0 && String(restActivo?.ID_RESTAURANTE) !== String(id)) {
+                if (!confirm("Solo puedes pedir en un restaurante a la vez. ¿Quieres vaciar la cesta para ver este menú?")) return;
+                carrito = []; actualizarBarraCesta();
+            }
+
             restActivo = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
             const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id));
             document.getElementById('btn-back').classList.remove('hidden');
@@ -188,7 +198,7 @@
             content.className = "p-4 flex flex-col gap-4";
             content.innerHTML = "";
             platos.forEach(p => {
-                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5 active:bg-white/10 transition-colors"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-inner border border-white/5"><div class="flex-1"><p class="text-[12px] font-black text-white uppercase leading-tight">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold text-base mt-1.5">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
+                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5 active:bg-white/10 transition-colors"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover border border-white/5"><div class="flex-1"><p class="text-[12px] font-black text-white uppercase leading-tight">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold text-base mt-1.5">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
             });
             renderCats(platos, true);
         }
@@ -199,10 +209,7 @@
             document.getElementById('det-desc').innerText = p.DESCRIPCION || "";
             document.getElementById('det-precio-base').innerText = Number(p.PRECIO).toFixed(2) + "€";
             document.getElementById('det-img-cont').style.backgroundImage = `url('${p.FOTO}')`;
-            document.getElementById('grid-multi').classList.remove('open');
-            document.getElementById('extra-arrow').style.transform = "rotate(0deg)";
 
-            // Selección Única
             const gU = document.getElementById('grid-unica'); gU.innerHTML = "";
             if(p.SELECCION_UNICA) {
                 p.SELECCION_UNICA.split(',').forEach((o, i) => {
@@ -220,7 +227,6 @@
                 document.getElementById('cont-unica').classList.remove('hidden');
             } else { document.getElementById('cont-unica').classList.add('hidden'); }
 
-            // Extras Multi
             const gM = document.getElementById('grid-multi'); gM.innerHTML = "";
             if(p.EXTRAS) {
                 p.EXTRAS.split(',').forEach(o => {
@@ -284,7 +290,7 @@
             const n = document.getElementById('o-name').value, t = document.getElementById('o-phone').value, a = document.getElementById('o-addr').value, terms = document.getElementById('o-terms').checked;
             if(!n || !t || !a || !terms) return alert("Completa tus datos y acepta los términos.");
 
-            const btn = document.getElementById('btn-flow'), main = document.getElementById('flow-main'), sub = document.getElementById('flow-sub'), aviso = document.getElementById('txt-aviso');
+            const btn = document.getElementById('btn-flow'), main = document.getElementById('flow-main');
 
             if (!pasoConfirmacion) {
                 const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
@@ -295,21 +301,20 @@
                 window.open(`https://wa.me/${restActivo.TELEFONO}?text=${encodeURIComponent(msg)}`, '_blank');
                 
                 main.innerText = "2. ✅ YA LO ENVIÉ (CONFIRMAR)";
-                sub.innerText = "HAZ CLIC AQUÍ PARA FINALIZAR";
                 btn.classList.add('btn-confirm-final');
-                aviso.classList.remove('hidden');
                 pasoConfirmacion = true;
             } else {
                 const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
                 const detalle = carrito.map(i => i.n).join(' | ');
                 fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({id_restaurante:restActivo.ID_RESTAURANTE, cliente: n, telefono: t, direccion: a, detalle: detalle, total: totalF, whatsapp_rest: restActivo.TELEFONO })});
-                alert("¡PEDIDO REGISTRADO CON ÉXITO!");
+                alert("¡PEDIDO REGISTRADO EXITOSAMENTE!");
                 location.reload();
             }
         }
 
         function actualizarBarraCesta() {
             if(carrito.length > 0) {
+                // SUMA DE COSTO DE ENVÍO
                 const total = carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO;
                 document.getElementById('basket-total').innerText = total.toFixed(2) + " €";
                 document.getElementById('basket-count').innerText = carrito.length;
