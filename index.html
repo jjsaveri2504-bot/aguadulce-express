@@ -3,18 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aguadulce Express | Seguridad v32</title>
+    <title>Aguadulce Express | Oficial v33</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,900;1,900&display=swap');
+
         body { background: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui; overflow-x: hidden; }
         .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        
         .brand-font { font-family: 'Poppins', sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -1.5px; line-height: 1; }
+
+        /* Categorías */
+        .cat-bubble { flex: 0 0 75px; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+        .cat-img-wrapper { width: 55px; height: 55px; border-radius: 50%; background: #1e293b; padding: 2px; border: 2px solid transparent; overflow: hidden; transition: 0.3s; }
+        .cat-img-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .cat-bubble.active .cat-img-wrapper { border-color: #06b6d4; transform: scale(1.05); }
+        .cat-bubble span { font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; text-align: center; }
+
+        /* Animación Botón Seguridad */
+        .btn-confirm-final { background: #16a34a !important; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); } 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); } }
+
         .modal-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        
-        /* Animación para el botón de confirmación final */
-        .btn-confirm-final { background: #22c55e !important; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
     </style>
 </head>
 <body class="pb-32">
@@ -22,10 +34,12 @@
     <header class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3 relative">
             <button id="btn-back" onclick="irAHome()" class="hidden w-10 h-10 flex items-center justify-center bg-white/10 rounded-xl text-white mr-1">←</button>
+            
             <div class="w-11 h-11 rounded-full border border-white/20 overflow-hidden bg-white shadow-lg flex-shrink-0">
                 <img src="Logo Aguadulce Express.jpeg" class="w-full h-full object-contain">
             </div>
-            <div class="flex flex-col brand-font">
+
+            <div id="brand-container" class="flex flex-col brand-font">
                 <span class="text-2xl text-cyan-400">AGUADULCE</span>
                 <span class="text-xs text-white tracking-[0.3em] -mt-1">EXPRESS</span>
             </div>
@@ -33,152 +47,267 @@
         <div class="w-10 h-10 rounded-full border border-white/10 bg-slate-800 flex items-center justify-center text-[10px] font-black text-slate-500">AE</div>
     </header>
 
-    <div id="cat-nav" class="flex gap-4 p-5 overflow-x-auto bg-[#020617]"></div>
+    <div id="rest-banner" class="hidden h-32 w-full relative overflow-hidden mb-4">
+        <div id="banner-img" class="absolute inset-0 bg-cover bg-center"></div>
+        <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+            <h2 id="banner-name" class="text-2xl font-black italic uppercase text-white tracking-widest"></h2>
+        </div>
+    </div>
+ 
+    <div id="cat-nav" class="flex gap-4 p-5 overflow-x-auto hide-scroll bg-[#020617]"></div>
     <main id="app-content" class="p-4 max-w-xl mx-auto grid grid-cols-2 gap-6"></main>
+
+    <div id="modal-detalle" class="fixed inset-0 z-[60] bg-slate-950 hidden overflow-y-auto modal-up">
+        <div class="max-w-xl mx-auto min-h-screen pb-48">
+            <button onclick="cerrarDetalle()" class="absolute top-6 left-6 z-[70] w-12 h-12 bg-black/60 rounded-full text-white text-2xl flex items-center justify-center">✕</button>
+            <div id="det-img-cont" class="h-64 w-full bg-cover bg-center relative"></div>
+            <div class="px-8 mt-6 space-y-6">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h2 id="det-titulo" class="text-2xl font-black italic uppercase text-white"></h2>
+                        <p id="det-desc" class="text-gray-400 text-xs mt-2 italic"></p>
+                    </div>
+                    <span id="det-precio-base" class="text-cyan-400 text-xl font-mono font-bold"></span>
+                </div>
+                <div class="flex flex-col items-center gap-4 bg-slate-900/50 p-6 rounded-3xl border border-white/5">
+                    <p class="text-[10px] uppercase font-bold text-gray-500">Cantidad</p>
+                    <div class="flex items-center gap-10">
+                        <button onclick="cambiarCant(-1)" class="text-cyan-400 text-4xl font-light">−</button>
+                        <span id="det-cant" class="text-white font-black text-2xl">1</span>
+                        <button onclick="cambiarCant(1)" class="text-cyan-400 text-4xl font-light">+</button>
+                    </div>
+                </div>
+                <div class="fixed bottom-0 left-0 right-0 p-6 bg-slate-950/90 backdrop-blur-md">
+                    <button onclick="ejecutarAddCarrito()" class="w-full bg-cyan-600 h-16 rounded-2xl font-black uppercase text-white flex justify-between items-center px-8 shadow-xl">
+                       <span>Añadir a la cesta</span>
+                       <span id="det-precio-final" class="bg-black/20 px-4 py-1 rounded-lg">0.00€</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <div id="basket-bar" class="fixed bottom-6 left-6 right-6 z-40 hidden modal-up">
+        <div onclick="abrirCheckout()" class="bg-cyan-600 rounded-2xl h-16 px-6 flex items-center justify-between shadow-2xl border border-cyan-400/20 active:scale-95 transition-all">
+            <div class="flex items-center gap-3">
+                <span id="basket-count" class="bg-black/30 w-8 h-8 rounded-xl text-xs font-black text-white flex items-center justify-center">0</span>
+                <span class="text-xs font-black uppercase text-white tracking-widest">Ver mi pedido</span>
+            </div>
+            <span id="basket-total" class="font-mono font-bold text-white text-lg">0.00 €</span>
+        </div>
+    </div>
 
     <div id="modal-checkout" class="fixed inset-0 z-[75] bg-slate-950 hidden overflow-y-auto p-6 modal-up">
         <div class="max-w-md mx-auto space-y-8 pb-20 pt-10">
-            <h2 class="text-3xl font-black italic text-white uppercase tracking-tighter">FINALIZAR <span class="text-cyan-400">PEDIDO</span></h2>
+            <h2 class="text-3xl font-black italic text-white uppercase tracking-tighter">FINALIZAR <span class="text-cyan-400">COMPRA</span></h2>
             
-            <div id="checkout-list" class="space-y-2"></div>
+            <div id="checkout-list" class="space-y-3"></div>
 
-            <div id="form-datos" class="space-y-4">
-                <input type="text" id="o-name" placeholder="Tu Nombre" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
-                <input type="tel" id="o-phone" placeholder="Teléfono" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
-                <input type="text" id="o-addr" placeholder="Dirección de entrega" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500">
+            <div id="form-datos" class="space-y-4 pt-4 border-t border-white/10">
+                <input type="text" id="o-name" placeholder="Tu Nombre Completo" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500 transition-all">
+                <input type="tel" id="o-phone" placeholder="Teléfono de contacto" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500 transition-all">
+                <input type="text" id="o-addr" placeholder="Dirección Exacta de Entrega" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-cyan-500 transition-all">
             </div>
 
-            <div class="space-y-4">
-                <button id="btn-flow" onclick="manejarFlujoPedido()" class="w-full bg-cyan-600 p-6 rounded-2xl font-black uppercase text-white shadow-xl transition-all duration-300">
-                    1. Enviar a WhatsApp
+            <div class="space-y-4 pt-6">
+                <button id="btn-flow" onclick="manejarFlujoPedido()" class="w-full bg-cyan-600 h-20 rounded-2xl font-black uppercase text-white shadow-xl flex flex-col items-center justify-center transition-all duration-500">
+                    <span id="btn-text-main" class="text-sm">1. Enviar a WhatsApp</span>
+                    <span id="btn-text-sub" class="text-[9px] opacity-60 font-bold mt-1">Se abrirá el chat con el restaurante</span>
                 </button>
                 
-                <p id="txt-ayuda" class="text-[10px] text-gray-500 text-center uppercase font-bold tracking-widest hidden">
-                    Primero envía el mensaje, luego confirma aquí para avisar al repartidor.
+                <p id="txt-ayuda-seguridad" class="text-[9px] text-yellow-500 text-center uppercase font-black tracking-widest hidden animate-pulse">
+                    ¡IMPORTANTE! Una vez enviado el mensaje, vuelve aquí y confirma.
                 </p>
             </div>
 
-            <button onclick="cerrarCheckout()" class="w-full text-gray-600 font-bold uppercase text-[10px] text-center">Cancelar pedido</button>
+            <button onclick="cerrarCheckout()" class="w-full text-gray-600 font-bold uppercase text-[10px] text-center tracking-widest">Seguir comprando</button>
         </div>
     </div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbz6v3d0YYIDAg5H3OY0ey6lWIGINVcR2iR26nGrut6xy68TY4fZmUxinUFu9R3jS4sK/exec";
         const COSTO_ENVIO = 3.50;
-        let dataCache = null, carrito = [], restActivo = null, pasoConfirmacion = false;
+        let dataCache = null, carrito = [], restActivo = null, pAct = null, cantAct = 1, pasoConfirmacion = false;
 
         async function init() {
             try {
                 const res = await fetch(API_URL);
                 dataCache = await res.json();
                 renderHome();
-            } catch (e) { console.error("Error API"); }
+            } catch (e) { console.error("Error cargando API"); }
         }
 
+        // LÓGICA DE SEGURIDAD ANTI-FALLOS
         function manejarFlujoPedido() {
-            const btn = document.getElementById('btn-flow');
-            const ayuda = document.getElementById('txt-ayuda');
-            const n = document.getElementById('o-name').value;
-            const t = document.getElementById('o-phone').value;
-            const a = document.getElementById('o-addr').value;
+            const n = document.getElementById('o-name').value, 
+                  t = document.getElementById('o-phone').value, 
+                  a = document.getElementById('o-addr').value;
 
-            if(!n || !t || !a) return alert("Por favor, rellena tus datos.");
+            if(!n || !t || !a) return alert("Por favor, completa tus datos de entrega.");
+
+            const btn = document.getElementById('btn-flow');
+            const sub = document.getElementById('btn-text-sub');
+            const main = document.getElementById('btn-text-main');
+            const ayuda = document.getElementById('txt-ayuda-seguridad');
 
             if (!pasoConfirmacion) {
-                // PASO 1: ABRIR WHATSAPP
+                // PASO 1: ABRIR WHATSAPP SIN GUARDAR EN EXCEL TODAVÍA
                 const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
-                let msg = `*🛍️ PEDIDO: ${restActivo.NOMBRE}*\n\n*CLIENTE:* ${n.toUpperCase()}\n*DIR:* ${a.toUpperCase()}\n\n*Pedido:*\n`;
+                let msg = `*🛍️ NUEVO PEDIDO: ${restActivo.NOMBRE}*\n\n*CLIENTE:* ${n.toUpperCase()}\n*TEL:* ${t}\n*DIR:* ${a.toUpperCase()}\n\n*PRODUCTOS:*\n`;
                 carrito.forEach(i => msg += `• ${i.n} - ${i.p.toFixed(2)}€\n`);
-                msg += `\n*TOTAL: ${totalF}€*`;
+                msg += `\n*ENVÍO:* ${COSTO_ENVIO.toFixed(2)}€\n*TOTAL A PAGAR: ${totalF}€*`;
                 
                 window.open(`https://wa.me/${restActivo.TELEFONO}?text=${encodeURIComponent(msg)}`);
 
-                // Cambiar el estado del botón
-                btn.innerText = "2. Confirmar que ya lo envié";
+                // Cambiar el botón para el Paso 2
+                main.innerText = "2. Confirmar que ya lo envié";
+                sub.innerText = "Pulsa aquí solo si enviaste el mensaje";
                 btn.classList.add('btn-confirm-final');
                 ayuda.classList.remove('hidden');
                 pasoConfirmacion = true;
             } else {
-                // PASO 2: ENVIAR A EXCEL (Ahora sí es real)
-                ejecutarEnvioFinalExcel();
+                // PASO 2: GUARDAR EN EXCEL (Ahora sí es una venta real)
+                ejecutarRegistroExcel(n, a);
             }
         }
 
-        function ejecutarEnvioFinalExcel() {
-            const n = document.getElementById('o-name').value;
-            const a = document.getElementById('o-addr').value;
+        function ejecutarRegistroExcel(nombre, direccion) {
+            const btn = document.getElementById('btn-flow');
+            btn.disabled = true;
+            btn.innerText = "REGISTRANDO PEDIDO...";
+            
             const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
             const detalle = carrito.map(i => i.n).join(' | ');
-
-            // Mostrar cargando
-            document.getElementById('btn-flow').innerText = "PROCESANDO...";
-            document.getElementById('btn-flow').disabled = true;
 
             fetch(API_URL, { 
                 method: 'POST', 
                 mode: 'no-cors', 
                 body: JSON.stringify({
                     id_restaurante: restActivo.ID_RESTAURANTE, 
-                    cliente: n, 
-                    direccion: a, 
+                    cliente: nombre, 
+                    direccion: direccion, 
                     detalle: detalle, 
                     total: totalF, 
                     whatsapp_rest: restActivo.TELEFONO
                 })
             });
 
-            // Finalización exitosa
             setTimeout(() => {
-                alert("¡Pedido registrado con éxito! El repartidor se pondrá en marcha.");
-                location.reload(); // Reiniciar App
-            }, 1000);
+                alert("¡Perfecto! Tu pedido ha sido registrado. Un repartidor de Aguadulce Express se pondrá en contacto.");
+                location.reload();
+            }, 1500);
         }
 
-        // --- Resto de funciones de renderizado (se mantienen igual que antes) ---
-        function renderHome() {
+        // --- FUNCIONES DE RENDERIZADO ---
+        function renderHome(f = null) {
+            restActivo = null;
             document.getElementById('btn-back').classList.add('hidden');
+            document.getElementById('rest-banner').classList.add('hidden');
             const content = document.getElementById('app-content');
+            content.className = "p-4 grid grid-cols-2 gap-6";
             content.innerHTML = "";
-            dataCache.restaurantes.forEach(r => {
-                content.innerHTML += `<div onclick="verMenu('${r.ID_RESTAURANTE}')" class="space-y-3"><img src="${r.FOTO}" class="w-full h-36 object-cover rounded-[2.2rem] border border-white/5"><p class="text-[10px] font-black uppercase text-center text-slate-400">${r.NOMBRE}</p></div>`;
+            const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
+            filt.forEach(r => {
+                content.innerHTML += `<div onclick="verMenu('${r.ID_RESTAURANTE}')" class="space-y-3 active:scale-95 transition-all"><img src="${r.FOTO}" class="w-full h-36 object-cover rounded-[2.2rem] border border-white/5 shadow-lg"><p class="text-[10px] font-black uppercase text-center text-slate-400 tracking-widest leading-tight">${r.NOMBRE}</p></div>`;
             });
+            renderCats(dataCache.restaurantes, false);
         }
 
         function verMenu(id) {
             restActivo = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
             const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id));
             document.getElementById('btn-back').classList.remove('hidden');
+            document.getElementById('rest-banner').classList.remove('hidden');
+            document.getElementById('banner-img').style.backgroundImage = `url('${restActivo.FOTO}')`;
+            document.getElementById('banner-name').innerText = restActivo.NOMBRE;
             const content = document.getElementById('app-content');
             content.className = "p-4 flex flex-col gap-4";
             content.innerHTML = "";
             platos.forEach(p => {
-                content.innerHTML += `<div onclick='agregarAlCarritoDirecto(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5 active:scale-95 transition-all"><img src="${p.FOTO}" class="w-16 h-16 rounded-2xl object-cover"><div class="flex-1"><p class="text-[11px] font-black text-white uppercase">${p.PLATO}</p><p class="text-cyan-400 font-bold">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
+                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5 active:bg-white/10 transition-colors shadow-md"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-inner"><div class="flex-1"><p class="text-[12px] font-black text-white uppercase leading-tight">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold text-base mt-1.5">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
             });
+            renderCats(platos, true);
         }
 
-        function agregarAlCarritoDirecto(p) {
-            carrito.push({ n: `1x ${p.PLATO}`, p: Number(p.PRECIO) });
+        function abrirDetalle(p) {
+            pAct = p; cantAct = 1;
+            document.getElementById('det-titulo').innerText = p.PLATO;
+            document.getElementById('det-desc').innerText = p.DESCRIPCION || "";
+            document.getElementById('det-precio-base').innerText = Number(p.PRECIO).toFixed(2) + "€";
+            document.getElementById('det-img-cont').style.backgroundImage = `url('${p.FOTO}')`;
+            actualizarCalculo();
+            document.getElementById('modal-detalle').classList.remove('hidden');
+        }
+
+        function actualizarCalculo() {
+            const total = Number(pAct.PRECIO) * cantAct;
+            document.getElementById('det-precio-final').innerText = total.toFixed(2) + "€";
+            document.getElementById('det-cant').innerText = cantAct;
+        }
+
+        function cambiarCant(v) { cantAct = Math.max(1, cantAct + v); actualizarCalculo(); }
+
+        function ejecutarAddCarrito() {
+            carrito.push({ n: `${cantAct}x ${pAct.PLATO}`, p: Number(pAct.PRECIO) * cantAct });
+            cerrarDetalle();
             actualizarBarraCesta();
         }
 
         function actualizarBarraCesta() {
-            // (Lógica para mostrar el botón flotante de ver pedido)
+            if(carrito.length > 0) {
+                const total = carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO;
+                document.getElementById('basket-total').innerText = total.toFixed(2) + " €";
+                document.getElementById('basket-count').innerText = carrito.length;
+                document.getElementById('basket-bar').classList.remove('hidden');
+            } else { document.getElementById('basket-bar').classList.add('hidden'); }
         }
 
         function abrirCheckout() {
-            const list = document.getElementById('checkout-list');
-            list.innerHTML = "";
-            carrito.forEach(i => list.innerHTML += `<div class="bg-white/5 p-3 rounded-xl text-[10px] uppercase font-bold text-gray-400">${i.n}</div>`);
+            const list = document.getElementById('checkout-list'); list.innerHTML = "";
+            carrito.forEach((item, idx) => {
+                list.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <div class="flex flex-col"><span class="text-[10px] font-black text-white uppercase">${item.n}</span><span class="text-cyan-500 font-mono text-[9px]">${item.p.toFixed(2)}€</span></div>
+                    <button onclick="borrarItem(${idx})" class="text-red-500 font-bold px-2">✕</button></div>`;
+            });
             document.getElementById('modal-checkout').classList.remove('hidden');
         }
 
-        function cerrarCheckout() {
-            document.getElementById('modal-checkout').classList.add('hidden');
-            // Resetear flujo si cancela
-            pasoConfirmacion = false;
-            document.getElementById('btn-flow').innerText = "1. Enviar a WhatsApp";
-            document.getElementById('btn-flow').classList.remove('btn-confirm-final');
+        function borrarItem(idx) { 
+            carrito.splice(idx, 1); 
+            if(!carrito.length) cerrarCheckout(); else abrirCheckout();
+            actualizarBarraCesta();
         }
+
+        function renderCats(datos, esM) {
+            const nav = document.getElementById('cat-nav'); nav.innerHTML = "";
+            const cats = [...new Set(datos.map(i => i.CATEGORIA))].filter(Boolean);
+            nav.innerHTML += createBubble("TODOS", esM ? "Carta" : "Todos", true, esM);
+            cats.forEach(c => nav.innerHTML += createBubble(c, c, false, esM));
+        }
+
+        function createBubble(id, name, active, esM) {
+            const icon = dataCache.iconos.find(i => i.CATEGORIA.toUpperCase() === id.toUpperCase());
+            const imgDefault = "https://cdn-icons-png.flaticon.com/512/706/706164.png";
+            const imgUrl = (icon && icon.FOTO) ? icon.FOTO : imgDefault;
+            return `<div onclick="${esM?'filtrarMenu':'filtrarRest'}('${id}', this)" class="cat-bubble ${active?'active':''}">
+                <div class="cat-img-wrapper"><img src="${imgUrl}" onerror="this.src='${imgDefault}'"></div>
+                <span>${name}</span></div>`;
+        }
+
+        function filtrarRest(c, el) { document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderHome(c); }
+        function filtrarMenu(c, el) { 
+            document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active'); 
+            const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(restActivo.ID_RESTAURANTE));
+            const filt = c === 'TODOS' ? platos : platos.filter(p => p.CATEGORIA === c);
+            const content = document.getElementById('app-content'); content.innerHTML = "";
+            filt.forEach(p => {
+                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5 active:bg-white/10 transition-colors shadow-md"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-inner"><div class="flex-1"><p class="text-[12px] font-black text-white uppercase leading-tight">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold text-base mt-1.5">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
+            });
+        }
+
+        function irAHome() { renderHome(); }
+        function cerrarDetalle() { document.getElementById('modal-detalle').classList.add('hidden'); }
+        function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); pasoConfirmacion = false; document.getElementById('btn-flow').classList.remove('btn-confirm-final'); }
 
         init();
     </script>
