@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aguadulce Express | Pro v26</title>
+    <title>Aguadulce Express | Pro v27</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui; overflow-x: hidden; }
@@ -17,9 +17,13 @@
         .cat-bubble.active .cat-img-wrapper { border-color: #06b6d4; transform: scale(1.05); }
         .cat-bubble span { font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; }
 
-        /* Extras con contador */
-        .extra-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .extra-counter { display: flex; items-center: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 4px 12px; rounded-full: 9999px; border: 1px solid rgba(255,255,255,0.1); }
+        /* Extras Desplegables */
+        .extra-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 1rem; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .extra-header:active { background: rgba(255,255,255,0.08); }
+        #grid-multi { transition: all 0.4s ease-in-out; max-height: 0; overflow: hidden; opacity: 0; }
+        #grid-multi.open { max-height: 1000px; opacity: 1; padding-top: 10px; }
+        
+        .extra-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         
         .modal-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -47,8 +51,9 @@
  
     <div id="modal-detalle" class="fixed inset-0 z-[60] bg-slate-950 hidden overflow-y-auto modal-up">
         <div class="max-w-xl mx-auto min-h-screen pb-48">
+            <button onclick="cerrarDetalle()" class="absolute top-6 left-6 z-[70] w-12 h-12 bg-black/60 backdrop-blur-md rounded-full text-white text-2xl flex items-center justify-center shadow-2xl">✕</button>
+            
             <div id="det-img-cont" class="h-64 w-full bg-cover bg-center relative">
-                <button onclick="cerrarDetalle()" class="absolute top-6 left-6 w-10 h-10 bg-black/60 rounded-full text-white text-xl">✕</button>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950"></div>
             </div>
             
@@ -56,14 +61,20 @@
                 <div class="flex justify-between items-start gap-4">
                     <div class="flex-1">
                         <h2 id="det-titulo" class="text-2xl font-black italic uppercase text-white leading-tight"></h2>
-                        <p id="det-desc" class="text-gray-400 text-xs mt-2 italic"></p>
+                        <p id="det-desc" class="text-gray-400 text-xs mt-2 italic font-medium"></p>
                     </div>
                     <span id="det-precio-base" class="text-cyan-400 text-xl font-mono font-bold"></span>
                 </div>
 
-                <div id="cont-multi" class="pt-6 border-t border-white/5">
-                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-4">Complementos (Opcional)</p>
-                    <div id="grid-multi" class="space-y-2"></div>
+                <div id="cont-multi" class="pt-2 border-t border-white/5">
+                    <div onclick="toggleExtras()" class="extra-header">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">Complementos</span>
+                            <span class="text-[9px] text-gray-500 uppercase font-bold">Toca para añadir extras (Opcional)</span>
+                        </div>
+                        <span id="extra-arrow" class="text-cyan-500 text-xl transition-transform">↓</span>
+                    </div>
+                    <div id="grid-multi" class="space-y-1"></div>
                 </div>
 
                 <div class="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-950 via-slate-950 to-transparent">
@@ -90,7 +101,7 @@
         <div onclick="abrirCheckout()" class="bg-cyan-600 h-14 rounded-2xl px-6 flex items-center justify-between shadow-2xl active:scale-95 transition-all">
             <div class="flex items-center gap-3">
                 <span id="basket-count" class="bg-black/30 w-6 h-6 rounded-lg text-[10px] font-black text-white flex items-center justify-center">0</span>
-                <span class="text-[11px] font-black uppercase text-white tracking-widest tracking-tighter">Mi Cesta</span>
+                <span class="text-[11px] font-black uppercase text-white tracking-widest">Mi Cesta</span>
             </div>
             <span id="basket-total" class="font-mono font-bold text-white text-base">0.00 €</span>
         </div>
@@ -127,7 +138,7 @@
                 const res = await fetch(API_URL);
                 dataCache = await res.json();
                 renderHome();
-            } catch (e) { console.error("Error cargando API"); }
+            } catch (e) { console.error("Error API"); }
         }
 
         function renderHome(f = null) {
@@ -156,7 +167,6 @@
             restActivo = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
             const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id));
             
-            // CORRECCIÓN: Botón retroceso visible y header oculto
             document.getElementById('btn-back').classList.remove('hidden');
             document.getElementById('header-txt').classList.add('hidden');
             
@@ -183,15 +193,19 @@
         }
 
         function abrirDetalle(p) {
-            pAct = p; sMulti = {}; cantAct = 1; // sMulti ahora es un objeto para contar cada extra
+            pAct = p; sMulti = {}; cantAct = 1;
             document.getElementById('det-titulo').innerText = p.PLATO;
             document.getElementById('det-desc').innerText = p.DESCRIPCION || "";
             document.getElementById('det-precio-base').innerText = Number(p.PRECIO).toFixed(2) + "€";
             document.getElementById('det-img-cont').style.backgroundImage = `url('${p.FOTO}')`;
             
+            // Reset de la flecha y el desplegable
+            document.getElementById('grid-multi').classList.remove('open');
+            document.getElementById('extra-arrow').style.transform = "rotate(0deg)";
+
             const gM = document.getElementById('grid-multi'); gM.innerHTML = "";
             if(p.EXTRAS) {
-                p.EXTRAS.split(',').forEach((o, index) => {
+                p.EXTRAS.split(',').forEach(o => {
                     const [nombre, precio] = o.split(':');
                     const nTrim = nombre.trim();
                     sMulti[nTrim] = { p: Number(precio || 0), cant: 0 };
@@ -199,18 +213,29 @@
                     const row = document.createElement('div');
                     row.className = "extra-item";
                     row.innerHTML = `
-                        <div class="text-[11px] font-bold text-slate-300 uppercase">${nTrim} <span class="text-cyan-600 font-mono ml-1">+${Number(precio).toFixed(2)}€</span></div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase">${nTrim} <span class="text-cyan-600 font-mono ml-1">+${Number(precio).toFixed(2)}€</span></div>
                         <div class="flex items-center gap-3 bg-white/5 px-3 py-1 rounded-full border border-white/10">
                             <button onclick="cambiarExtra('${nTrim}', -1, this)" class="text-white font-bold w-4">-</button>
-                            <span class="text-white text-[11px] font-black extra-count-val">0</span>
+                            <span class="text-white text-[10px] font-black extra-count-val">0</span>
                             <button onclick="cambiarExtra('${nTrim}', 1, this)" class="text-white font-bold w-4">+</button>
                         </div>`;
                     gM.appendChild(row);
                 });
+                document.getElementById('cont-multi').classList.remove('hidden');
+            } else {
+                document.getElementById('cont-multi').classList.add('hidden');
             }
+
             actualizarCalculo();
             document.getElementById('modal-detalle').classList.remove('hidden');
             document.body.style.overflow = "hidden";
+        }
+
+        function toggleExtras() {
+            const grid = document.getElementById('grid-multi');
+            const arrow = document.getElementById('extra-arrow');
+            grid.classList.toggle('open');
+            arrow.style.transform = grid.classList.contains('open') ? "rotate(180deg)" : "rotate(0deg)";
         }
 
         function cambiarExtra(nombre, val, btn) {
@@ -220,44 +245,30 @@
         }
 
         function actualizarCalculo() {
-            // Lógica: (Plato * Cantidad) + (Extras * Sus propias cantidades)
             const precioPlatoTotal = Number(pAct.PRECIO) * cantAct;
             let precioExtrasTotal = 0;
-            for (let key in sMulti) {
-                precioExtrasTotal += sMulti[key].p * sMulti[key].cant;
-            }
+            for (let key in sMulti) { precioExtrasTotal += sMulti[key].p * sMulti[key].cant; }
             const total = precioPlatoTotal + precioExtrasTotal;
-            
             document.getElementById('det-precio-final').innerText = total.toFixed(2) + "€";
             document.getElementById('det-cant').innerText = cantAct;
         }
 
-        function cambiarCant(v) { 
-            cantAct = Math.max(1, cantAct + v); 
-            actualizarCalculo(); 
-        }
+        function cambiarCant(v) { cantAct = Math.max(1, cantAct + v); actualizarCalculo(); }
 
         function ejecutarAddCarrito() {
             const precioPlatoTotal = Number(pAct.PRECIO) * cantAct;
             let extrasTxt = [];
             let precioExtrasTotal = 0;
-            
             for (let key in sMulti) {
                 if (sMulti[key].cant > 0) {
                     extrasTxt.push(`${sMulti[key].cant}x ${key}`);
                     precioExtrasTotal += sMulti[key].p * sMulti[key].cant;
                 }
             }
-
             let nombreFinal = `${cantAct}x ${pAct.PLATO}`;
             if(extrasTxt.length > 0) nombreFinal += ` + [${extrasTxt.join(', ')}]`;
 
-            carrito.push({
-                n: nombreFinal,
-                p: precioPlatoTotal + precioExtrasTotal,
-                cant: 1 // La cantidad ya va implícita en el nombre para el ticket
-            });
-
+            carrito.push({ n: nombreFinal, p: precioPlatoTotal + precioExtrasTotal, cant: 1 });
             cerrarDetalle();
             actualizarBarraCesta();
         }
@@ -294,14 +305,9 @@
         function confirmarYEnviar() {
             const n = document.getElementById('o-name').value, t = document.getElementById('o-phone').value, a = document.getElementById('o-addr').value;
             if(!n || !t || !a || !document.getElementById('o-terms').checked) return alert("Completa los datos y acepta los términos.");
-            
             const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
             const detalle = carrito.map(i => i.n).join(' | ');
-
-            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({
-                id_restaurante: restActivo.ID_RESTAURANTE, cliente: n, direccion: a, detalle: detalle, total: totalF, whatsapp_rest: restActivo.TELEFONO 
-            })});
-
+            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({id_restaurante:restActivo.ID_RESTAURANTE, cliente: n, direccion: a, detalle: detalle, total: totalF, whatsapp_rest: restActivo.TELEFONO })});
             let msg = `*🛍️ PEDIDO: ${restActivo.NOMBRE}*\n\n*Cliente:* ${n}\n*Tel:* ${t}\n*Dir:* ${a}\n\n*Pedido:*\n`;
             carrito.forEach(i => msg += `• ${i.n} - ${i.p.toFixed(2)}€\n`);
             msg += `\n*Envío:* ${COSTO_ENVIO.toFixed(2)}€\n*TOTAL: ${totalF}€*`;
@@ -323,7 +329,8 @@
         }
 
         function filtrarRest(c, el) { document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderHome(c); }
-        function filtrarMenu(c, el) { document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active'); 
+        function filtrarMenu(c, el) { 
+            document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active'); 
             const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(restActivo.ID_RESTAURANTE));
             const filt = c === 'TODOS' ? platos : platos.filter(p => p.CATEGORIA === c);
             const content = document.getElementById('app-content'); content.innerHTML = "";
