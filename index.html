@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aguadulce Express | Pro v35 Gold</title>
+    <title>Aguadulce Express</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,900;1,900&display=swap');
-        body { background: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui; overflow-x: hidden; }
+        body { background: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui; }
         .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .brand-font { font-family: 'Poppins', sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -1.5px; line-height: 1; }
-        .btn-confirm-final { background: #16a34a !important; animation: pulse 2s infinite; transform: scale(1.02); }
+        .brand-font { font-family: 'Poppins', sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -1.5px; }
+        .btn-confirm-final { background: #16a34a !important; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); } 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); } }
         .modal-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .cat-img-wrapper { width: 55px; height: 55px; border-radius: 50%; background: #1e293b; padding: 2px; border: 2px solid transparent; overflow: hidden; transition: 0.2s; }
-        .cat-bubble.active .cat-img-wrapper { border-color: #06b6d4; transform: scale(1.05); }
     </style>
 </head>
 <body class="pb-28">
@@ -28,50 +26,48 @@
                 <span class="text-lg text-white tracking-[0.3em] -mt-1">EXPRESS</span>
             </div>
         </div>
-        <div class="w-12 h-12 rounded-full border border-white/20 overflow-hidden shadow-lg bg-white flex items-center justify-center">
+        <div class="w-12 h-12 rounded-full border border-white/20 overflow-hidden bg-white flex items-center justify-center">
             <img src="Logo Aguadulce Express.jpeg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3448/3448601.png'" class="w-full h-full object-contain">
         </div>
     </header>
 
-    <div id="rest-banner" class="hidden h-40 w-full relative overflow-hidden mb-4">
+    <div id="rest-banner" class="hidden h-44 w-full relative overflow-hidden mb-4">
         <div id="banner-img" class="absolute inset-0 bg-cover bg-center"></div>
-        <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
-            <h2 id="banner-name" class="text-3xl font-black italic uppercase text-white tracking-widest text-center px-4"></h2>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-black/40 flex items-end p-6">
+            <h2 id="banner-name" class="text-3xl font-black italic uppercase text-white"></h2>
         </div>
     </div>
 
     <div id="cat-nav" class="flex gap-4 p-5 overflow-x-auto bg-[#020617]"></div>
-    <main id="app-content" class="p-4 max-w-xl mx-auto grid grid-cols-2 gap-6"></main>
+    
+    <main id="app-content" class="p-4 max-w-xl mx-auto flex flex-col gap-4"></main>
 
     <div id="modal-detalle" class="fixed inset-0 z-[60] bg-slate-950 hidden overflow-y-auto modal-up">
         <div class="max-w-xl mx-auto min-h-screen pb-48">
-            <button onclick="cerrarDetalle()" class="absolute top-6 left-6 z-[70] w-12 h-12 bg-black/60 rounded-full text-white text-2xl flex items-center justify-center backdrop-blur-sm">✕</button>
-            <div id="det-img-cont" class="h-64 w-full bg-cover bg-center relative"></div>
-            
-            <div class="px-8 -mt-6 relative space-y-6">
-                <div class="flex justify-between items-start gap-4">
+            <button onclick="cerrarDetalle()" class="absolute top-6 left-6 z-[70] w-12 h-12 bg-black/60 rounded-full text-white text-2xl flex items-center justify-center backdrop-blur-md">✕</button>
+            <div id="det-img-cont" class="h-80 w-full bg-cover bg-center relative"></div>
+            <div class="px-8 -mt-10 relative space-y-6 bg-slate-950 rounded-t-[3rem] pt-8">
+                <div class="flex justify-between items-start">
                     <div class="flex-1">
-                        <h2 id="det-titulo" class="text-2xl font-black italic uppercase text-white leading-tight"></h2>
-                        <p id="det-desc" class="text-gray-400 text-xs mt-2 italic"></p>
+                        <h2 id="det-titulo" class="text-3xl font-black italic uppercase text-white leading-tight"></h2>
+                        <p id="det-desc" class="text-gray-400 text-sm mt-3 italic"></p>
                     </div>
-                    <span id="det-precio-base" class="text-cyan-400 text-xl font-mono font-bold"></span>
+                    <span id="det-precio-base" class="text-cyan-400 text-2xl font-mono font-bold"></span>
                 </div>
-
-                <div id="cont-unica" class="hidden space-y-3 pt-2 border-t border-white/5">
-                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">Elige una opción:</p>
+                <div id="cont-unica" class="hidden space-y-4 pt-4 border-t border-white/5">
+                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest italic">Elige una opción:</p>
                     <div id="grid-unica" class="grid grid-cols-2 gap-3"></div>
                 </div>
-
-                <div class="fixed bottom-0 left-0 right-0 p-6 bg-slate-950 z-[65]">
+                <div class="fixed bottom-0 left-0 right-0 p-6 bg-slate-950/90 backdrop-blur-lg z-[65]">
                     <div class="max-w-xl mx-auto flex items-center gap-4">
-                        <div class="flex items-center bg-slate-900 border border-white/10 rounded-full px-4 py-1.5 gap-6">
-                            <button onclick="cambiarCant(-1)" class="text-cyan-400 text-2xl font-light w-6">−</button>
-                            <span id="det-cant" class="text-white font-black text-base w-4 text-center">1</span>
-                            <button onclick="cambiarCant(1)" class="text-cyan-400 text-2xl font-light w-6">+</button>
+                        <div class="flex items-center bg-slate-900 rounded-2xl px-4 py-3 gap-6 border border-white/5">
+                            <button onclick="cambiarCant(-1)" class="text-cyan-400 text-2xl font-bold">−</button>
+                            <span id="det-cant" class="text-white font-black text-xl w-6 text-center">1</span>
+                            <button onclick="cambiarCant(1)" class="text-cyan-400 text-2xl font-bold">+</button>
                         </div>
-                        <button onclick="ejecutarAddCarrito()" class="flex-1 bg-cyan-600 h-14 rounded-2xl font-black uppercase text-white flex justify-between items-center px-8 shadow-xl">
-                           <span class="text-[11px] tracking-widest">Agregar</span>
-                           <span id="det-precio-final" class="bg-black/20 px-4 py-1.5 rounded-xl text-sm font-mono">0.00€</span>
+                        <button onclick="ejecutarAddCarrito()" class="flex-1 bg-cyan-600 h-16 rounded-2xl font-black uppercase text-white flex justify-between items-center px-6">
+                           <span class="text-xs">Añadir</span>
+                           <span id="det-precio-final" class="bg-black/20 px-3 py-1 rounded-lg font-mono text-sm">0.00€</span>
                         </button>
                     </div>
                 </div>
@@ -80,46 +76,43 @@
     </div>
 
     <div id="basket-bar" class="fixed bottom-6 left-6 right-6 z-40 hidden modal-up">
-        <div onclick="abrirCheckout()" class="bg-cyan-600 rounded-2xl h-14 px-6 flex items-center justify-between shadow-2xl">
+        <div onclick="abrirCheckout()" class="bg-cyan-600 rounded-[2rem] h-16 px-8 flex items-center justify-between shadow-2xl border border-white/10">
             <div class="flex items-center gap-3">
-                <span id="basket-count" class="bg-black/30 w-6 h-6 rounded-lg text-[10px] font-black text-white flex items-center justify-center">0</span>
-                <span class="text-[11px] font-black uppercase text-white tracking-widest">Mi Pedido</span>
+                <span id="basket-count" class="bg-white text-cyan-600 w-6 h-6 rounded-full text-[10px] font-black flex items-center justify-center">0</span>
+                <span class="text-xs font-black uppercase text-white tracking-widest">Revisar Pedido</span>
             </div>
-            <span id="basket-total" class="font-mono font-bold text-white text-base">0.00 €</span>
+            <span id="basket-total" class="font-mono font-bold text-white text-lg">0.00 €</span>
         </div>
     </div>
 
     <div id="modal-checkout" class="fixed inset-0 z-[75] bg-slate-950 hidden overflow-y-auto p-6 modal-up">
-        <div class="max-w-md mx-auto space-y-6 pb-20 pt-10">
-            <h2 class="text-3xl font-black italic text-white uppercase tracking-tighter">FINALIZAR <span class="text-cyan-400">PEDIDO</span></h2>
-            <div id="checkout-list" class="space-y-2"></div>
+        <div class="max-w-md mx-auto space-y-6 py-10">
+            <h2 class="text-4xl font-black italic text-white uppercase tracking-tighter">MI <span class="text-cyan-400">PEDIDO</span></h2>
+            <div id="checkout-list" class="space-y-3"></div>
             
-            <div class="space-y-4 pt-4">
-                <input type="text" id="o-name" placeholder="Tu Nombre" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white outline-none">
-                <input type="tel" id="o-phone" placeholder="WhatsApp (Ej: 34600112233)" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white outline-none">
-                <input type="text" id="o-addr" placeholder="Dirección de entrega" class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white outline-none">
+            <div class="space-y-4 bg-white/5 p-6 rounded-[2rem] border border-white/5">
+                <input type="text" id="o-name" placeholder="Tu Nombre Completo" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white outline-none">
+                <input type="tel" id="o-phone" placeholder="WhatsApp (Ej: 34...)" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white outline-none">
+                <input type="text" id="o-addr" placeholder="Dirección Exacta" class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white outline-none">
             </div>
 
-            <div class="bg-white/5 p-4 rounded-2xl border border-white/10 space-y-3 text-[10px] text-slate-400">
-                <div class="flex gap-3">
-                    <input type="checkbox" id="legal-check" class="w-5 h-5 accent-cyan-500 mt-1 cursor-pointer">
-                    <label for="legal-check" class="leading-tight">
-                        He leído y acepto los <span class="text-cyan-400 underline" onclick="alert('Sus datos serán usados exclusivamente para gestionar este pedido.')">Términos y Condiciones</span> y la Política de Privacidad de Aguadulce Express.
-                    </label>
-                </div>
-                <p class="text-[9px] opacity-60">Responsable: Aguadulce Express. Finalidad: Gestión de pedidos y entrega a domicilio. Destinatarios: Restaurante seleccionado y repartidor.</p>
+            <div class="bg-white/5 p-4 rounded-2xl border border-white/10 flex gap-3">
+                <input type="checkbox" id="legal-check" class="w-6 h-6 accent-cyan-500 cursor-pointer">
+                <label for="legal-check" class="text-[10px] text-slate-400 leading-tight">
+                    Acepto los <span class="text-cyan-400 underline" onclick="alert('Datos procesados solo para fines de entrega.')">Términos Legales</span> (RGPD España).
+                </label>
             </div>
 
             <div class="space-y-4">
-                <button id="btn-flow" onclick="manejarFlujoPedido()" class="w-full bg-cyan-600 p-6 rounded-2xl font-black uppercase text-white shadow-xl transition-all text-sm flex flex-col items-center">
-                    <span id="btn-text-main">1. ENVIAR WHATSAPP</span>
-                    <span id="btn-text-sub" class="text-[9px] opacity-70 mt-1">PASO NECESARIO</span>
-                </button>
-                <p id="txt-ayuda-seguridad" class="text-[11px] text-yellow-500 text-center uppercase font-black px-4 hidden">
-                    ⚠️ PEDIDO NO REGISTRADO TODAVÍA. Tras enviar el mensaje de WhatsApp, regresa aquí y pulsa "CONFIRMAR".
+                <p id="txt-aviso-preventivo" class="text-[11px] text-yellow-500 text-center uppercase font-black px-4 leading-tight">
+                    ⚠️ TRAS ENVIAR EL WHATSAPP, REGRESA AQUÍ PARA CONFIRMAR TU PEDIDO.
                 </p>
+                <button id="btn-flow" onclick="manejarFlujoPedido()" class="w-full bg-cyan-600 p-6 rounded-[2rem] font-black uppercase text-white shadow-xl flex flex-col items-center">
+                    <span id="btn-text-main" class="text-sm">1. ENVIAR A WHATSAPP</span>
+                    <span id="btn-text-sub" class="text-[9px] opacity-70">ABRIR CHAT</span>
+                </button>
             </div>
-            <button onclick="cerrarCheckout()" class="w-full text-gray-500 font-bold uppercase text-[10px] text-center">Volver atrás</button>
+            <button onclick="cerrarCheckout()" class="w-full text-slate-500 font-bold uppercase text-[10px] text-center">Cancelar</button>
         </div>
     </div>
 
@@ -133,7 +126,7 @@
                 const res = await fetch(API_URL);
                 dataCache = await res.json();
                 renderHome();
-            } catch (e) { console.error("Error"); }
+            } catch (e) { alert("Error de carga"); }
         }
 
         function renderHome(f = null) {
@@ -144,7 +137,7 @@
             content.innerHTML = "";
             const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
             filt.forEach(r => {
-                content.innerHTML += `<div onclick="verMenu('${r.ID_RESTAURANTE}')" class="space-y-3"><img src="${r.FOTO}" class="w-full h-36 object-cover rounded-[2.2rem] shadow-lg border border-white/5"><p class="text-[10px] font-black uppercase text-center text-slate-400">${r.NOMBRE}</p></div>`;
+                content.innerHTML += `<div onclick="verMenu('${r.ID_RESTAURANTE}')" class="space-y-3"><img src="${r.FOTO}" class="w-full h-40 object-cover rounded-[2.5rem] shadow-2xl border border-white/5"><p class="text-[11px] font-black uppercase text-center text-slate-300">${r.NOMBRE}</p></div>`;
             });
             renderCats(dataCache.restaurantes, false);
         }
@@ -153,14 +146,14 @@
             restActivo = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
             const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id));
             document.getElementById('btn-back').classList.remove('hidden');
-            const banner = document.getElementById('rest-banner');
-            banner.classList.remove('hidden');
+            document.getElementById('rest-banner').classList.remove('hidden');
             document.getElementById('banner-img').style.backgroundImage = `url('${restActivo.FOTO}')`;
             document.getElementById('banner-name').innerText = restActivo.NOMBRE;
             const content = document.getElementById('app-content');
             content.innerHTML = "";
+            // RENDER LISTA LIMPIA (Uno sobre otro)
             platos.forEach(p => {
-                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-xl"><div><p class="text-[11px] font-black text-white uppercase">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold mt-1">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
+                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[2rem] flex items-center gap-5 border border-white/5"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-lg"><div class="flex-1 text-left"><p class="text-[12px] font-black text-white uppercase leading-tight">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold text-lg mt-1">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
             });
             renderCats(platos, true);
         }
@@ -171,27 +164,23 @@
             document.getElementById('det-desc').innerText = p.DESCRIPCION || "";
             document.getElementById('det-precio-base').innerText = Number(p.PRECIO).toFixed(2) + "€";
             document.getElementById('det-img-cont').style.backgroundImage = `url('${p.FOTO}')`;
-            
             const gU = document.getElementById('grid-unica'); gU.innerHTML = "";
             if(p.SELECCION_UNICA) {
                 p.SELECCION_UNICA.split(',').forEach((o, i) => {
                     const [n, pr] = o.split(':');
                     const btn = document.createElement('button');
-                    btn.className = "p-4 rounded-2xl text-[10px] font-black uppercase text-slate-400 border border-white/10 bg-white/5";
-                    btn.innerHTML = `<span>${n.trim()}</span><br><span class="text-cyan-600">${Number(pr).toFixed(2)}€</span>`;
+                    btn.className = "p-4 rounded-xl text-[10px] font-black uppercase text-slate-400 border border-white/10 bg-white/5";
+                    btn.innerHTML = `${n.trim()}<br><span class="text-cyan-500">${Number(pr).toFixed(2)}€</span>`;
                     btn.onclick = () => {
-                        document.querySelectorAll('#grid-unica button').forEach(b => b.classList.remove('border-cyan-500', 'text-cyan-500'));
-                        btn.classList.add('border-cyan-500', 'text-cyan-500');
-                        sUnica = { n: n.trim(), p: Number(pr) };
-                        actualizarCalculo();
+                        document.querySelectorAll('#grid-unica button').forEach(b => b.style.borderColor = "rgba(255,255,255,0.1)");
+                        btn.style.borderColor = "#06b6d4";
+                        sUnica = { n: n.trim(), p: Number(pr) }; actualizarCalculo();
                     };
-                    gU.appendChild(btn);
-                    if(i === 0) btn.click();
+                    gU.appendChild(btn); if(i === 0) btn.click();
                 });
                 document.getElementById('cont-unica').classList.remove('hidden');
             } else { document.getElementById('cont-unica').classList.add('hidden'); }
-            actualizarCalculo();
-            document.getElementById('modal-detalle').classList.remove('hidden');
+            actualizarCalculo(); document.getElementById('modal-detalle').classList.remove('hidden');
         }
 
         function actualizarCalculo() {
@@ -205,8 +194,58 @@
         function ejecutarAddCarrito() {
             let basePrice = sUnica ? sUnica.p : Number(pAct.PRECIO);
             carrito.push({ n: `${cantAct}x ${pAct.PLATO}${sUnica ? ' ('+sUnica.n+')' : ''}`, p: basePrice * cantAct });
-            cerrarDetalle();
-            actualizarBarraCesta();
+            cerrarDetalle(); actualizarBarraCesta();
+        }
+
+        function manejarFlujoPedido() {
+            const n = document.getElementById('o-name').value, t = document.getElementById('o-phone').value, a = document.getElementById('o-addr').value, legal = document.getElementById('legal-check').checked;
+            if(!n || !t || !a) return alert("Completa el formulario.");
+            if(!legal) return alert("Acepta los términos legales.");
+
+            const btn = document.getElementById('btn-flow'), sub = document.getElementById('btn-text-sub'), main = document.getElementById('btn-text-main');
+
+            if (!pasoConfirmacion) {
+                const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
+                let msg = `*🛍️ NUEVO PEDIDO*\n*CLIENTE:* ${n.toUpperCase()}\n*TEL:* ${t}\n*DIR:* ${a.toUpperCase()}\n\n*PRODUCTOS:*\n`;
+                carrito.forEach(i => msg += `• ${i.n} - ${i.p.toFixed(2)}€\n`);
+                msg += `\n*TOTAL: ${totalF}€*`;
+                
+                window.open(`https://wa.me/${restActivo.TELEFONO}?text=${encodeURIComponent(msg)}`, '_blank');
+                
+                main.innerText = "2. ✅ YA LO ENVIÉ (CONFIRMAR)";
+                sub.innerText = "TOCA AQUÍ PARA FINALIZAR";
+                btn.classList.add('btn-confirm-final');
+                pasoConfirmacion = true;
+            } else {
+                finalizarTodo(n, t, a);
+            }
+        }
+
+        function finalizarTodo(nombre, tel, direccion) {
+            const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
+            const detalle = carrito.map(i => i.n).join(' | ');
+            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({id_restaurante:restActivo.ID_RESTAURANTE, cliente: nombre, telefono: tel, direccion: direccion, detalle: detalle, total: totalF, whatsapp_rest: restActivo.TELEFONO })});
+            alert("¡PEDIDO CONFIRMADO!");
+            location.reload();
+        }
+
+        function renderCats(datos, esM) {
+            const nav = document.getElementById('cat-nav'); nav.innerHTML = "";
+            const cats = [...new Set(datos.map(i => i.CATEGORIA))].filter(Boolean);
+            nav.innerHTML += `<button onclick="${esM?'filtrarMenu':'filtrarRest'}('TODOS')" class="bg-white/10 px-6 py-2 rounded-full text-[10px] font-black uppercase text-cyan-400">TODOS</button>`;
+            cats.forEach(c => {
+                nav.innerHTML += `<button onclick="${esM?'filtrarMenu':'filtrarRest'}('${c}')" class="bg-white/5 px-6 py-2 rounded-full text-[10px] font-black uppercase text-slate-400 border border-white/5">${c}</button>`;
+            });
+        }
+
+        function filtrarRest(c) { renderHome(c); }
+        function filtrarMenu(c) { 
+            const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(restActivo.ID_RESTAURANTE));
+            const filt = c === 'TODOS' ? platos : platos.filter(p => p.CATEGORIA === c);
+            const content = document.getElementById('app-content'); content.innerHTML = "";
+            filt.forEach(p => {
+                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[2rem] flex items-center gap-5 border border-white/5"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-lg"><div class="flex-1 text-left"><p class="text-[12px] font-black text-white uppercase leading-tight">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold text-lg mt-1">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
+            });
         }
 
         function actualizarBarraCesta() {
@@ -226,67 +265,6 @@
                     <button onclick="borrarItem(${idx})" class="text-red-500">✕</button></div>`;
             });
             document.getElementById('modal-checkout').classList.remove('hidden');
-        }
-
-        function manejarFlujoPedido() {
-            const n = document.getElementById('o-name').value, t = document.getElementById('o-phone').value, a = document.getElementById('o-addr').value, legal = document.getElementById('legal-check').checked;
-            
-            if(!n || !t || !a) return alert("Completa todos los campos del formulario.");
-            if(!legal) return alert("Debes aceptar los términos y condiciones para continuar.");
-
-            const btn = document.getElementById('btn-flow'), sub = document.getElementById('btn-text-sub'), main = document.getElementById('btn-text-main'), ayuda = document.getElementById('txt-ayuda-seguridad');
-
-            if (!pasoConfirmacion) {
-                const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
-                let msg = `*🛍️ NUEVO PEDIDO*\n*CLIENTE:* ${n.toUpperCase()}\n*TEL:* ${t}\n*DIR:* ${a.toUpperCase()}\n\n*PRODUCTOS:*\n`;
-                carrito.forEach(i => msg += `• ${i.n} - ${i.p.toFixed(2)}€\n`);
-                msg += `\n*TOTAL: ${totalF}€*`;
-                
-                // SALTO WHATSAPP
-                window.open(`https://wa.me/${restActivo.TELEFONO}?text=${encodeURIComponent(msg)}`, '_blank');
-                
-                // CAMBIO A MODO CONFIRMACIÓN
-                main.innerText = "2. ✅ YA LO ENVIÉ (CONFIRMAR)";
-                sub.innerText = "HAZ CLIC AQUÍ PARA FINALIZAR";
-                btn.classList.add('btn-confirm-final');
-                ayuda.classList.remove('hidden');
-                pasoConfirmacion = true;
-            } else {
-                finalizarTodo(n, t, a);
-            }
-        }
-
-        function finalizarTodo(nombre, tel, direccion) {
-            const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
-            const detalle = carrito.map(i => i.n).join(' | ');
-            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({id_restaurante:restActivo.ID_RESTAURANTE, cliente: nombre, telefono: tel, direccion: direccion, detalle: detalle, total: totalF, whatsapp_rest: restActivo.TELEFONO })});
-            alert("¡RECIBIDO! El restaurante y el repartidor han sido notificados.");
-            location.reload();
-        }
-
-        function renderCats(datos, esM) {
-            const nav = document.getElementById('cat-nav'); nav.innerHTML = "";
-            const cats = [...new Set(datos.map(i => i.CATEGORIA))].filter(Boolean);
-            nav.innerHTML += createBubble("TODOS", esM ? "Carta" : "Inicio", true, esM);
-            cats.forEach(c => nav.innerHTML += createBubble(c, c, false, esM));
-        }
-
-        function createBubble(id, name, active, esM) {
-            const icon = dataCache.iconos.find(i => i.CATEGORIA.toUpperCase() === id.toUpperCase());
-            const imgUrl = (icon && icon.FOTO) ? icon.FOTO : "https://cdn-icons-png.flaticon.com/512/706/706164.png";
-            return `<div onclick="${esM?'filtrarMenu':'filtrarRest'}('${id}', this)" class="cat-bubble ${active?'active':''}">
-                <div class="cat-img-wrapper"><img src="${imgUrl}"></div>
-                <span class="text-[9px] font-black uppercase text-slate-500">${name}</span></div>`;
-        }
-
-        function filtrarRest(c, el) { renderHome(c); }
-        function filtrarMenu(c, el) { 
-            const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(restActivo.ID_RESTAURANTE));
-            const filt = c === 'TODOS' ? platos : platos.filter(p => p.CATEGORIA === c);
-            const content = document.getElementById('app-content'); content.innerHTML = "";
-            filt.forEach(p => {
-                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5 shadow-xl"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover"><div class="flex-1"><p class="text-[11px] font-black text-white uppercase">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold mt-1">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
-            });
         }
 
         function irAHome() { renderHome(); }
