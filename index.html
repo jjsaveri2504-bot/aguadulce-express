@@ -3,87 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aguadulce Express | Official App</title>
+    <title>Aguadulce Express | Pro v29</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,900;1,900&display=swap');
 
         body { background: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui; overflow-x: hidden; }
         .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         
+        /* Tipografía de Marca Potenciada */
         .brand-font { font-family: 'Poppins', sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -1.5px; line-height: 1; }
 
-        /* Categorías */
+        /* Burbujas de Categorías con Imagen de Respaldo */
         .cat-bubble { flex: 0 0 75px; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
-        .cat-img-wrapper { width: 58px; height: 58px; border-radius: 50%; background: #1e293b; padding: 2px; border: 2px solid transparent; overflow: hidden; transition: 0.3s; }
+        .cat-img-wrapper { width: 55px; height: 55px; border-radius: 50%; background: #1e293b; padding: 2px; border: 2px solid transparent; overflow: hidden; transition: 0.2s; }
         .cat-img-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        .cat-bubble.active .cat-img-wrapper { border-color: #06b6d4; transform: scale(1.1); box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
-        .cat-bubble span { font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; text-align: center; letter-spacing: 0.5px; }
+        .cat-bubble.active .cat-img-wrapper { border-color: #06b6d4; transform: scale(1.05); box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+        .cat-bubble span { font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; text-align: center; }
 
-        /* Acordeón Extras */
-        .extra-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(30, 41, 59, 0.5); border-radius: 1.2rem; border: 1px solid rgba(255,255,255,0.08); margin-top: 10px; }
+        /* Acordeón de Complementos */
+        .extra-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(30, 41, 59, 0.4); border-radius: 1rem; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
         #grid-multi { transition: all 0.4s ease-in-out; max-height: 0; overflow: hidden; opacity: 0; }
-        #grid-multi.open { max-height: 1500px; opacity: 1; padding: 15px 0; }
-        .extra-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        #grid-multi.open { max-height: 1000px; opacity: 1; padding: 10px 0; }
+        .extra-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        .modal-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
+        /* Contenedor de marca con transición suave */
         #brand-container { transition: all 0.3s ease; }
     </style>
 </head>
-<body class="pb-32">
+<body class="pb-28">
 
-    <header class="glass sticky top-0 z-50 px-6 py-5 flex items-center justify-between">
+    <header class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center relative min-w-[200px]">
-            <button id="btn-back" onclick="irAHome()" class="hidden absolute left-0 w-10 h-10 flex items-center justify-center bg-white/10 border border-white/10 rounded-xl text-white text-xl z-10">←</button>
+            <button id="btn-back" onclick="irAHome()" class="hidden absolute left-0 w-10 h-10 flex items-center justify-center bg-white/10 rounded-xl text-white z-10">←</button>
             
-            <div id="brand-container" class="flex items-end gap-1 brand-font">
+            <div id="brand-container" class="flex items-end gap-1.5 brand-font">
                 <span class="text-3xl text-cyan-400">AGUADULCE</span>
                 <span class="text-xl text-white">EXPRESS</span>
             </div>
         </div>
         
-        <div class="w-10 h-10 rounded-full border border-white/20 overflow-hidden bg-white shadow-lg">
-            <img src="https://i.postimg.cc/C1tDpH9b/LOGO-fondo-blanco.png" class="w-full h-full object-contain" alt="Logo AE">
+        <div class="w-10 h-10 rounded-full border border-white/20 overflow-hidden shadow-lg bg-white">
+            <img src="https://i.postimg.cc/C1tDpH9b/LOGO-fondo-blanco.png" class="w-full h-full object-contain">
         </div>
     </header>
 
-    <div id="rest-banner" class="hidden h-44 w-full relative overflow-hidden">
-        <div id="banner-img" class="absolute inset-0 bg-cover bg-center"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-slate-950"></div>
-        <div class="absolute inset-0 flex items-center justify-center p-6 text-center">
-            <h2 id="banner-name" class="text-3xl font-black italic uppercase text-white tracking-[0.2em] drop-shadow-2xl"></h2>
+    <div id="rest-banner" class="hidden h-40 w-full relative overflow-hidden mb-4">
+        <div id="banner-img" class="absolute inset-0 bg-cover bg-center transition-transform duration-1000"></div>
+        <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+            <h2 id="banner-name" class="text-3xl font-black italic uppercase text-white tracking-widest drop-shadow-2xl"></h2>
         </div>
     </div>
  
-    <div id="cat-nav" class="flex gap-4 p-6 overflow-x-auto hide-scroll bg-[#020617]"></div>
+    <div id="cat-nav" class="flex gap-4 p-5 overflow-x-auto hide-scroll bg-[#020617]"></div>
     <main id="app-content" class="p-4 max-w-xl mx-auto grid grid-cols-2 gap-6"></main>
  
     <div id="modal-detalle" class="fixed inset-0 z-[60] bg-slate-950 hidden overflow-y-auto modal-up">
-        <div class="max-w-xl mx-auto min-h-screen pb-60">
-            <button onclick="cerrarDetalle()" class="absolute top-6 left-6 z-[70] w-12 h-12 bg-black/50 backdrop-blur-md border border-white/10 rounded-full text-white text-2xl flex items-center justify-center shadow-2xl">✕</button>
+        <div class="max-w-xl mx-auto min-h-screen pb-48">
+            <button onclick="cerrarDetalle()" class="absolute top-6 left-6 z-[70] w-12 h-12 bg-black/60 rounded-full text-white text-2xl flex items-center justify-center shadow-2xl backdrop-blur-sm">✕</button>
             
-            <div id="det-img-cont" class="h-80 w-full bg-cover bg-center relative">
+            <div id="det-img-cont" class="h-64 w-full bg-cover bg-center relative">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent"></div>
             </div>
             
-            <div class="px-8 -mt-8 relative space-y-8">
+            <div class="px-8 -mt-6 relative space-y-6">
                 <div class="flex justify-between items-start gap-4">
                     <div class="flex-1">
-                        <h2 id="det-titulo" class="text-3xl font-black italic uppercase text-white leading-tight tracking-tight"></h2>
-                        <p id="det-desc" class="text-slate-400 text-[11px] mt-3 italic font-medium leading-relaxed"></p>
+                        <h2 id="det-titulo" class="text-2xl font-black italic uppercase text-white leading-tight"></h2>
+                        <p id="det-desc" class="text-gray-400 text-xs mt-2 italic font-medium"></p>
                     </div>
-                    <span id="det-precio-base" class="text-cyan-400 text-2xl font-mono font-bold"></span>
+                    <span id="det-precio-base" class="text-cyan-400 text-xl font-mono font-bold"></span>
                 </div>
 
-                <div id="cont-multi" class="pt-4 border-t border-white/10">
+                <div id="cont-multi" class="pt-2 border-t border-white/5">
                     <div onclick="toggleExtras()" class="extra-header">
                         <div class="flex flex-col">
-                            <span class="text-[11px] font-black text-cyan-500 uppercase tracking-widest">¿Algo más para tu pedido?</span>
-                            <span class="text-[9px] text-slate-500 uppercase font-bold mt-1">Bebidas, extras y más (Opcional)</span>
+                            <span class="text-[10px] font-black text-cyan-500 uppercase tracking-widest">¿Quieres algo más?</span>
+                            <span class="text-[9px] text-gray-500 uppercase font-bold tracking-tight">Refrescos, postres, salsas... (Opcional)</span>
                         </div>
                         <span id="extra-arrow" class="text-cyan-500 text-xl transition-transform duration-300">↓</span>
                     </div>
@@ -91,18 +91,18 @@
                 </div>
 
                 <div class="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-950 via-slate-950 to-transparent z-[65]">
-                    <div class="max-w-xl mx-auto space-y-5">
+                    <div class="max-w-xl mx-auto space-y-4">
                         <div class="flex flex-col items-center gap-2">
-                           <p class="text-[10px] uppercase font-black text-slate-600 tracking-widest">Cantidad</p>
-                            <div class="flex items-center bg-slate-900 border border-white/10 rounded-2xl px-6 py-2 gap-8 shadow-inner">
-                                <button onclick="cambiarCant(-1)" class="text-cyan-400 text-3xl font-light w-8">−</button>
-                                <span id="det-cant" class="text-white font-black text-xl w-6 text-center">1</span>
-                                <button onclick="cambiarCant(1)" class="text-cyan-400 text-3xl font-light w-8">+</button>
+                           <p class="text-[9px] uppercase font-bold text-gray-500 tracking-widest">Cantidad de platos</p>
+                            <div class="flex items-center bg-slate-900 border border-white/10 rounded-full px-4 py-1.5 gap-6 shadow-2xl">
+                                <button onclick="cambiarCant(-1)" class="text-cyan-400 text-2xl font-light w-6">−</button>
+                                <span id="det-cant" class="text-white font-black text-base w-4 text-center">1</span>
+                                <button onclick="cambiarCant(1)" class="text-cyan-400 text-2xl font-light w-6">+</button>
                             </div>
                         </div>
-                        <button onclick="ejecutarAddCarrito()" class="w-full bg-cyan-600 h-16 rounded-[1.5rem] font-black uppercase text-white flex justify-between items-center px-10 shadow-xl active:scale-95 transition-all">
-                           <span class="text-[12px] tracking-widest">Confirmar</span>
-                           <span id="det-precio-final" class="bg-black/20 px-4 py-2 rounded-xl text-lg font-mono">0.00€</span>
+                        <button onclick="ejecutarAddCarrito()" class="w-full bg-cyan-600 h-14 rounded-2xl font-black uppercase text-white flex justify-between items-center px-8 shadow-xl active:scale-95 transition-all">
+                           <span class="text-[11px] tracking-widest uppercase">Confirmar pedido</span>
+                           <span id="det-precio-final" class="bg-black/20 px-4 py-1.5 rounded-xl text-sm font-mono">0.00€</span>
                         </button>
                     </div>
                 </div>
@@ -110,34 +110,34 @@
         </div>
     </div>
  
-    <div id="basket-bar" class="fixed bottom-8 left-6 right-6 z-40 hidden">
-        <div onclick="abrirCheckout()" class="bg-cyan-600 h-16 rounded-3xl px-8 flex items-center justify-between shadow-2xl active:scale-95 transition-all border border-cyan-400/20">
-            <div class="flex items-center gap-4">
-                <span id="basket-count" class="bg-white/20 w-7 h-7 rounded-lg text-xs font-black text-white flex items-center justify-center">0</span>
-                <span class="text-[12px] font-black uppercase text-white tracking-widest">Mi Pedido</span>
+    <div id="basket-bar" class="fixed bottom-6 left-6 right-6 z-40 hidden modal-up">
+        <div onclick="abrirCheckout()" class="bg-cyan-600 rounded-2xl h-14 px-6 flex items-center justify-between shadow-2xl active:scale-95 transition-all border border-cyan-400/20">
+            <div class="flex items-center gap-3">
+                <span id="basket-count" class="bg-black/30 w-6 h-6 rounded-lg text-[10px] font-black text-white flex items-center justify-center">0</span>
+                <span class="text-[11px] font-black uppercase text-white tracking-widest">Ver Pedido</span>
             </div>
-            <span id="basket-total" class="font-mono font-bold text-white text-lg">0.00 €</span>
+            <span id="basket-total" class="font-mono font-bold text-white text-base">0.00 €</span>
         </div>
     </div>
 
-    <div id="modal-checkout" class="fixed inset-0 z-[80] bg-slate-950 hidden overflow-y-auto p-8 modal-up">
-        <div class="max-w-md mx-auto space-y-10 pb-20 pt-6">
-            <h2 class="text-4xl font-black italic text-white uppercase tracking-tighter">DATOS DE <span class="text-cyan-400">ENTREGA</span></h2>
-            <div id="checkout-list" class="space-y-3"></div>
+    <div id="modal-checkout" class="fixed inset-0 z-[75] bg-slate-950 hidden overflow-y-auto p-6 modal-up">
+        <div class="max-w-md mx-auto space-y-8 pb-20 pt-10">
+            <h2 class="text-3xl font-black italic text-white uppercase tracking-tighter">DATOS DE <span class="text-cyan-400">ENTREGA</span></h2>
+            <div id="checkout-list" class="space-y-2"></div>
             
             <div class="space-y-4 pt-4">
-                <input type="text" id="o-name" placeholder="Tu Nombre y Apellido" class="w-full bg-slate-900 border border-white/5 rounded-2xl p-5 text-white focus:border-cyan-500 outline-none font-bold">
-                <input type="tel" id="o-phone" placeholder="Tu Teléfono" class="w-full bg-slate-900 border border-white/5 rounded-2xl p-5 text-white focus:border-cyan-500 outline-none font-bold">
-                <input type="text" id="o-addr" placeholder="Tu Dirección Exacta" class="w-full bg-slate-900 border border-white/5 rounded-2xl p-5 text-white focus:border-cyan-500 outline-none font-bold">
+                <input type="text" id="o-name" placeholder="Tu Nombre y Apellido" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-white focus:border-cyan-500 outline-none transition-all">
+                <input type="tel" id="o-phone" placeholder="Tu Teléfono de contacto" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-white focus:border-cyan-500 outline-none transition-all">
+                <input type="text" id="o-addr" placeholder="Dirección exacta de entrega" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm text-white focus:border-cyan-500 outline-none transition-all">
             </div>
 
-            <div class="flex items-start gap-4 p-6 bg-cyan-950/20 rounded-2xl border border-cyan-500/10">
+            <div class="flex items-start gap-4 p-5 bg-white/5 rounded-2xl border border-white/10">
                 <input type="checkbox" id="o-terms" class="mt-1 w-6 h-6 accent-cyan-500 rounded">
-                <label for="o-terms" class="text-[10px] text-slate-400 uppercase font-black italic leading-tight">Acepto el servicio de entrega de Aguadulce Express.</label>
+                <label for="o-terms" class="text-[10px] text-gray-400 uppercase font-bold leading-tight italic">Confirmo que mis datos son correctos y acepto el servicio de entrega de Aguadulce Express.</label>
             </div>
 
-            <button onclick="confirmarYEnviar()" class="w-full bg-cyan-600 p-6 rounded-2xl font-black uppercase text-white shadow-xl text-sm tracking-widest">Pedir por WhatsApp</button>
-            <p onclick="cerrarCheckout()" class="text-center text-[10px] font-black text-slate-600 uppercase tracking-widest cursor-pointer">Volver al menú</p>
+            <button onclick="confirmarYEnviar()" class="w-full bg-cyan-600 p-6 rounded-2xl font-black uppercase text-white shadow-xl active:scale-95 transition-all text-sm tracking-widest">Enviar por WhatsApp</button>
+            <button onclick="cerrarCheckout()" class="w-full text-gray-500 font-bold uppercase text-[10px] text-center">Volver al menú</button>
         </div>
     </div>
 
@@ -158,6 +158,8 @@
             restActivo = null;
             document.getElementById('btn-back').classList.add('hidden');
             document.getElementById('rest-banner').classList.add('hidden');
+            
+            // CORRECCIÓN: Reseteamos el margen al volver a home
             document.getElementById('brand-container').style.marginLeft = "0px";
             
             const content = document.getElementById('app-content');
@@ -165,11 +167,12 @@
             content.innerHTML = "";
             
             const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
+            
             filt.forEach(r => {
                 content.innerHTML += `
-                    <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="space-y-4 active:scale-95 transition-all">
-                        <img src="${r.FOTO}" class="w-full h-40 object-cover rounded-[2.5rem] shadow-xl border border-white/5">
-                        <p class="text-[10px] font-black uppercase text-center text-slate-400 tracking-widest leading-tight">${r.NOMBRE}</p>
+                    <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="space-y-3 active:scale-95 transition-all group">
+                        <img src="${r.FOTO}" class="w-full h-36 object-cover rounded-[2.2rem] shadow-lg border border-white/5 group-hover:border-cyan-500/30 transition-all">
+                        <p class="text-[10px] font-black uppercase text-center text-slate-400 tracking-wider leading-tight">${r.NOMBRE}</p>
                     </div>`;
             });
             renderCats(dataCache.restaurantes, false);
@@ -180,6 +183,8 @@
             const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id));
             
             document.getElementById('btn-back').classList.remove('hidden');
+            
+            // CORRECCIÓN: Creamos espacio para el botón de atrás sin empujar el texto brand
             document.getElementById('brand-container').style.marginLeft = "45px";
             
             const banner = document.getElementById('rest-banner');
@@ -188,16 +193,16 @@
             document.getElementById('banner-name').innerText = restActivo.NOMBRE;
 
             const content = document.getElementById('app-content');
-            content.className = "p-4 flex flex-col gap-5";
+            content.className = "p-4 flex flex-col gap-4";
             content.innerHTML = "";
             
             platos.forEach(p => {
                 content.innerHTML += `
-                <div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-slate-900/40 p-5 rounded-[2rem] flex items-center gap-6 border border-white/5 shadow-lg">
-                    <img src="${p.FOTO}" class="w-24 h-24 rounded-3xl object-cover shadow-xl border border-white/5">
+                <div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5 active:bg-white/10 transition-colors">
+                    <img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover shadow-inner border border-white/5">
                     <div class="flex-1">
-                        <p class="text-sm font-black text-white uppercase tracking-tighter leading-tight">${p.PLATO}</p>
-                        <p class="text-cyan-400 font-mono font-bold text-lg mt-2">${Number(p.PRECIO).toFixed(2)}€</p>
+                        <p class="text-[12px] font-black text-white uppercase leading-tight">${p.PLATO}</p>
+                        <p class="text-cyan-400 font-mono font-bold text-base mt-1.5">${Number(p.PRECIO).toFixed(2)}€</p>
                     </div>
                 </div>`;
             });
@@ -205,9 +210,9 @@
         }
 
         function abrirDetalle(p) {
-            pAct = p; sMulti = {}; cantAct = 1;
+            pAct = p; sMulti = {}; cantAct = 1; 
             document.getElementById('det-titulo').innerText = p.PLATO;
-            document.getElementById('det-desc').innerText = p.DESCRIPCION || "Fresco y preparado al momento para ti.";
+            document.getElementById('det-desc').innerText = p.DESCRIPCION || "";
             document.getElementById('det-precio-base').innerText = Number(p.PRECIO).toFixed(2) + "€";
             document.getElementById('det-img-cont').style.backgroundImage = `url('${p.FOTO}')`;
             
@@ -224,11 +229,14 @@
                     const row = document.createElement('div');
                     row.className = "extra-item";
                     row.innerHTML = `
-                        <div class="flex flex-col"><span class="text-[11px] font-black text-slate-300 uppercase">${nTrim}</span><span class="text-cyan-500 font-mono text-[10px] mt-1">+${Number(precio).toFixed(2)}€</span></div>
-                        <div class="flex items-center gap-3 bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
-                            <button onclick="cambiarExtra('${nTrim}', -1, this)" class="text-cyan-400 font-bold text-lg">−</button>
-                            <span class="text-white text-xs font-black extra-count-val">0</span>
-                            <button onclick="cambiarExtra('${nTrim}', 1, this)" class="text-cyan-400 font-bold text-lg">+</button>
+                        <div class="flex flex-col">
+                            <span class="text-[11px] font-bold text-slate-300 uppercase leading-tight">${nTrim}</span>
+                            <span class="text-cyan-600 font-mono text-[10px] mt-1">+${Number(precio).toFixed(2)}€</span>
+                        </div>
+                        <div class="flex items-center gap-3 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                            <button onclick="cambiarExtra('${nTrim}', -1, this)" class="text-cyan-400 font-bold w-4">−</button>
+                            <span class="text-white text-[11px] font-black extra-count-val">0</span>
+                            <button onclick="cambiarExtra('${nTrim}', 1, this)" class="text-cyan-400 font-bold w-4">+</button>
                         </div>`;
                     gM.appendChild(row);
                 });
@@ -277,6 +285,7 @@
             }
             let nombreFinal = `${cantAct}x ${pAct.PLATO}`;
             if(extrasTxt.length > 0) nombreFinal += ` + [${extrasTxt.join(', ')}]`;
+
             carrito.push({ n: nombreFinal, p: precioPlatoTotal + precioExtrasTotal, cant: 1 });
             cerrarDetalle();
             actualizarBarraCesta();
@@ -285,7 +294,8 @@
         function actualizarBarraCesta() {
             if(carrito.length > 0) {
                 const subtotal = carrito.reduce((acc, i) => acc + i.p, 0);
-                document.getElementById('basket-total').innerText = (subtotal + COSTO_ENVIO).toFixed(2) + " €";
+                const totalCesta = subtotal + COSTO_ENVIO;
+                document.getElementById('basket-total').innerText = totalCesta.toFixed(2) + " €";
                 document.getElementById('basket-count').innerText = carrito.length;
                 document.getElementById('basket-bar').classList.remove('hidden');
             } else {
@@ -297,8 +307,8 @@
             const list = document.getElementById('checkout-list');
             list.innerHTML = "";
             carrito.forEach((item, idx) => {
-                list.innerHTML += `<div class="flex justify-between items-center bg-slate-900 p-5 rounded-2xl border border-white/5">
-                    <div class="flex flex-col"><span class="text-[10px] font-black text-white uppercase">${item.n}</span><span class="text-cyan-500 font-mono text-[10px] mt-1">${item.p.toFixed(2)}€</span></div>
+                list.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5 shadow-inner">
+                    <div class="flex flex-col gap-1"><span class="text-[10px] font-black text-white uppercase leading-tight">${item.n}</span><span class="text-cyan-500 font-mono text-[9px]">${item.p.toFixed(2)}€</span></div>
                     <button onclick="borrarItem(${idx})" class="text-red-500 font-bold text-lg px-2">✕</button></div>`;
             });
             document.getElementById('modal-checkout').classList.remove('hidden');
@@ -312,29 +322,38 @@
 
         function confirmarYEnviar() {
             const n = document.getElementById('o-name').value, t = document.getElementById('o-phone').value, a = document.getElementById('o-addr').value;
-            if(!n || !t || !a || !document.getElementById('o-terms').checked) return alert("Completa tus datos para el envío.");
+            if(!n || !t || !a || !document.getElementById('o-terms').checked) return alert("Completa tus datos y acepta los términos para confirmar.");
             const totalF = (carrito.reduce((acc, i) => acc + i.p, 0) + COSTO_ENVIO).toFixed(2);
             const detalle = carrito.map(i => i.n).join(' | ');
             fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({id_restaurante:restActivo.ID_RESTAURANTE, cliente: n, direccion: a, detalle: detalle, total: totalF, whatsapp_rest: restActivo.TELEFONO })});
-            let msg = `*🛍️ PEDIDO: ${restActivo.NOMBRE}*\n\n*CLIENTE:* ${n.toUpperCase()}\n*TEL:* ${t}\n*DIR:* ${a.toUpperCase()}\n\n*PEDIDO:*\n`;
+            let msg = `*🛍️ PEDIDO: ${restActivo.NOMBRE}*\n\n*CLIENTE:* ${n.toUpperCase()}\n*DIR:* ${a.toUpperCase()}\n\n*Pedido:*\n`;
             carrito.forEach(i => msg += `• ${i.n} - ${i.p.toFixed(2)}€\n`);
-            msg += `\n*ENVÍO:* ${COSTO_ENVIO.toFixed(2)}€\n*TOTAL: ${totalF}€*`;
+            msg += `\n*Envío:* ${COSTO_ENVIO.toFixed(2)}€\n*TOTAL: ${totalF}€*`;
             window.open(`https://wa.me/${restActivo.TELEFONO}?text=${encodeURIComponent(msg)}`);
         }
 
         function renderCats(datos, esM) {
             const nav = document.getElementById('cat-nav'); nav.innerHTML = "";
             const cats = [...new Set(datos.map(i => i.CATEGORIA))].filter(Boolean);
-            nav.innerHTML += createBubble("TODOS", esM ? "CARTA" : "TODOS", true, esM);
+            nav.innerHTML += createBubble("TODOS", esM ? "Carta" : "Todos", true, esM);
             cats.forEach(c => nav.innerHTML += createBubble(c, c, false, esM));
         }
 
+        // CORRECCIÓN: Burbujas con imagen de respaldo para evitar error azul
         function createBubble(id, name, active, esM) {
             const icon = dataCache.iconos.find(i => i.CATEGORIA.toUpperCase() === id.toUpperCase());
+            // Imagen por defecto genérica de comida (Food icon)
             const imgDefault = "https://cdn-icons-png.flaticon.com/512/706/706164.png";
-            const imgUrl = (icon && icon.FOTO) ? icon.FOTO : imgDefault;
-            return `<div onclick="${esM?'filtrarMenu':'filtrarRest'}('${id}', this)" class="cat-bubble ${active?'active':''}">
-                <div class="cat-img-wrapper"><img src="${imgUrl}" onerror="this.src='${imgDefault}'"></div><span>${name}</span></div>`;
+            // Si no hay foto en el Excel, usamos la de respaldo
+            const imgUrl = (icon && icon.FOTO && icon.FOTO !== "") ? icon.FOTO : imgDefault;
+
+            return `
+                <div onclick="${esM?'filtrarMenu':'filtrarRest'}('${id}', this)" class="cat-bubble ${active?'active':''}">
+                    <div class="cat-img-wrapper">
+                        <img src="${imgUrl}" onerror="this.src='${imgDefault}'">
+                    </div>
+                    <span>${name}</span>
+                </div>`;
         }
 
         function filtrarRest(c, el) { document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderHome(c); }
@@ -344,7 +363,7 @@
             const filt = c === 'TODOS' ? platos : platos.filter(p => p.CATEGORIA === c);
             const content = document.getElementById('app-content'); content.innerHTML = "";
             filt.forEach(p => {
-                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-slate-900/40 p-5 rounded-[2rem] flex items-center gap-6 border border-white/5"><img src="${p.FOTO}" class="w-24 h-24 rounded-3xl object-cover border border-white/5 shadow-lg"><div class="flex-1"><p class="text-sm font-black text-white uppercase">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold text-lg mt-2">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
+                content.innerHTML += `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5 active:bg-white/10 transition-colors shadow-lg"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover border border-white/5 shadow-xl"><div class="flex-1"><p class="text-[11px] font-black text-white uppercase leading-tight">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold text-base mt-1.5">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`;
             });
         }
 
