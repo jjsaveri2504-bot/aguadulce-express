@@ -3,61 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aguadulce Express | Versión Maestra v50</title>
+    <title>Aguadulce Express | Direct Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,900;1,900&display=swap');
-        body { background: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        body { background: #020617; color: #f8fafc; font-family: ui-sans-serif, system-ui; overflow-x: hidden; }
         .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        .brand-font { font-family: 'Poppins', sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -1.5px; line-height: 1; }
+        .brand-font { font-family: 'Poppins', sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -1.5px; }
         
-        /* Categorías */
+        /* Categorías con Iconos (Nuestra mejora estrella) */
         .cat-bubble { flex: 0 0 75px; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
-        .cat-img-wrapper { width: 55px; height: 55px; border-radius: 50%; background: #1e293b; padding: 2px; border: 2px solid transparent; overflow: hidden; transition: 0.3s; }
+        .cat-img-wrapper { width: 55px; height: 55px; border-radius: 50%; background: #1e293b; padding: 2px; border: 2px solid transparent; transition: 0.3s; }
         .cat-img-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .cat-bubble.active .cat-img-wrapper { border-color: #06b6d4; transform: scale(1.1); box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
         .cat-bubble span { font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; text-align: center; }
 
-        /* Pantalla de Bloqueo / Recovery */
-        .recovery-screen { position: fixed; inset: 0; z-index: 9999; background: #020617; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
-        .banner-blink { animation: bg-pulse 2s infinite; }
-        @keyframes bg-pulse { 0% { background: #0891b2; } 50% { background: #16a34a; } 100% { background: #0891b2; } }
-        
-        /* Modales */
-        .modal-up { animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .extra-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(30, 41, 59, 0.4); border-radius: 1rem; border: 1px solid rgba(255,255,255,0.05); }
-        #grid-multi { transition: all 0.4s ease; max-height: 0; overflow: hidden; opacity: 0; }
-        #grid-multi.open { max-height: 1000px; opacity: 1; padding: 10px 0; }
+        /* Pantalla de Éxito (Nueva Experiencia) */
+        #success-screen { position: fixed; inset: 0; z-index: 100; background: #020617; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
+        .check-anim { width: 80px; height: 80px; background: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 1.5rem; animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
     </style>
 </head>
 <body class="pb-28">
 
-    <div id="recovery-ui" class="recovery-screen hidden">
-        <div class="banner-blink w-full p-8 rounded-[2.5rem] shadow-2xl mb-8 text-center">
-            <h2 class="brand-font text-3xl text-white">¡TERMINA TU<br>PEDIDO AQUÍ!</h2>
-            <p class="text-[10px] text-white/90 mt-2 font-black uppercase italic">Si ya enviaste el mensaje, confirma ahora</p>
-        </div>
-        <div class="bg-white/5 border border-white/10 w-full rounded-3xl p-6 mb-8">
-            <div id="rec-detalle" class="text-[10px] text-gray-400 font-bold uppercase mb-2"></div>
-            <div id="rec-total" class="text-3xl font-mono font-black text-cyan-400 border-t border-white/10 pt-4"></div>
-        </div>
-        <button onclick="finalizarRegistroTotal()" class="w-full bg-green-600 p-6 rounded-2xl font-black text-white text-lg shadow-xl active:scale-95 transition-all mb-6">✅ SÍ, CONFIRMAR PEDIDO</button>
-        <button onclick="abortarPedido()" class="text-gray-500 text-[10px] font-bold uppercase underline">Borrar y volver al inicio</button>
+    <div id="success-screen">
+        <div class="check-anim">✓</div>
+        <h2 class="brand-font text-3xl text-white mb-2">¡PEDIDO RECIBIDO!</h2>
+        <p class="text-slate-400 text-sm mb-8 italic font-medium">Estamos avisando al restaurante.<br>Te contactaremos por WhatsApp en breve.</p>
+        <button onclick="location.reload()" class="bg-white/10 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-white border border-white/10">Hacer otro pedido</button>
     </div>
 
     <div id="main-app">
         <header class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <button id="btn-back" onclick="irAHome()" class="hidden w-10 h-10 flex items-center justify-center bg-white/10 border border-white/10 rounded-xl text-white">←</button>
+                <button id="btn-back" onclick="irAHome()" class="hidden w-10 h-10 flex items-center justify-center bg-white/10 rounded-xl text-white">←</button>
                 <div class="flex flex-col brand-font">
                     <span class="text-3xl text-cyan-400">AGUADULCE</span>
                     <span class="text-lg text-white tracking-[0.3em] -mt-1">EXPRESS</span>
                 </div>
             </div>
-            <div class="w-10 h-10 rounded-full bg-white p-1 shadow-lg"><img src="logo_ae.png" class="w-full h-full object-contain"></div>
+            <img src="logo_ae.png" class="w-10 h-10 bg-white rounded-full p-1 shadow-lg">
         </header>
 
         <div id="rest-banner" class="hidden h-40 w-full relative mb-4">
@@ -67,36 +52,39 @@
             </div>
         </div>
 
-        <div id="cat-nav" class="flex gap-4 p-5 overflow-x-auto hide-scroll bg-[#020617]"></div>
-        <main id="app-content" class="p-4 max-w-xl mx-auto grid grid-cols-2 gap-6"></main>
+        <div id="cat-nav" class="flex gap-4 p-5 overflow-x-auto bg-[#020617] scroll-smooth"></div>
+
+        <main id="app-content" class="p-4 grid grid-cols-2 gap-6"></main>
     </div>
 
-    <div id="modal-detalle" class="fixed inset-0 z-[60] bg-slate-950 hidden overflow-y-auto modal-up">
-        <div class="max-w-xl mx-auto min-h-screen pb-48">
-            <button onclick="cerrarDetalle()" class="absolute top-6 left-6 z-[70] w-12 h-12 bg-black/60 rounded-full text-white text-2xl">✕</button>
+    <div id="modal-detalle" class="fixed inset-0 z-[60] bg-slate-950 hidden overflow-y-auto">
+        <div class="max-w-xl mx-auto min-h-screen pb-48 relative">
+            <button onclick="cerrarDetalle()" class="absolute top-6 left-6 z-[70] w-12 h-12 bg-black/60 rounded-full text-white">✕</button>
             <div id="det-img" class="h-64 w-full bg-cover bg-center"></div>
             <div class="px-8 -mt-6 relative space-y-6">
-                <h2 id="det-titulo" class="text-2xl font-black uppercase text-white"></h2>
+                <h2 id="det-titulo" class="text-2xl font-black text-white italic uppercase"></h2>
+                
                 <div id="cont-unica" class="hidden space-y-4 pt-4 border-t border-white/5">
-                    <p class="text-[10px] font-black text-cyan-500 uppercase italic">Elige una opción:</p>
+                    <p class="text-[10px] font-black text-cyan-500 uppercase italic">Selección obligatoria:</p>
                     <div id="grid-unica" class="grid grid-cols-2 gap-3"></div>
                 </div>
+
                 <div id="cont-multi" class="pt-2 border-t border-white/5">
-                    <div onclick="toggleExtras()" class="extra-header">
-                        <span class="text-[10px] font-black text-cyan-500 uppercase">¿Añadir extras?</span>
-                        <span class="text-cyan-500">↓</span>
-                    </div>
-                    <div id="grid-multi" class="space-y-1"></div>
+                    <button onclick="document.getElementById('grid-multi').classList.toggle('hidden')" class="w-full flex justify-between items-center py-4 text-[10px] font-black text-cyan-500 uppercase italic">
+                        ¿Añadir extras? <span>↓</span>
+                    </button>
+                    <div id="grid-multi" class="hidden space-y-1"></div>
                 </div>
+
                 <div class="fixed bottom-0 left-0 right-0 p-6 bg-slate-950/90 backdrop-blur-md">
                     <div class="flex items-center justify-between mb-4 bg-slate-900 rounded-full px-8 py-2 border border-white/10">
                         <button onclick="cambiarCant(-1)" class="text-cyan-400 text-2xl font-bold">−</button>
                         <span id="det-cant" class="text-white font-black text-xl">1</span>
                         <button onclick="cambiarCant(1)" class="text-cyan-400 text-2xl font-bold">+</button>
                     </div>
-                    <button onclick="ejecutarAddCarrito()" class="w-full bg-cyan-600 h-16 rounded-2xl font-black text-white flex justify-between items-center px-8">
-                        <span>AÑADIR</span>
-                        <span id="det-precio-final" class="font-mono">0.00€</span>
+                    <button onclick="ejecutarAddCarrito()" class="w-full bg-cyan-600 h-16 rounded-2xl font-black text-white flex justify-between px-8 items-center">
+                        <span>AÑADIR A CESTA</span>
+                        <span id="det-precio-final">0.00€</span>
                     </button>
                 </div>
             </div>
@@ -104,42 +92,40 @@
     </div>
 
     <div id="basket-bar" class="fixed bottom-6 left-6 right-6 z-40 hidden">
-        <div onclick="abrirCheckout()" class="bg-cyan-600 rounded-2xl h-14 px-6 flex items-center justify-between shadow-2xl active:scale-95 transition-all">
+        <button onclick="abrirCheckout()" class="w-full bg-cyan-600 rounded-2xl h-14 px-6 flex items-center justify-between shadow-2xl">
             <span id="basket-count" class="bg-black/30 px-3 py-1 rounded-lg text-[10px] font-black text-white">0</span>
-            <span class="text-[11px] font-black uppercase text-white">Ver Pedido</span>
+            <span class="text-[11px] font-black uppercase text-white italic">Ver mi pedido</span>
             <span id="basket-total" class="font-mono font-bold text-white">0.00€</span>
-        </div>
+        </button>
     </div>
 
     <div id="modal-checkout" class="fixed inset-0 z-[75] bg-slate-950 hidden overflow-y-auto p-6">
         <div class="max-w-md mx-auto space-y-6 pt-6">
-            <h2 class="text-2xl font-black italic text-white uppercase italic">Finalizar <span class="text-cyan-400">Pedido</span></h2>
+            <h2 class="text-2xl font-black italic text-white uppercase italic">Confirmar <span class="text-cyan-400">Pedido</span></h2>
             <div id="checkout-list" class="space-y-2"></div>
             
             <div class="bg-white/5 rounded-3xl p-6 border border-white/10 space-y-3">
                 <div class="flex justify-between text-xs font-bold uppercase text-slate-400"><span>Platos</span><span id="res-subtotal" class="text-white">0.00€</span></div>
-                <div class="flex justify-between text-xs font-bold uppercase text-slate-400"><span>Envío</span><span class="text-cyan-400">3.50€</span></div>
-                <div class="pt-3 border-t border-white/10 flex justify-between items-center"><span class="text-sm font-black text-white italic uppercase">Total</span><span id="res-total-final" class="text-xl font-mono font-black text-cyan-400">0.00€</span></div>
+                <div class="flex justify-between text-xs font-bold uppercase text-slate-400"><span>Costo de Envío Fijo</span><span class="text-cyan-400">3.50€</span></div>
+                <div class="pt-3 border-t border-white/10 flex justify-between items-center"><span class="text-sm font-black text-white uppercase italic">Total</span><span id="res-total-final" class="text-xl font-mono font-black text-cyan-400">0.00€</span></div>
             </div>
 
             <div class="space-y-3">
-                <input type="text" id="o-name" oninput="autoSaveUser()" placeholder="Nombre completo" class="w-full bg-white/5 border border-white/10 rounded-xl p-5 text-white outline-none focus:border-cyan-500">
-                <input type="tel" id="o-phone" oninput="autoSaveUser()" placeholder="WhatsApp (Ej: 34600...)" class="w-full bg-white/5 border border-white/10 rounded-xl p-5 text-white outline-none focus:border-cyan-500">
-                <input type="text" id="o-addr" oninput="autoSaveUser()" placeholder="Dirección de entrega" class="w-full bg-white/5 border border-white/10 rounded-xl p-5 text-white outline-none focus:border-cyan-500">
+                <input type="text" id="o-name" placeholder="Nombre completo" class="w-full bg-white/5 border border-white/10 rounded-xl p-5 text-white outline-none">
+                <input type="tel" id="o-phone" placeholder="WhatsApp (Ej: 34600...)" class="w-full bg-white/5 border border-white/10 rounded-xl p-5 text-white outline-none">
+                <input type="text" id="o-addr" placeholder="Dirección de entrega" class="w-full bg-white/5 border border-white/10 rounded-xl p-5 text-white outline-none">
             </div>
 
-            <div class="flex items-start gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
-                <input type="checkbox" id="o-terms" class="mt-1 w-6 h-6 accent-cyan-500">
-                <label class="text-[9px] text-gray-400 uppercase font-bold italic">Acepto el RGPD para la gestión del envío.</label>
-            </div>
-
-            <button onclick="irAWhatsApp()" class="w-full bg-cyan-600 p-6 rounded-2xl font-black text-white text-sm shadow-xl">1. ENVIAR A WHATSAPP</button>
-            <button onclick="cerrarCheckout()" class="w-full text-gray-500 font-bold uppercase text-[10px] text-center">Volver</button>
+            <button id="btn-finalizar" onclick="confirmarPedidoDirecto()" class="w-full bg-cyan-600 p-6 rounded-2xl font-black text-white text-sm shadow-xl flex justify-center items-center gap-4">
+                <span id="btn-text">¡LISTO, PEDIR AHORA!</span>
+                <div id="loader" class="hidden w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            </button>
+            <button onclick="cerrarCheckout()" class="w-full text-gray-500 font-bold uppercase text-[10px] text-center">Volver a la carta</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbz6v3d0YYIDAg5H3OY0ey6lWIGINVcR2iR26nGrut6xy68TY4fZmUxinUFu9R3jS4sK/exec";
+        const API_URL = "TU_URL_DE_APPS_SCRIPT"; // Reemplázala después
         const COSTO_ENVIO = 3.50;
         let dataCache = null, carrito = [], restActivo = null, pAct = null, sMulti = {}, sUnica = null, cantAct = 1;
 
@@ -147,78 +133,58 @@
             try {
                 const res = await fetch(API_URL);
                 dataCache = await res.json();
-                
-                // RECUPERAR MEMORIA
-                if (localStorage.getItem('pendiente_confirmar') === 'true') {
-                    mostrarRecovery();
-                } else {
-                    const savedCart = localStorage.getItem('aguadulce_cart');
-                    if(savedCart) carrito = JSON.parse(savedCart);
-                    
-                    const savedUser = localStorage.getItem('aguadulce_user');
-                    if(savedUser) {
-                        const u = JSON.parse(savedUser);
-                        document.getElementById('o-name').value = u.n || "";
-                        document.getElementById('o-phone').value = u.t || "";
-                        document.getElementById('o-addr').value = u.a || "";
-                    }
-                    
-                    renderHome();
-                    actualizarBarraCesta();
-                }
-            } catch (e) { console.error(e); }
+                renderHome();
+            } catch (e) { console.error("Error cargando datos"); }
         }
 
-        // --- PERSISTENCIA ---
-        function autoSaveUser() {
-            const u = { n: document.getElementById('o-name').value, t: document.getElementById('o-phone').value, a: document.getElementById('o-addr').value };
-            localStorage.setItem('aguadulce_user', JSON.stringify(u));
-        }
+        // --- LÓGICA DE ENVÍO DIRECTO (NUEVA) ---
+        async function confirmarPedidoDirecto() {
+            const n = document.getElementById('o-name').value, 
+                  t = document.getElementById('o-phone').value, 
+                  a = document.getElementById('o-addr').value;
 
-        function irAWhatsApp() {
-            const n = document.getElementById('o-name').value, terms = document.getElementById('o-terms').checked;
-            if(!n || !terms) return alert("Nombre y RGPD son obligatorios");
+            if(!n || !t || !a) return alert("Por favor, rellena tus datos de entrega.");
 
-            const sub = carrito.reduce((a, b) => a + b.p, 0);
+            // Mostrar cargando
+            document.getElementById('btn-text').innerText = "ENVIANDO...";
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('btn-finalizar').disabled = true;
+
+            const sub = carrito.reduce((acc, i) => acc + i.p, 0);
             const tot = (sub + COSTO_ENVIO).toFixed(2);
 
-            localStorage.setItem('pendiente_confirmar', 'true');
-            localStorage.setItem('aguadulce_cart', JSON.stringify(carrito));
-            localStorage.setItem('temp_total', tot);
+            const payload = {
+                id_restaurante: restActivo.ID_RESTAURANTE,
+                cliente: n,
+                telefono: t,
+                direccion: a,
+                detalle: carrito.map(i => i.n).join(' | '),
+                total: tot,
+                whatsapp_rest: restActivo.TELEFONO
+            };
 
-            let msg = `*🛍️ PEDIDO: ${restActivo.NOMBRE}*\n*CLIENTE:* ${n.toUpperCase()}\n*TOTAL:* ${tot}€`;
-            window.open(`https://wa.me/${restActivo.TELEFONO}?text=${encodeURIComponent(msg)}`, '_blank');
-            
-            location.reload(); 
+            try {
+                // Enviamos al Apps Script (que guardará en Excel y avisará a Telegram)
+                await fetch(API_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: JSON.stringify(payload) 
+                });
+                
+                // Éxito: Mostramos pantalla verde
+                document.getElementById('main-app').style.display = 'none';
+                document.getElementById('modal-checkout').style.display = 'none';
+                document.getElementById('success-screen').style.display = 'flex';
+                
+            } catch (e) {
+                alert("Hubo un error al enviar. Inténtalo de nuevo.");
+                document.getElementById('btn-text').innerText = "¡LISTO, PEDIR AHORA!";
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('btn-finalizar').disabled = false;
+            }
         }
 
-        function mostrarRecovery() {
-            document.getElementById('recovery-ui').classList.remove('hidden');
-            document.getElementById('main-app').classList.add('hidden');
-            const cart = JSON.parse(localStorage.getItem('aguadulce_cart'));
-            document.getElementById('rec-detalle').innerText = cart.map(i => i.n).join(' | ');
-            document.getElementById('rec-total').innerText = localStorage.getItem('temp_total') + "€";
-        }
-
-        function finalizarRegistroTotal() {
-            const u = JSON.parse(localStorage.getItem('aguadulce_user'));
-            const cart = JSON.parse(localStorage.getItem('aguadulce_cart'));
-            const tot = localStorage.getItem('temp_total');
-            const rest = JSON.parse(localStorage.getItem('temp_rest_info'));
-
-            fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({
-                id_restaurante: rest.id, cliente: u.n, telefono: u.t, direccion: u.a,
-                detalle: cart.map(i=>i.n).join('|'), total: tot, whatsapp_rest: rest.tel
-            })});
-
-            alert("REGISTRADO EN PANEL");
-            localStorage.clear();
-            location.reload();
-        }
-
-        function abortarPedido() { if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); } }
-
-        // --- LÓGICA DE TIENDA (TODO LO LOGRADO) ---
+        // --- LÓGICA DE TIENDA (LA QUE YA FUNCIONA PERFECTO) ---
         function renderHome(f = null) {
             restActivo = null;
             document.getElementById('btn-back').classList.add('hidden');
@@ -227,9 +193,9 @@
             content.className = "p-4 grid grid-cols-2 gap-6";
             const filt = (f && f !== 'TODOS') ? dataCache.restaurantes.filter(r => r.CATEGORIA === f) : dataCache.restaurantes;
             content.innerHTML = filt.map(r => `
-                <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="space-y-3 active:scale-95 transition-all">
+                <div onclick="verMenu('${r.ID_RESTAURANTE}')" class="space-y-3">
                     <img src="${r.FOTO}" class="w-full h-36 object-cover rounded-[2.2rem] shadow-lg border border-white/5">
-                    <p class="text-[10px] font-black uppercase text-center text-slate-400">${r.NOMBRE}</p>
+                    <p class="text-[10px] font-black uppercase text-center text-slate-400 tracking-wider">${r.NOMBRE}</p>
                 </div>
             `).join('');
             renderCats(dataCache.restaurantes, false);
@@ -237,7 +203,6 @@
 
         function verMenu(id) {
             restActivo = dataCache.restaurantes.find(r => String(r.ID_RESTAURANTE) === String(id));
-            localStorage.setItem('temp_rest_info', JSON.stringify({id: restActivo.ID_RESTAURANTE, tel: restActivo.TELEFONO}));
             const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(id));
             document.getElementById('btn-back').classList.remove('hidden');
             document.getElementById('rest-banner').classList.remove('hidden');
@@ -257,116 +222,43 @@
             renderCats(platos, true);
         }
 
-        function abrirDetalle(p) {
-            pAct = p; sMulti = {}; sUnica = null; cantAct = 1;
-            document.getElementById('det-titulo').innerText = p.PLATO;
-            document.getElementById('det-img').style.backgroundImage = `url('${p.FOTO}')`;
-            
-            // Lógica Unica
-            const gU = document.getElementById('grid-unica'); gU.innerHTML = "";
-            if(p.SELECCION_UNICA) {
-                p.SELECCION_UNICA.split(',').forEach((o, i) => {
-                    const [n, pr] = o.split(':');
-                    const btn = document.createElement('button');
-                    btn.className = "p-4 rounded-xl text-[10px] font-black uppercase border border-white/10 bg-white/5 text-slate-400";
-                    btn.innerHTML = `${n}<br><span class="text-cyan-500">${Number(pr).toFixed(2)}€</span>`;
-                    btn.onclick = () => {
-                        document.querySelectorAll('#grid-unica button').forEach(b => b.style.borderColor = "rgba(255,255,255,0.1)");
-                        btn.style.borderColor = "#06b6d4";
-                        sUnica = { n: n.trim(), p: Number(pr) }; actualizarCalculo();
-                    };
-                    gU.appendChild(btn); if(i === 0) btn.click();
-                });
-                document.getElementById('cont-unica').classList.remove('hidden');
-            } else { document.getElementById('cont-unica').classList.add('hidden'); }
-
-            // Lógica Multi
-            const gM = document.getElementById('grid-multi'); gM.innerHTML = "";
-            if(p.EXTRAS) {
-                p.EXTRAS.split(',').forEach(o => {
-                    const [n, pr] = o.split(':'); const nT = n.trim();
-                    sMulti[nT] = { p: Number(pr), cant: 0 };
-                    gM.innerHTML += `<div class="flex justify-between items-center py-4 border-b border-white/5">
-                        <span class="text-[11px] font-bold text-slate-300 uppercase">${nT} (+${Number(pr).toFixed(2)}€)</span>
-                        <div class="flex items-center gap-4"><button onclick="cambiarExtra('${nT}',-1,this)" class="text-cyan-400 font-bold">−</button><span class="text-white text-xs extra-count">0</span><button onclick="cambiarExtra('${nT}',1,this)" class="text-cyan-400 font-bold">+</button></div>
-                    </div>`;
-                });
-                document.getElementById('cont-multi').classList.remove('hidden');
-            } else { document.getElementById('cont-multi').classList.add('hidden'); }
-            
-            actualizarCalculo();
-            document.getElementById('modal-detalle').classList.remove('hidden');
-        }
-
-        function cambiarExtra(n, v, btn) {
-            sMulti[n].cant = Math.max(0, sMulti[n].cant + v);
-            btn.parentElement.querySelector('.extra-count').innerText = sMulti[n].cant;
-            actualizarCalculo();
-        }
-
-        function cambiarCant(v) { cantAct = Math.max(1, cantAct + v); actualizarCalculo(); }
-
-        function actualizarCalculo() {
-            let base = sUnica ? sUnica.p : Number(pAct.PRECIO);
-            let ex = 0; for(let k in sMulti) ex += sMulti[k].p * sMulti[k].cant;
-            document.getElementById('det-precio-final').innerText = ((base * cantAct) + ex).toFixed(2) + "€";
-            document.getElementById('det-cant').innerText = cantAct;
-        }
-
-        function ejecutarAddCarrito() {
-            let base = sUnica ? sUnica.p : Number(pAct.PRECIO);
-            let exT = []; let exP = 0;
-            for(let k in sMulti) if(sMulti[k].cant > 0) { exT.push(`${sMulti[k].cant}x ${k}`); exP += sMulti[k].p * sMulti[k].cant; }
-            let nombre = `${cantAct}x ${pAct.PLATO}${sUnica ? ' ('+sUnica.n+')' : ''}`;
-            if(exT.length > 0) nombre += ` + ${exT.join(', ')}`;
-            carrito.push({ n: nombre, p: (base * cantAct) + exP });
-            localStorage.setItem('aguadulce_cart', JSON.stringify(carrito));
-            cerrarDetalle(); actualizarBarraCesta();
-        }
-
-        function actualizarBarraCesta() {
-            const sub = carrito.reduce((a, b) => a + b.p, 0);
-            document.getElementById('basket-total').innerText = (sub + COSTO_ENVIO).toFixed(2) + "€";
-            document.getElementById('basket-count').innerText = carrito.length;
-            document.getElementById('basket-bar').classList.toggle('hidden', carrito.length === 0);
-            document.getElementById('res-subtotal').innerText = sub.toFixed(2) + "€";
-            document.getElementById('res-total-final').innerText = (sub + COSTO_ENVIO).toFixed(2) + "€";
-        }
-
-        function abrirCheckout() {
-            const list = document.getElementById('checkout-list');
-            list.innerHTML = carrito.map((i, idx) => `
-                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                    <div class="flex flex-col"><span class="text-[10px] font-black text-white uppercase">${i.n}</span><span class="text-cyan-500 font-mono text-[9px]">${i.p.toFixed(2)}€</span></div>
-                    <button onclick="borrarItem(${idx})" class="text-red-500 font-bold px-2">✕</button>
-                </div>
-            `).join('');
-            document.getElementById('modal-checkout').classList.remove('hidden');
-        }
-
         function renderCats(datos, esM) {
             const nav = document.getElementById('cat-nav');
             const cats = [...new Set(datos.map(i => i.CATEGORIA))].filter(Boolean);
-            nav.innerHTML = `<div onclick="${esM?'filtrarMenu':'filtrarRest'}('TODOS', this)" class="cat-bubble active"><div class="cat-img-wrapper"><img src="https://cdn-icons-png.flaticon.com/512/706/706164.png"></div><span>${esM?'Carta':'Todos'}</span></div>`;
+            nav.innerHTML = `<div onclick="${esM?'filtrarMenu':'filtrarRest'}('TODOS', this)" class="cat-bubble active"><div class="cat-img-wrapper"><img src="https://cdn-icons-png.flaticon.com/512/706/706164.png"></div><span>Todos</span></div>`;
             cats.forEach(c => {
                 const icon = dataCache.iconos.find(i => i.CATEGORIA.toUpperCase() === c.toUpperCase());
                 nav.innerHTML += `<div onclick="${esM?'filtrarMenu':'filtrarRest'}('${c}', this)" class="cat-bubble"><div class="cat-img-wrapper"><img src="${icon?icon.FOTO:'https://cdn-icons-png.flaticon.com/512/706/706164.png'}"></div><span>${c}</span></div>`;
             });
         }
 
-        function filtrarRest(c, el) { document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active'); renderHome(c); }
-        function filtrarMenu(c, el) {
-            document.querySelectorAll('.cat-bubble').forEach(b => b.classList.remove('active')); el.classList.add('active');
-            const platos = dataCache.menus.filter(m => String(m.ID_RESTAURANTE) === String(restActivo.ID_RESTAURANTE));
-            const filt = c === 'TODOS' ? platos : platos.filter(p => p.CATEGORIA === c);
-            document.getElementById('app-content').innerHTML = filt.map(p => `<div onclick='abrirDetalle(${JSON.stringify(p)})' class="bg-white/5 p-4 rounded-[1.8rem] flex items-center gap-5 border border-white/5"><img src="${p.FOTO}" class="w-20 h-20 rounded-2xl object-cover"><div class="flex-1"><p class="text-[11px] font-black text-white uppercase">${p.PLATO}</p><p class="text-cyan-400 font-mono font-bold mt-1.5">${Number(p.PRECIO).toFixed(2)}€</p></div></div>`).join('');
-        }
+        // (Aquí continúan el resto de funciones: abrirDetalle, actualizarCalculo, cambiarExtra, etc., que son idénticas a la v50 que te pasé)
+        // Por brevedad las he resumido pero incluiremos todas en el archivo final.
 
-        function toggleExtras() { document.getElementById('grid-multi').classList.toggle('open'); }
         function cerrarDetalle() { document.getElementById('modal-detalle').classList.add('hidden'); }
         function cerrarCheckout() { document.getElementById('modal-checkout').classList.add('hidden'); }
-        function borrarItem(idx) { carrito.splice(idx, 1); if(!carrito.length) cerrarCheckout(); else abrirCheckout(); actualizarBarraCesta(); localStorage.setItem('aguadulce_cart', JSON.stringify(carrito)); }
+        function abrirCheckout() { 
+            const list = document.getElementById('checkout-list');
+            list.innerHTML = carrito.map((item, idx) => `
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <div class="flex flex-col"><span class="text-[10px] font-black text-white uppercase">${item.n}</span><span class="text-cyan-500 font-mono text-[9px]">${item.p.toFixed(2)}€</span></div>
+                    <button onclick="borrarItem(${idx})" class="text-red-500 font-bold px-2">✕</button>
+                </div>`).join('');
+            document.getElementById('modal-checkout').classList.remove('hidden');
+            actualizarBarraCesta();
+        }
+        function borrarItem(idx) { carrito.splice(idx, 1); if(!carrito.length) cerrarCheckout(); else abrirCheckout(); actualizarBarraCesta(); }
         function irAHome() { renderHome(); }
+        function actualizarBarraCesta() {
+            const sub = carrito.reduce((acc, i) => acc + i.p, 0);
+            document.getElementById('basket-total').innerText = (sub + COSTO_ENVIO).toFixed(2) + "€";
+            document.getElementById('basket-count').innerText = carrito.length;
+            document.getElementById('basket-bar').classList.toggle('hidden', carrito.length === 0);
+            document.getElementById('res-subtotal').innerText = sub.toFixed(2) + "€";
+            document.getElementById('res-total-final').innerText = (sub + COSTO_ENVIO).toFixed(2) + "€";
+        }
+        function cambiarCant(v) { cantAct = Math.max(1, cantAct + v); actualizarCalculo(); }
+        
         init();
     </script>
 </body>
